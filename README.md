@@ -162,8 +162,6 @@ The datasets are as follows:
 - "VSpre_250_poi_on_10082.txt" (POI list with POI number of 250 on "VSpre_10082.off")
 - "VSpost_250_poi_on_10082.txt" (POI list with POI number of 250 on "VSpost_10082.off")
 
-Since the file size for the dataset "SCpre_500000.off", "SCpost_500000.off", "SCpre_1002528.off", "SCpost_1002528.off", "SCpre_1503378.off", "SCpost_1503378.off", "SCpre_2000000.off", "SCpost_2000000.off", "SCpre_2504322.off", "SCpost_2504322.off","AUpre_500000.off", "AUpost_500000.off", "AUpre_1002528.off", "AUpost_1002528.off", "AUpre_1503378.off", "AUpost_1503378.off", "AUpre_2000000.off", "AUpost_2000000.off", "AUpre_2504322.off", "AUpost_2504322.off", "VSpre_500000.off", "VSpost_500000.off", "VSpre_1002528.off", "VSpost_1002528.off", "VSpre_1503378.off", "VSpost_1503378.off", "VSpre_2000000.off", "VSpost_2000000.off", "VSpre_2504322.off", and "VSpost_2504322.off" are too large (i.e., they exceed the maximum file size for Github), please download these files at https://, and put them back in "input/" folder.
-
 Data Format:
 
 For the terrain dataset, we used the .off format in the experiment. The content of the .off file is as follows:
