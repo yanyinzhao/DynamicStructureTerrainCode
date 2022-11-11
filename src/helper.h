@@ -104,17 +104,11 @@ void build_level(int &geo_tree_node_id, geodesic::Mesh *mesh, int depth,
 
     for (stx::btree<int, GeoNode *>::iterator ite = pois_as_center_each_parent_layer.begin(); ite != pois_as_center_each_parent_layer.end(); ite++)
     {
-        // stx::btree<int, GeoNode *> current_parent_covers_but_remained_pois = stx::btree<int, GeoNode *>((*ite).second->covers.begin(), (*ite).second->covers.end());
         std::vector<std::pair<int, GeoNode *>> current_parent_covers_but_remained_pois = (*ite).second->covers;
-
-        // std::cout << "cover size: " << (*ite).second->covers.size() << std::endl;
 
         GeoNode *n = new GeoNode(geo_tree_node_id, (*ite).second->index, ((*ite).second)->radius / 2.0);
         geo_tree_node_id++;
         n->set_parent((*ite).second);
-        // n->parent = (*ite).second;
-        // std::cout << n->parent->index << std::endl;
-        // n->radius = ((*ite).second)->radius / 2.0;
 
         std::pair<int, GeoNode *> m(n->index, n);
         pois_as_center_each_current_layer.push_back(m);
@@ -122,24 +116,15 @@ void build_level(int &geo_tree_node_id, geodesic::Mesh *mesh, int depth,
         geodesic::SurfacePoint source(&mesh->vertices()[n->index]);
         std::vector<geodesic::SurfacePoint> one_source_list(1, source);
         double const distance_limit = n->radius;
-        // std::cout << "(PARENT) distance_limit: " << distance_limit << std::endl;
         algorithm.propagate(one_source_list, distance_limit * 1.00001);
-
-        // std::cout << current_parent_covers_but_remained_pois.size() << std::endl;
-        // for (stx::btree<int, GeoNode *>::iterator bite = current_parent_covers_but_remained_pois.begin(); bite != current_parent_covers_but_remained_pois.end(); bite++)
-        // {
-        //     std::cout << (*bite).first << std::endl;
-        // }
 
         auto bite = current_parent_covers_but_remained_pois.begin();
 
-        // stx::btree<int, GeoNode *>::iterator bite = current_parent_covers_but_remained_pois.begin();
         while (bite != current_parent_covers_but_remained_pois.end())
         {
             double distance;
             geodesic::SurfacePoint p(&mesh->vertices()[(*bite).first]);
             algorithm.best_source(p, distance);
-            // std::cout << "index: " << (*bite).first << ", (PARENT) distance: " << distance << std::endl;
             if (distance <= distance_limit)
             {
                 (*bite).second->set_covered_by(n);
@@ -158,7 +143,6 @@ void build_level(int &geo_tree_node_id, geodesic::Mesh *mesh, int depth,
             geo_tree_node_id++;
             a->set_parent((*ite).second);
 
-            // a->radius = a->covered_by->radius / 2.0;
             current_parent_covers_but_remained_pois.erase(current_parent_covers_but_remained_pois.begin());
 
             std::pair<int, GeoNode *> b(a->index, a);
@@ -167,18 +151,15 @@ void build_level(int &geo_tree_node_id, geodesic::Mesh *mesh, int depth,
             geodesic::SurfacePoint source(&mesh->vertices()[a->index]);
             std::vector<geodesic::SurfacePoint> one_source_list(1, source);
             double const distance_limit = b.second->radius;
-            // std::cout << "(NOT COVERED) distance_limit: " << distance_limit << std::endl;
             algorithm.propagate(one_source_list, distance_limit * 1.00001);
 
             auto bite = current_parent_covers_but_remained_pois.begin();
 
-            // stx::btree<int, GeoNode *>::iterator bite = current_parent_covers_but_remained_pois.begin();
             while (bite != current_parent_covers_but_remained_pois.end())
             {
                 double distance;
                 geodesic::SurfacePoint p(&mesh->vertices()[(*bite).first]);
                 algorithm.best_source(p, distance);
-                // std::cout << "index: " << (*bite).first << ",(NOT COVERED) distance: " << distance << std::endl;
                 if (distance <= distance_limit)
                 {
                     (*bite).second->set_covered_by(a);
@@ -212,15 +193,12 @@ void build_geo_tree(int &geo_tree_node_id, geodesic::Mesh *mesh, GeoNode &root_g
     geodesic::SurfacePoint source(&mesh->vertices()[root_geo.index]);
     std::vector<geodesic::SurfacePoint> one_source_list(1, source);
     double const distance_limit = root_geo.radius;
-    // std::cout << "distance_limit: " << distance_limit << std::endl;
     algorithm.propagate(one_source_list, distance_limit * 1.00001);
     for (stx::btree<int, GeoNode *>::iterator bite = remained_pois.begin(); bite != remained_pois.end(); bite++)
     {
         double distance;
-        // std::cout << (*bite).first << std::endl;
         geodesic::SurfacePoint p(&mesh->vertices()[(*bite).first]);
         algorithm.best_source(p, distance);
-        // std::cout << "distance: " << distance << std::endl;
         if (distance <= distance_limit)
         {
             (*bite).second->set_covered_by(&root_geo);
@@ -230,17 +208,9 @@ void build_geo_tree(int &geo_tree_node_id, geodesic::Mesh *mesh, GeoNode &root_g
 
     while (pois_as_center_each_parent_layer.size() != poi_num)
     {
-        // std::cout << "depth: " << depth << ", no. of pois act as center in this layer: " << pois_as_center_each_parent_layer.size() << std::endl;
         build_level(geo_tree_node_id, mesh, depth, pois_B_tree, pois_as_center_each_parent_layer, algorithm);
         depth++;
     }
-    /*
-        for (std::list<GeoNode *>::iterator ite = root_geo.children.begin(); ite != root_geo.children.end(); ite++)
-        {
-            std::cout << "children index: " << (*ite)->index << ", children raduis: " << (*ite)->radius << std::endl;
-        }
-        */
-    // std::cout << "geo_tree_node_id: " << geo_tree_node_id << std::endl;
 }
 
 void count_single_node(GeoNode &n, std::vector<GeoNode *> &partition_tree_to_compressed_partition_tree_to_be_removed_nodes)
@@ -252,10 +222,7 @@ void count_single_node(GeoNode &n, std::vector<GeoNode *> &partition_tree_to_com
             if (n.children.size() == 1 && n.parent != NULL)
             {
                 partition_tree_to_compressed_partition_tree_to_be_removed_nodes.push_back(&n);
-                // n.parent->children.clear();
-                // n.children.front()->set_parent(n.parent);
             }
-            // std::cout << "children index: " << (*ite)->index << ", children raduis: " << (*ite)->radius << std::endl;
             count_single_node(**ite, partition_tree_to_compressed_partition_tree_to_be_removed_nodes);
         }
     }
@@ -268,10 +235,6 @@ void remove_single_node(GeoNode &n, std::vector<GeoNode *> &partition_tree_to_co
 
     for (int i = 0; i < partition_tree_to_compressed_partition_tree_to_be_removed_nodes.size(); i++)
     {
-        // std::cout << "to be removed index: " << partition_tree_to_compressed_partition_tree_to_be_removed_nodes[i]->index << std::endl;
-        // std::cout << partition_tree_to_compressed_partition_tree_to_be_removed_nodes[i]->parent->children.size() << std::endl;
-        // std::cout << "to be removed parent index: " << partition_tree_to_compressed_partition_tree_to_be_removed_nodes[i]->parent->index << std::endl;
-
         partition_tree_to_compressed_partition_tree_to_be_removed_nodes[i]->parent->children.erase(std::remove(partition_tree_to_compressed_partition_tree_to_be_removed_nodes[i]->parent->children.begin(),
                                                                                                                partition_tree_to_compressed_partition_tree_to_be_removed_nodes[i]->parent->children.end(),
                                                                                                                partition_tree_to_compressed_partition_tree_to_be_removed_nodes[i]),
@@ -406,19 +369,11 @@ void generate_geo_pair(int geo_tree_node_id, int &WSPD_oracle_edge_num, double &
                 algorithm.trace_back(destination, path);
                 pairwise_path_unordered_map[x_y_in_poi_list_for_pairwise_distance_index] = path;
                 pairwise_distance_unordered_map[x_y_in_poi_list_for_pairwise_distance_index] = length(path);
-                // double dist;
-                // algorithm.best_source(destination, dist);
-                // std::cout << "dist: " << dist << ", pairwise_distance_unordered_map[x_y_in_poi_list_for_pairwise_distance_index]:" << pairwise_distance_unordered_map[x_y_in_poi_list_for_pairwise_distance_index] << std::endl;
-                // assert(dist == pairwise_distance_unordered_map[x_y_in_poi_list_for_pairwise_distance_index]);
-                // algorithm.best_source(destination, pairwise_distance_unordered_map[x_y_in_poi_list_for_pairwise_distance_index]);
             }
-            // std::cout << "   ** calculate the following distance " << std::endl;
         }
 
         double distancexy = pairwise_distance_unordered_map[x_y_in_poi_list_for_pairwise_distance_index];
         std::vector<geodesic::SurfacePoint> pathxy = pairwise_path_unordered_map[x_y_in_poi_list_for_pairwise_distance_index];
-
-        // std::cout << "distancexy: " << distancexy << ", x: " << x.index << ", y: " << y.index << ", x radius: " << x.radius << ", y radius: " << y.radius << std::endl;
 
         if (x.radius == 0 && y.radius == 0)
         {
@@ -453,12 +408,6 @@ void generate_geo_pair(int geo_tree_node_id, int &WSPD_oracle_edge_num, double &
             }
             hash_function_two_keys_to_one_key(geo_tree_node_id, x_in_geo_node_id_for_geo_pair, y_in_geo_node_id_for_geo_pair, x_y_in_geo_node_id_for_geo_pair);
             geopairs[x_y_in_geo_node_id_for_geo_pair] = nodepair;
-
-            if (x.radius != 0 || y.radius != 0)
-            {
-                // std::cout << "     either x or y radius is not 0" << std::endl;
-            }
-            // std::cout << "     ^^ WS pairs" << std::endl;
         }
         else
         {
@@ -508,7 +457,6 @@ double distance_query_geo(int geo_tree_node_id, GeoNode &x, GeoNode &y,
         approximate_path = geopairs[x_y_in_geo_node_id_for_geo_pair]->path;
         return geopairs[x_y_in_geo_node_id_for_geo_pair]->distance;
     }
-    // std::cout << "x.parent->index: " << x.parent->index << ", y.parent->index: " << y.parent->index << std::endl;
 
     p = &x;
     while (p->parent != NULL)
@@ -555,8 +503,7 @@ double distance_query_geo(int geo_tree_node_id, GeoNode &x, GeoNode &y,
     return distance_query_geo(geo_tree_node_id, *x.parent, *y.parent, geopairs, poi_unordered_map, approximate_path);
 }
 
-void get_face_sequence(geodesic::Mesh *mesh,
-                       std::vector<geodesic::SurfacePoint> &path,
+void get_face_sequence(std::vector<geodesic::SurfacePoint> &path,
                        std::vector<int> &face_sequence_index_list)
 {
     face_sequence_index_list.clear();
@@ -575,7 +522,6 @@ void get_face_sequence(geodesic::Mesh *mesh,
             }
         }
     }
-    // std::cout << "face sequence size: " << face_sequence_index_list.size() << std::endl;
 }
 
 double euclidean_distance(double x_1, double y_1, double x_2, double y_2)
@@ -745,7 +691,6 @@ void Graph::update_edge_Dijkstra(int u, int v, double w)
 void Graph::shortest_distance_Dijkstra(int src, std::vector<double> &dist)
 {
     std::priority_queue<std::pair<int, double>, std::vector<std::pair<int, double>>, std::greater<std::pair<int, double>>> pq;
-    // std::vector<double> dist(V, INF);
     pq.push(std::make_pair(0, src));
     dist[src] = 0;
 
@@ -771,16 +716,12 @@ void Graph::shortest_distance_Dijkstra(int src, std::vector<double> &dist)
 void Graph::shortest_distance_Dijkstra(int src, std::vector<double> &dist, double max_dist)
 {
     std::priority_queue<std::pair<int, double>, std::vector<std::pair<int, double>>, std::greater<std::pair<int, double>>> pq;
-    // std::vector<double> dist(V, INF);
     pq.push(std::make_pair(0, src));
     dist[src] = 0;
-
-    // bool exit_loop = false;
 
     while (!pq.empty())
     {
         int u = pq.top().second;
-        // printf("%d \t\t %d\n", u, pq.top().first);
         if (pq.top().first > max_dist)
         {
             break;
@@ -793,19 +734,10 @@ void Graph::shortest_distance_Dijkstra(int src, std::vector<double> &dist, doubl
             double weight = (*i).second;
             if (dist[v] > dist[u] + weight)
             {
-                // if (dist[u] + weight > max_dist)
-                // {
-                //     exit_loop = true;
-                //     break;
-                // }
                 dist[v] = dist[u] + weight;
                 pq.push(std::make_pair(dist[v], v));
             }
         }
-        // if (exit_loop)
-        // {
-        //     break;
-        // }
     }
 }
 
@@ -813,14 +745,12 @@ void Graph::shortest_distance_Dijkstra(int src, std::vector<double> &dist, doubl
 void Graph::shortest_distance_Dijkstra(int src, int dest, std::vector<double> &dist)
 {
     std::priority_queue<std::pair<int, double>, std::vector<std::pair<int, double>>, std::greater<std::pair<int, double>>> pq;
-    // std::vector<double> dist(V, INF);
     pq.push(std::make_pair(0, src));
     dist[src] = 0;
 
     while (!pq.empty())
     {
         int u = pq.top().second;
-        // printf("%d \t\t %d\n", u, pq.top().first);
         if (u == dest)
         {
             break;
@@ -843,7 +773,6 @@ void Graph::shortest_distance_Dijkstra(int src, int dest, std::vector<double> &d
 void Graph::shortest_path_Dijkstra(int src, std::vector<double> &dist, std::vector<std::vector<int>> &path)
 {
     std::priority_queue<std::pair<int, double>, std::vector<std::pair<int, double>>, std::greater<std::pair<int, double>>> pq;
-    // std::vector<double> dist(V, INF);
     pq.push(std::make_pair(0, src));
     dist[src] = 0;
     std::vector<int> prev(dist.size());
@@ -885,17 +814,13 @@ void Graph::shortest_path_Dijkstra(int src, std::vector<double> &dist, std::vect
 void Graph::shortest_path_Dijkstra(int src, std::vector<double> &dist, std::vector<std::vector<int>> &path, double max_dist)
 {
     std::priority_queue<std::pair<int, double>, std::vector<std::pair<int, double>>, std::greater<std::pair<int, double>>> pq;
-    // std::vector<double> dist(V, INF);
     pq.push(std::make_pair(0, src));
     dist[src] = 0;
     std::vector<int> prev(dist.size());
 
-    // bool exit_loop = false;
-
     while (!pq.empty())
     {
         int u = pq.top().second;
-        // printf("%d \t\t %d\n", u, pq.top().first);
         if (pq.top().first > max_dist)
         {
             break;
@@ -908,20 +833,12 @@ void Graph::shortest_path_Dijkstra(int src, std::vector<double> &dist, std::vect
             double weight = (*i).second;
             if (dist[v] > dist[u] + weight)
             {
-                // if (dist[u] + weight > max_dist)
-                // {
-                //     exit_loop = true;
-                //     break;
-                // }
+
                 dist[v] = dist[u] + weight;
                 prev[v] = u;
                 pq.push(std::make_pair(dist[v], v));
             }
         }
-        // if (exit_loop)
-        // {
-        //     break;
-        // }
     }
     for (int i = 0; i < dist.size(); i++)
     {
@@ -944,7 +861,6 @@ void Graph::shortest_path_Dijkstra(int src, std::vector<double> &dist, std::vect
 void Graph::shortest_path_Dijkstra(int src, int dest, std::vector<double> &dist, std::vector<std::vector<int>> &path)
 {
     std::priority_queue<std::pair<int, double>, std::vector<std::pair<int, double>>, std::greater<std::pair<int, double>>> pq;
-    // std::vector<double> dist(V, INF);
     pq.push(std::make_pair(0, src));
     dist[src] = 0;
     std::vector<int> prev(dist.size());
@@ -952,7 +868,6 @@ void Graph::shortest_path_Dijkstra(int src, int dest, std::vector<double> &dist,
     while (!pq.empty())
     {
         int u = pq.top().second;
-        // printf("%d \t\t %d\n", u, pq.top().first);
         if (u == dest)
         {
             break;
@@ -1023,7 +938,6 @@ int Graph::MST_Kruskal()
 
         if (set_u != set_v)
         {
-            // std::cout << u << " - " << v << std::endl;
             mst_wt += it->first;
             ds.merge(set_u, set_v);
         }

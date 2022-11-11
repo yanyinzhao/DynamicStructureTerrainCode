@@ -5,7 +5,6 @@ struct input_struct
        std::string pre_input;
        std::string post_input;
        std::string pre_poi;
-       std::string pre_poi;
        std::string post_poi;
        int source_poi_index;
        int destination_poi_index;
