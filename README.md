@@ -1,18 +1,18 @@
-# Update Efficient Shortest Path Oracle on Dynamic Terrain Surface
+# Path Oracle on Dynamic Terrain Surface
 
 ## Overview
 
-This project provides the implementation of the algorithm for calculating an update efficient shortest path on dynamic terrain surface.
+This project provides the implementation of the algorithm for calculating a fast updating path oracle on dynamic terrain surface.
 
-Our oralce UE, and the baselines, i.e., WSPD-oracle, SP-oracle, and KF are studied in the experiments. In order to conduct the ablation study, i.e., show that algorithm HGS could significantly reduce the running time compared with algorithm GS, and could significantly reduce the oracle size and oracle weight compared with original complete graph, we also studied UE-N1 and UE-N2 in the experiments. In total, we compared six algorithms, namely, WSPD-oracle, SP-oracle, UE-N1, UE-N2, UE, and KF. Since WSPD-oracle, SP-oracle are not feasible on large datasets due to their expensive running time, so we (1) compared these six algorithms on SC-small, AU-small and VS-small datasets, and the set of small-version datasets, and (2) compared UE-N1, UE-N2, UE, and KF on SC, AU and VS datasets, and the set of large-version datasets. We refer the readers to our paper for more details.
+Our oralce POD, and the baselines, i.e., WSPD-oracle, SP-oracle, and KF are studied in the experiments. In order to conduct the ablation study, i.e., show that algorithm HGS could significantly reduce the running time compared with algorithm GS, and could significantly reduce the oracle size and oracle weight compared with original complete graph, we also studied POD-N1 and POD-N2 in the experiments. In total, we compared six algorithms, namely, WSPD-oracle, SP-oracle, POD-N1, POD-N2, POD, and KF. Since WSPD-oracle, SP-oracle are not feasible on large datasets due to their expensive running time, so we (1) compared these six algorithms on SC-small, AU-small and VS-small datasets, and the set of small-version datasets, and (2) compared POD-N1, POD-N2, POD, and KF on SC, AU and VS datasets, and the set of large-version datasets. We refer the readers to our paper for more details.
 
 In total, we compared six algorithms as follows:
 
 - WSPD-oracle (oracle based baseline)
 - SP-oracle (oracle based baseline)
-- UE-N1 (variation)
-- UE-N2 (variation)
-- UE (our oracle)
+- POD-N1 (variation)
+- POD-N2 (variation)
+- POD (our oracle)
 - KF (on-the-fly baseline)
 
 Make sure there is a folder called "input/" and a folder called "output/" under the working directory. They will be used for storing the input/output files.
@@ -264,7 +264,7 @@ For the [terrain_data_and_dataset_size_and_poi_number_map_index], each index val
 | 44 | VS | 2000000 | 500 |
 | 45 | VS | 2504322 | 500 |
 
-By default, the project will run UE-N1, UE-N2, UE, WSPD-oracle, SP-oracle, and KF. But as mentioned in our paper, WSPD_oracle and SP_oracle are very time consuming. So when the dataset size is large, i.e., [terrain_data_and_dataset_size_and_poi_number_map_index] > 18, the project will only run UE-N1, UE-N2, UE, and KF.
+By default, the project will run POD-N1, POD-N2, POD, WSPD-oracle, SP-oracle, and KF. But as mentioned in our paper, WSPD_oracle and SP_oracle are very time consuming. So when the dataset size is large, i.e., [terrain_data_and_dataset_size_and_poi_number_map_index] > 18, the project will only run POD-N1, POD-N2, POD, and KF.
 
 An example:
 
@@ -272,7 +272,7 @@ An example:
 ./main 0 0.5
 ```
 
-In this example, [terrain_data_and_dataset_size_and_poi_number_map_index] is 0, [epsilon] is 0.5. So, it will run SC pre earthquake terrain dataset and SC post earthquake terrain dataset, with dataset size equal to 10082 and poi number equal to 50, and epsilon is 0.5. It will run siz algorithms, i.e., UE-N1, UE-N2, UE, WSPD-oracle, SP-oracle, and KF.
+In this example, [terrain_data_and_dataset_size_and_poi_number_map_index] is 0, [epsilon] is 0.5. So, it will run SC pre earthquake terrain dataset and SC post earthquake terrain dataset, with dataset size equal to 10082 and poi number equal to 50, and epsilon is 0.5. It will run siz algorithms, i.e., POD-N1, POD-N2, POD, WSPD-oracle, SP-oracle, and KF.
 
 ## Output
 
