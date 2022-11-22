@@ -191,12 +191,12 @@ void post_complete_graph_updating(int poi_num, geodesic::Mesh *pre_mesh, std::ve
         }
     }
 
-    // stores the changed poi index such that (1) the index of poi changed, (2) this poi is in the changed area, (3) the path that connects this poi passes the changed area
+    // stores the changed poi index such that (1) the index of poi changed, (2) this poi is in the changed face, (3) the path that connects this poi passes the changed face
     std::vector<int> changed_poi_index_list(poi_num, 0);
 
-    // stores only the poi in the changed area (used in calculation the 2D distance between these pois and other pois)
-    std::vector<int> poi_in_the_changed_area_index_list;
-    poi_in_the_changed_area_index_list.clear();
+    // stores only the poi in the changed face (used in calculation the 2D distance between these pois and other pois)
+    std::vector<int> poi_in_the_changed_face_index_list;
+    poi_in_the_changed_face_index_list.clear();
 
     // for the pre and post terrain, the index of poi may change, but the actual vertex on the terrain that these two pois stand for are very close
     // if the poi for the pre and post list changed, then the value in this list becomes 1, which indicates changes
@@ -208,7 +208,7 @@ void post_complete_graph_updating(int poi_num, geodesic::Mesh *pre_mesh, std::ve
         }
     }
 
-    // for the pre and post terrain, even if the index of poi not changes, if the poi is on the changed area, we also indicate it by 3 in the following list
+    // for the pre and post terrain, even if the index of poi not changes, if the poi is on the changed face, we also indicate it by 3 in the following list
     for (int i = 0; i < poi_num; i++)
     {
         if (changed_poi_index_list[i] == 1)
@@ -223,14 +223,14 @@ void post_complete_graph_updating(int poi_num, geodesic::Mesh *pre_mesh, std::ve
                  pre_mesh->faces()[changed_face_index_list[j]].adjacent_vertices()[2]->id() == pre_poi_list[i]))
             {
                 changed_poi_index_list[i] = 3;
-                poi_in_the_changed_area_index_list.push_back(i);
+                poi_in_the_changed_face_index_list.push_back(i);
                 break;
             }
         }
     }
 
-    // if two pois are not in the changed area, but the path passes the changed area, we also indicate the poi by 4
-    // note that for a poi, if one of the path that connects this poi passes the changed area, then we need to run SSAD
+    // if two pois are not in the changed face, but the path passes the changed face, we also indicate the poi by 4
+    // note that for a poi, if one of the path that connects this poi passes the changed face, then we need to run SSAD
     // for this poi again involves all the path connects to this poi
     for (int i = 0; i < poi_num; i++)
     {
@@ -314,13 +314,13 @@ void post_complete_graph_updating(int poi_num, geodesic::Mesh *pre_mesh, std::ve
         }
     }
 
-    // if two pois are not in the changed area, and the path doesn't pass the changed area, but one of pois is close to the
-    // changed area, so we may need to update the new path with these two pois as endpoints on the new terrain, the following
-    // is to check whether the original path is too close to the changed area or not, if so, we directly update the path
+    // if two pois are not in the changed face, and the path doesn't pass the changed face, but one of pois is close to the
+    // changed face, so we may need to update the new path with these two pois as endpoints on the new terrain, the following
+    // is to check whether the original path is too close to the changed face or not, if so, we directly update the path
     // we also indicate this type of poi in changed_poi_index_list, but indicate it as 2 for clarification
 
-    std::vector<double> euclidean_distance_of_poi_to_changed_area(poi_num, 0);
-    std::vector<std::pair<double, int>> euclidean_distance_of_poi_to_changed_area_and_original_index;
+    std::vector<double> euclidean_distance_of_poi_to_changed_face(poi_num, 0);
+    std::vector<std::pair<double, int>> euclidean_distance_of_poi_to_changed_face_and_original_index;
 
     for (int i = 0; i < poi_num; i++)
     {
@@ -328,43 +328,43 @@ void post_complete_graph_updating(int poi_num, geodesic::Mesh *pre_mesh, std::ve
         {
             continue;
         }
-        if (poi_in_the_changed_area_index_list.size() > 0)
+        if (poi_in_the_changed_face_index_list.size() > 0)
         {
-            for (int j = 0; j < poi_in_the_changed_area_index_list.size(); j++)
+            for (int j = 0; j < poi_in_the_changed_face_index_list.size(); j++)
             {
-                euclidean_distance_of_poi_to_changed_area[i] += euclidean_distance(post_mesh->vertices()[post_poi_list[i]].x(), post_mesh->vertices()[post_poi_list[i]].y(),
-                                                                                   post_mesh->vertices()[poi_in_the_changed_area_index_list[j]].x(), post_mesh->vertices()[poi_in_the_changed_area_index_list[j]].y());
+                euclidean_distance_of_poi_to_changed_face[i] += euclidean_distance(post_mesh->vertices()[post_poi_list[i]].x(), post_mesh->vertices()[post_poi_list[i]].y(),
+                                                                                   post_mesh->vertices()[poi_in_the_changed_face_index_list[j]].x(), post_mesh->vertices()[poi_in_the_changed_face_index_list[j]].y());
             }
         }
         else
         {
-            euclidean_distance_of_poi_to_changed_area[i] = euclidean_distance(post_mesh->vertices()[post_poi_list[i]].x(), post_mesh->vertices()[post_poi_list[i]].y(),
+            euclidean_distance_of_poi_to_changed_face[i] = euclidean_distance(post_mesh->vertices()[post_poi_list[i]].x(), post_mesh->vertices()[post_poi_list[i]].y(),
                                                                               post_mesh->vertices()[changed_vertex_index_list[0]].x(), post_mesh->vertices()[changed_vertex_index_list[0]].y());
         }
     }
 
-    sort_min_to_max_and_get_original_index(euclidean_distance_of_poi_to_changed_area, euclidean_distance_of_poi_to_changed_area_and_original_index);
+    sort_min_to_max_and_get_original_index(euclidean_distance_of_poi_to_changed_face, euclidean_distance_of_poi_to_changed_face_and_original_index);
 
-    assert(euclidean_distance_of_poi_to_changed_area.size() == euclidean_distance_of_poi_to_changed_area_and_original_index.size());
+    assert(euclidean_distance_of_poi_to_changed_face.size() == euclidean_distance_of_poi_to_changed_face_and_original_index.size());
 
-    for (int i = 0; i < euclidean_distance_of_poi_to_changed_area_and_original_index.size(); i++)
+    for (int i = 0; i < euclidean_distance_of_poi_to_changed_face_and_original_index.size(); i++)
     {
-        if (euclidean_distance_of_poi_to_changed_area_and_original_index[i].first == 0)
+        if (euclidean_distance_of_poi_to_changed_face_and_original_index[i].first == 0)
         {
             continue;
         }
-        int current_poi_index = euclidean_distance_of_poi_to_changed_area_and_original_index[i].second;
+        int current_poi_index = euclidean_distance_of_poi_to_changed_face_and_original_index[i].second;
 
         assert(pairwise_distance_poi_to_poi[current_poi_index].size() == pairwise_distance_poi_to_poi_changed[current_poi_index].size());
 
         double max_distance = 0;
-        for (int j = 0; j < euclidean_distance_of_poi_to_changed_area_and_original_index.size(); j++)
+        for (int j = 0; j < euclidean_distance_of_poi_to_changed_face_and_original_index.size(); j++)
         {
-            if (euclidean_distance_of_poi_to_changed_area_and_original_index[j].first == 0)
+            if (euclidean_distance_of_poi_to_changed_face_and_original_index[j].first == 0)
             {
                 continue;
             }
-            int checking_poi_index = euclidean_distance_of_poi_to_changed_area_and_original_index[j].second;
+            int checking_poi_index = euclidean_distance_of_poi_to_changed_face_and_original_index[j].second;
 
             if (current_poi_index <= checking_poi_index)
             {
@@ -384,7 +384,7 @@ void post_complete_graph_updating(int poi_num, geodesic::Mesh *pre_mesh, std::ve
             }
         }
 
-        // if the current poi is too close to the changed area, we need to run SSAD for this poi to update it path on the new terrain
+        // if the current poi is too close to the changed face, we need to run SSAD for this poi to update it path on the new terrain
         for (int k = 0; k < changed_vertex_index_list.size(); k++)
         {
             if (pairwise_distance_poi_to_vertex[current_poi_index][changed_vertex_index_list[k]] < max_distance / 2)
@@ -397,9 +397,9 @@ void post_complete_graph_updating(int poi_num, geodesic::Mesh *pre_mesh, std::ve
                 destinations_poi_list.clear();
                 one_source_poi_list.push_back(geodesic::SurfacePoint(&post_mesh->vertices()[post_poi_list[current_poi_index]]));
 
-                for (int j = 0; j < euclidean_distance_of_poi_to_changed_area_and_original_index.size(); j++)
+                for (int j = 0; j < euclidean_distance_of_poi_to_changed_face_and_original_index.size(); j++)
                 {
-                    int the_other_poi_index = euclidean_distance_of_poi_to_changed_area_and_original_index[j].second;
+                    int the_other_poi_index = euclidean_distance_of_poi_to_changed_face_and_original_index[j].second;
 
                     if ((current_poi_index <= the_other_poi_index && !pairwise_distance_poi_to_poi_changed[current_poi_index][the_other_poi_index - current_poi_index]) ||
                         (current_poi_index > the_other_poi_index && !pairwise_distance_poi_to_poi_changed[the_other_poi_index][current_poi_index - the_other_poi_index]))
