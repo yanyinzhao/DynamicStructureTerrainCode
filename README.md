@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project provides the implementation of the algorithm for calculating a fast updating path oracle on updated terrain surface.
+This project provides the implementation of the algorithm for calculating a shortest path oracle on updated terrain surface.
 
 Our oralce POU, and the baselines, i.e., WSPD-oracle, SP-oracle, and KF are studied in the experiments. In order to conduct the ablation study, i.e., show that algorithm HGS could significantly reduce the running time compared with algorithm GS, and could significantly reduce the oracle size and oracle weight compared with original complete graph, we also studied POU-N1 and POU-N2 in the experiments. In total, we compared six algorithms, namely, WSPD-oracle, SP-oracle, POU-N1, POU-N2, POU, and KF. Since WSPD-oracle, SP-oracle are not feasible on large datasets due to their expensive running time, so we (1) compared these six algorithms on SC-small, AU-small and VS-small datasets, and the set of small-version datasets, and (2) compared POU-N1, POU-N2, POU, and KF on SC, AU and VS datasets, and the set of large-version datasets. We refer the readers to our paper for more details.
 
@@ -280,7 +280,7 @@ The output will be stored in "output/output.txt" file. The format will be as fol
 
 ```
 
-[pre_dataset] [post_dataset] [datasize] [poi_num] [epsilon] [pre_preprocessing_time1 (ms)] [pre_preprocessing_time2 (ms)] [pre_query_time (ms)] [pre_memory_usage1 (MB)] [pre_memory_usage2 (MB)] [pre_index_size] [pre_index_edge_num] [pre_index/MST_weight] [pre_distance_error] [post_updating_time1 (ms)] [post_updating_time2 (ms)] [post_query_time (ms)] [post_memory_usage1 (MB)] [post_memory_usage2 (MB)] [post_index_size] [post_index_edge_num] [post_index/MST_weight] [post_distance_error]
+[pre_dataset] [post_dataset] [datasize] [poi_num] [epsilon] [pre_construction_time1 (ms)] [pre_construction_time2 (ms)] [pre_query_time (ms)] [pre_memory_usage1 (MB)] [pre_memory_usage2 (MB)] [pre_index_size] [pre_index_edge_num] [pre_index/MST_weight] [pre_distance_error] [post_Update_time1 (ms)] [post_Update_time2 (ms)] [post_query_time (ms)] [post_memory_usage1 (MB)] [post_memory_usage2 (MB)] [post_index_size] [post_index_edge_num] [post_index/MST_weight] [post_distance_error]
 
 ```
 

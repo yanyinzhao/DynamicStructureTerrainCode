@@ -43,15 +43,15 @@ void calculate_MST_weight(std::vector<std::vector<double>> pairwise_distance_poi
     MST_weight = MST_graph.MST_Kruskal();
 }
 
-void pre_complete_graph_preprocessing(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
-                                      std::vector<std::vector<std::vector<int>>> &pre_face_sequence_index_list,
-                                      std::vector<std::vector<double>> &pairwise_distance_poi_to_poi,
-                                      std::vector<std::vector<bool>> &pairwise_distance_poi_to_poi_changed,
-                                      std::vector<std::vector<std::vector<geodesic::SurfacePoint>>> &pairwise_path_poi_to_poi,
-                                      std::vector<std::vector<double>> &pairwise_distance_poi_to_vertex,
-                                      double &preprocessing_time, double &memory_usage)
+void pre_complete_graph_construction(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
+                                     std::vector<std::vector<std::vector<int>>> &pre_face_sequence_index_list,
+                                     std::vector<std::vector<double>> &pairwise_distance_poi_to_poi,
+                                     std::vector<std::vector<bool>> &pairwise_distance_poi_to_poi_changed,
+                                     std::vector<std::vector<std::vector<geodesic::SurfacePoint>>> &pairwise_path_poi_to_poi,
+                                     std::vector<std::vector<double>> &pairwise_distance_poi_to_vertex,
+                                     double &construction_time, double &memory_usage)
 {
-    auto start_preprocessing_time = std::chrono::high_resolution_clock::now();
+    auto start_construction_time = std::chrono::high_resolution_clock::now();
 
     geodesic::GeodesicAlgorithmExact pre_algorithm(pre_mesh);
 
@@ -129,21 +129,21 @@ void pre_complete_graph_preprocessing(int poi_num, geodesic::Mesh *pre_mesh, std
     }
     memory_usage += pre_algorithm.get_memory() + pre_face_sequence_index_list_size * sizeof(int);
 
-    auto stop_preprocessing_time = std::chrono::high_resolution_clock::now();
-    auto duration_preprocessing_time = std::chrono::duration_cast<std::chrono::milliseconds>(stop_preprocessing_time - start_preprocessing_time);
-    preprocessing_time = duration_preprocessing_time.count();
+    auto stop_construction_time = std::chrono::high_resolution_clock::now();
+    auto duration_construction_time = std::chrono::duration_cast<std::chrono::milliseconds>(stop_construction_time - start_construction_time);
+    construction_time = duration_construction_time.count();
 }
 
-void post_complete_graph_updating(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
-                                  geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list,
-                                  std::vector<std::vector<std::vector<int>>> &pre_face_sequence_index_list,
-                                  std::vector<std::vector<double>> &pairwise_distance_poi_to_poi,
-                                  std::vector<std::vector<bool>> &pairwise_distance_poi_to_poi_changed,
-                                  std::vector<std::vector<std::vector<geodesic::SurfacePoint>>> &pairwise_path_poi_to_poi,
-                                  std::vector<std::vector<double>> &pairwise_distance_poi_to_vertex,
-                                  double &updating_time, double &memory_usage)
+void post_complete_graph_Update(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
+                                geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list,
+                                std::vector<std::vector<std::vector<int>>> &pre_face_sequence_index_list,
+                                std::vector<std::vector<double>> &pairwise_distance_poi_to_poi,
+                                std::vector<std::vector<bool>> &pairwise_distance_poi_to_poi_changed,
+                                std::vector<std::vector<std::vector<geodesic::SurfacePoint>>> &pairwise_path_poi_to_poi,
+                                std::vector<std::vector<double>> &pairwise_distance_poi_to_vertex,
+                                double &Update_time, double &memory_usage)
 {
-    auto start_updating_time = std::chrono::high_resolution_clock::now();
+    auto start_Update_time = std::chrono::high_resolution_clock::now();
 
     geodesic::GeodesicAlgorithmExact post_algorithm(post_mesh);
 
@@ -441,9 +441,9 @@ void post_complete_graph_updating(int poi_num, geodesic::Mesh *pre_mesh, std::ve
     }
     memory_usage += post_algorithm.get_memory() + changed_face_index_list.size() * sizeof(int); // + changed_pairwise_distance_poi_to_poi_size * sizeof(double) + changed_pairwise_path_poi_to_poi_size * sizeof(geodesic::SurfacePoint);
 
-    auto stop_updating_time = std::chrono::high_resolution_clock::now();
-    auto duration_updating_time = std::chrono::duration_cast<std::chrono::milliseconds>(stop_updating_time - start_updating_time);
-    updating_time = duration_updating_time.count();
+    auto stop_Update_time = std::chrono::high_resolution_clock::now();
+    auto duration_Update_time = std::chrono::duration_cast<std::chrono::milliseconds>(stop_Update_time - start_Update_time);
+    Update_time = duration_Update_time.count();
 }
 
 void get_pairwise_distance_and_path_poi_to_poi_map(std::vector<std::vector<double>> pairwise_distance_poi_to_poi,
@@ -1178,13 +1178,13 @@ void complete_graph_query(int poi_num, std::unordered_map<int, double> &pairwise
     query_time /= 1000000;
 }
 
-void pre_or_post_WSPD_oracle_preprocessing_and_query(
+void pre_or_post_WSPD_oracle_construction_and_query(
     int poi_num, geodesic::Mesh *mesh, std::vector<int> &poi_list, double epsilon,
-    int source_poi_index, int destination_poi_index, double &preprocessing_time,
+    int source_poi_index, int destination_poi_index, double &construction_time,
     double &query_time, double &memory_usage, double &WSPD_oracle_size, int &WSPD_oracle_edge_num,
     double &WSPD_oracle_weight, double &approximate_distance, std::vector<geodesic::SurfacePoint> &approximate_path)
 {
-    auto start_preprocessing_time = std::chrono::high_resolution_clock::now();
+    auto start_construction_time = std::chrono::high_resolution_clock::now();
 
     geodesic::GeodesicAlgorithmExact algorithm(mesh);
 
@@ -1253,9 +1253,9 @@ void pre_or_post_WSPD_oracle_preprocessing_and_query(
 
     memory_usage += algorithm.get_memory() + (geo_tree_node_id + 1) * sizeof(GeoNode) + WSPD_oracle_edge_num * sizeof(double) + pairwise_path_poi_to_poi_size * sizeof(geodesic::SurfacePoint);
 
-    auto stop_preprocessing_time = std::chrono::high_resolution_clock::now();
-    auto duration_preprocessing_time = std::chrono::duration_cast<std::chrono::milliseconds>(stop_preprocessing_time - start_preprocessing_time);
-    preprocessing_time = duration_preprocessing_time.count();
+    auto stop_construction_time = std::chrono::high_resolution_clock::now();
+    auto duration_construction_time = std::chrono::duration_cast<std::chrono::milliseconds>(stop_construction_time - start_construction_time);
+    construction_time = duration_construction_time.count();
 
     auto start_query_time = std::chrono::high_resolution_clock::now();
 
@@ -1268,15 +1268,15 @@ void pre_or_post_WSPD_oracle_preprocessing_and_query(
     query_time /= 1000000;
 }
 
-void pre_or_post_SP_oracle_preprocessing_and_query(geodesic::Mesh *mesh,
-                                                   std::vector<int> &poi_list, double epsilon,
-                                                   int source_poi_index, int destination_poi_index,
-                                                   double &preprocessing_time, double &query_time,
-                                                   double &memory_usage, double &SP_oracle_size,
-                                                   double &approximate_distance,
-                                                   std::vector<geodesic::SurfacePoint> &approximate_path)
+void pre_or_post_SP_oracle_construction_and_query(geodesic::Mesh *mesh,
+                                                  std::vector<int> &poi_list, double epsilon,
+                                                  int source_poi_index, int destination_poi_index,
+                                                  double &construction_time, double &query_time,
+                                                  double &memory_usage, double &SP_oracle_size,
+                                                  double &approximate_distance,
+                                                  std::vector<geodesic::SurfacePoint> &approximate_path)
 {
-    auto start_preprocessing_time = std::chrono::high_resolution_clock::now();
+    auto start_construction_time = std::chrono::high_resolution_clock::now();
 
     std::vector<geodesic::GeodesicAlgorithmSubdivision *> landmarks;
     int landmark_size = 500;
@@ -1313,9 +1313,9 @@ void pre_or_post_SP_oracle_preprocessing_and_query(geodesic::Mesh *mesh,
     }
     geodesic::GeodesicAlgorithmExact algorithm(mesh);
 
-    auto stop_preprocessing_time = std::chrono::high_resolution_clock::now();
-    auto duration_preprocessing_time = std::chrono::duration_cast<std::chrono::milliseconds>(stop_preprocessing_time - start_preprocessing_time);
-    preprocessing_time = duration_preprocessing_time.count();
+    auto stop_construction_time = std::chrono::high_resolution_clock::now();
+    auto duration_construction_time = std::chrono::duration_cast<std::chrono::milliseconds>(stop_construction_time - start_construction_time);
+    construction_time = duration_construction_time.count();
 
     auto start_query_time = std::chrono::high_resolution_clock::now();
 
@@ -1401,7 +1401,7 @@ void POU_N1(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_lis
     std::vector<std::vector<std::vector<geodesic::SurfacePoint>>> pairwise_path_poi_to_poi;
     std::vector<std::vector<double>> pairwise_distance_poi_to_vertex(poi_num, std::vector<double>(pre_mesh->vertices().size(), 0));
 
-    double pre_preprocessing_time = 0;
+    double pre_construction_time = 0;
     double pre_hash_mapping_time = 0;
     double pre_query_time = 0;
     double pre_memory_usage = 0;
@@ -1413,10 +1413,10 @@ void POU_N1(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_lis
     std::vector<geodesic::SurfacePoint> pre_approximate_path;
     pre_approximate_path.clear();
 
-    pre_complete_graph_preprocessing(poi_num, pre_mesh, pre_poi_list, pre_face_sequence_index_list,
-                                     pairwise_distance_poi_to_poi, pairwise_distance_poi_to_poi_changed,
-                                     pairwise_path_poi_to_poi, pairwise_distance_poi_to_vertex,
-                                     pre_preprocessing_time, pre_memory_usage);
+    pre_complete_graph_construction(poi_num, pre_mesh, pre_poi_list, pre_face_sequence_index_list,
+                                    pairwise_distance_poi_to_poi, pairwise_distance_poi_to_poi_changed,
+                                    pairwise_path_poi_to_poi, pairwise_distance_poi_to_vertex,
+                                    pre_construction_time, pre_memory_usage);
     std::unordered_map<int, double> pairwise_distance_poi_to_poi_pre_map;
     std::unordered_map<int, std::vector<geodesic::SurfacePoint>> pairwise_path_poi_to_poi_pre_map;
     get_pairwise_distance_and_path_poi_to_poi_map(pairwise_distance_poi_to_poi, pairwise_distance_poi_to_poi_pre_map,
@@ -1427,8 +1427,8 @@ void POU_N1(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_lis
                          destination_poi_index, pre_approximate_distance, pre_approximate_path, pre_query_time);
     calculate_MST_weight(pairwise_distance_poi_to_poi, pre_MST_weight);
 
-    std::cout << "Pre terrain preprocessing time (CG): " << pre_preprocessing_time << " ms" << std::endl;
-    std::cout << "Pre terrain preprocessing time (hash mapping): " << pre_hash_mapping_time << " ms" << std::endl;
+    std::cout << "Pre terrain construction time (CG): " << pre_construction_time << " ms" << std::endl;
+    std::cout << "Pre terrain construction time (hash mapping): " << pre_hash_mapping_time << " ms" << std::endl;
     std::cout << "Pre terrain query time: " << pre_query_time << " ms" << std::endl;
     std::cout << "Pre terrain memory usage (CG): " << pre_memory_usage / 1e6 << " MB" << std::endl;
     std::cout << "Pre terrain memory usage (hash mapping): " << pre_hash_mapping_memory_usage / 1e6 << " MB" << std::endl;
@@ -1441,7 +1441,7 @@ void POU_N1(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_lis
     std::ofstream ofs1("../output/output.txt", std::ios_base::app);
     ofs1 << "== POU_N1 ==\n";
     ofs1 << write_file_header << "\t"
-         << pre_preprocessing_time << "\t"
+         << pre_construction_time << "\t"
          << pre_hash_mapping_time << "\t"
          << pre_query_time << "\t"
          << pre_memory_usage / 1e6 << "\t"
@@ -1452,7 +1452,7 @@ void POU_N1(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_lis
          << pre_approximate_distance / pre_exact_distance - 1 << "\t";
     ofs1.close();
 
-    double post_updating_time = 0;
+    double post_Update_time = 0;
     double post_hash_mapping_time = 0;
     double post_query_time = 0;
     double post_memory_usage = 0;
@@ -1464,11 +1464,11 @@ void POU_N1(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_lis
     std::vector<geodesic::SurfacePoint> post_approximate_path;
     post_approximate_path.clear();
 
-    post_complete_graph_updating(poi_num, pre_mesh, pre_poi_list, post_mesh, post_poi_list,
-                                 pre_face_sequence_index_list, pairwise_distance_poi_to_poi,
-                                 pairwise_distance_poi_to_poi_changed,
-                                 pairwise_path_poi_to_poi, pairwise_distance_poi_to_vertex,
-                                 post_updating_time, post_memory_usage);
+    post_complete_graph_Update(poi_num, pre_mesh, pre_poi_list, post_mesh, post_poi_list,
+                               pre_face_sequence_index_list, pairwise_distance_poi_to_poi,
+                               pairwise_distance_poi_to_poi_changed,
+                               pairwise_path_poi_to_poi, pairwise_distance_poi_to_vertex,
+                               post_Update_time, post_memory_usage);
     std::unordered_map<int, double> pairwise_distance_poi_to_poi_post_map;
     std::unordered_map<int, std::vector<geodesic::SurfacePoint>> pairwise_path_poi_to_poi_post_map;
     get_pairwise_distance_and_path_poi_to_poi_map(pairwise_distance_poi_to_poi, pairwise_distance_poi_to_poi_post_map,
@@ -1479,8 +1479,8 @@ void POU_N1(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_lis
                          destination_poi_index, post_approximate_distance, post_approximate_path, post_query_time);
     calculate_MST_weight(pairwise_distance_poi_to_poi, post_MST_weight);
 
-    std::cout << "Post terrain updating time (CG): " << post_updating_time << " ms" << std::endl;
-    std::cout << "Post terrain preprocessing time (hash mapping): " << post_hash_mapping_time << " ms" << std::endl;
+    std::cout << "Post terrain Update time (CG): " << post_Update_time << " ms" << std::endl;
+    std::cout << "Post terrain construction time (hash mapping): " << post_hash_mapping_time << " ms" << std::endl;
     std::cout << "Post terrain query time: " << post_query_time << " ms" << std::endl;
     std::cout << "Post terrain memory usage (CG): " << post_memory_usage / 1e6 << " MB" << std::endl;
     std::cout << "Post terrain memory usage (hash mapping): " << post_hash_mapping_memory_usage / 1e6 << " MB" << std::endl;
@@ -1490,7 +1490,7 @@ void POU_N1(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_lis
     std::cout << "Post terrain approximate distance: " << post_approximate_distance << ", post terrain exact distance: " << post_exact_distance << ", distance error: " << post_approximate_distance / post_exact_distance - 1 << std::endl;
 
     std::ofstream ofs2("../output/output.txt", std::ios_base::app);
-    ofs2 << post_updating_time << "\t"
+    ofs2 << post_Update_time << "\t"
          << post_hash_mapping_time << "\t"
          << post_query_time << "\t"
          << post_memory_usage / 1e6 << "\t"
@@ -1514,7 +1514,7 @@ void POU_N2(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_lis
     std::vector<std::vector<std::vector<geodesic::SurfacePoint>>> pairwise_path_poi_to_poi;
     std::vector<std::vector<double>> pairwise_distance_poi_to_vertex(poi_num, std::vector<double>(pre_mesh->vertices().size(), 0));
 
-    double pre_preprocessing_time = 0;
+    double pre_construction_time = 0;
     double pre_GS_time = 0;
     double pre_query_time = 0;
     double pre_memory_usage = 0;
@@ -1526,10 +1526,10 @@ void POU_N2(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_lis
     std::vector<geodesic::SurfacePoint> pre_approximate_path;
     pre_approximate_path.clear();
 
-    pre_complete_graph_preprocessing(poi_num, pre_mesh, pre_poi_list, pre_face_sequence_index_list,
-                                     pairwise_distance_poi_to_poi, pairwise_distance_poi_to_poi_changed,
-                                     pairwise_path_poi_to_poi, pairwise_distance_poi_to_vertex,
-                                     pre_preprocessing_time, pre_memory_usage);
+    pre_complete_graph_construction(poi_num, pre_mesh, pre_poi_list, pre_face_sequence_index_list,
+                                    pairwise_distance_poi_to_poi, pairwise_distance_poi_to_poi_changed,
+                                    pairwise_path_poi_to_poi, pairwise_distance_poi_to_vertex,
+                                    pre_construction_time, pre_memory_usage);
     std::unordered_map<int, double> pairwise_distance_poi_to_poi_pre_greedy_spanner_map;
     std::unordered_map<int, std::vector<geodesic::SurfacePoint>> pairwise_path_poi_to_poi_pre_greedy_spanner_map;
     greedy_spanner(pairwise_distance_poi_to_poi, epsilon, pairwise_distance_poi_to_poi_pre_greedy_spanner_map,
@@ -1538,8 +1538,8 @@ void POU_N2(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_lis
     complete_graph_query(poi_num, pairwise_distance_poi_to_poi_pre_greedy_spanner_map, pairwise_path_poi_to_poi_pre_greedy_spanner_map,
                          source_poi_index, destination_poi_index, pre_approximate_distance, pre_approximate_path, pre_query_time);
 
-    std::cout << "Pre terrain preprocessing time (CG): " << pre_preprocessing_time << " ms" << std::endl;
-    std::cout << "Pre terrain preprocessing time (GS): " << pre_GS_time << " ms" << std::endl;
+    std::cout << "Pre terrain construction time (CG): " << pre_construction_time << " ms" << std::endl;
+    std::cout << "Pre terrain construction time (GS): " << pre_GS_time << " ms" << std::endl;
     std::cout << "Pre terrain query time: " << pre_query_time << " ms" << std::endl;
     std::cout << "Pre terrain memory usage (CG): " << pre_memory_usage / 1e6 << " MB" << std::endl;
     std::cout << "Pre terrain memory usage (GS): " << pre_GS_memory_usage / 1e6 << " MB" << std::endl;
@@ -1552,7 +1552,7 @@ void POU_N2(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_lis
     std::ofstream ofs1("../output/output.txt", std::ios_base::app);
     ofs1 << "== POU_N2 ==\n";
     ofs1 << write_file_header << "\t"
-         << pre_preprocessing_time << "\t"
+         << pre_construction_time << "\t"
          << pre_GS_time << "\t"
          << pre_query_time << "\t"
          << pre_memory_usage / 1e6 << "\t"
@@ -1563,7 +1563,7 @@ void POU_N2(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_lis
          << pre_approximate_distance / pre_exact_distance - 1 << "\t";
     ofs1.close();
 
-    double post_updating_time = 0;
+    double post_Update_time = 0;
     double post_GS_time = 0;
     double post_query_time = 0;
     double post_memory_usage = 0;
@@ -1575,11 +1575,11 @@ void POU_N2(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_lis
     std::vector<geodesic::SurfacePoint> post_approximate_path;
     post_approximate_path.clear();
 
-    post_complete_graph_updating(poi_num, pre_mesh, pre_poi_list, post_mesh, post_poi_list,
-                                 pre_face_sequence_index_list, pairwise_distance_poi_to_poi,
-                                 pairwise_distance_poi_to_poi_changed,
-                                 pairwise_path_poi_to_poi, pairwise_distance_poi_to_vertex,
-                                 post_updating_time, post_memory_usage);
+    post_complete_graph_Update(poi_num, pre_mesh, pre_poi_list, post_mesh, post_poi_list,
+                               pre_face_sequence_index_list, pairwise_distance_poi_to_poi,
+                               pairwise_distance_poi_to_poi_changed,
+                               pairwise_path_poi_to_poi, pairwise_distance_poi_to_vertex,
+                               post_Update_time, post_memory_usage);
     std::unordered_map<int, double> pairwise_distance_poi_to_poi_post_greedy_spanner_map;
     std::unordered_map<int, std::vector<geodesic::SurfacePoint>> pairwise_path_poi_to_poi_post_greedy_spanner_map;
     greedy_spanner(pairwise_distance_poi_to_poi, epsilon, pairwise_distance_poi_to_poi_post_greedy_spanner_map,
@@ -1588,8 +1588,8 @@ void POU_N2(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_lis
     complete_graph_query(poi_num, pairwise_distance_poi_to_poi_post_greedy_spanner_map, pairwise_path_poi_to_poi_post_greedy_spanner_map,
                          source_poi_index, destination_poi_index, post_approximate_distance, post_approximate_path, post_query_time);
 
-    std::cout << "Post terrain updating time (CG): " << post_updating_time << " ms" << std::endl;
-    std::cout << "Post terrain updating time (GS): " << post_GS_time << " ms" << std::endl;
+    std::cout << "Post terrain Update time (CG): " << post_Update_time << " ms" << std::endl;
+    std::cout << "Post terrain Update time (GS): " << post_GS_time << " ms" << std::endl;
     std::cout << "Post terrain query time: " << post_query_time << " ms" << std::endl;
     std::cout << "Post terrain memory usage (CG): " << post_memory_usage / 1e6 << " MB" << std::endl;
     std::cout << "Post terrain memory usage (GS): " << post_GS_memory_usage / 1e6 << " MB" << std::endl;
@@ -1599,7 +1599,7 @@ void POU_N2(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_lis
     std::cout << "Post terrain approximate distance: " << post_approximate_distance << ", post terrain exact distance: " << post_exact_distance << ", distance error: " << post_approximate_distance / post_exact_distance - 1 << std::endl;
 
     std::ofstream ofs2("../output/output.txt", std::ios_base::app);
-    ofs2 << post_updating_time << "\t"
+    ofs2 << post_Update_time << "\t"
          << post_GS_time << "\t"
          << post_query_time << "\t"
          << post_memory_usage / 1e6 << "\t"
@@ -1623,7 +1623,7 @@ void POU(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
     std::vector<std::vector<std::vector<geodesic::SurfacePoint>>> pairwise_path_poi_to_poi;
     std::vector<std::vector<double>> pairwise_distance_poi_to_vertex(poi_num, std::vector<double>(pre_mesh->vertices().size(), 0));
 
-    double pre_preprocessing_time = 0;
+    double pre_construction_time = 0;
     double pre_HGS_time = 0;
     double pre_query_time = 0;
     double pre_memory_usage = 0;
@@ -1635,10 +1635,10 @@ void POU(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
     std::vector<geodesic::SurfacePoint> pre_approximate_path;
     pre_approximate_path.clear();
 
-    pre_complete_graph_preprocessing(poi_num, pre_mesh, pre_poi_list, pre_face_sequence_index_list,
-                                     pairwise_distance_poi_to_poi, pairwise_distance_poi_to_poi_changed,
-                                     pairwise_path_poi_to_poi, pairwise_distance_poi_to_vertex,
-                                     pre_preprocessing_time, pre_memory_usage);
+    pre_complete_graph_construction(poi_num, pre_mesh, pre_poi_list, pre_face_sequence_index_list,
+                                    pairwise_distance_poi_to_poi, pairwise_distance_poi_to_poi_changed,
+                                    pairwise_path_poi_to_poi, pairwise_distance_poi_to_vertex,
+                                    pre_construction_time, pre_memory_usage);
     std::unordered_map<int, double> pairwise_distance_poi_to_poi_pre_hierarchy_greedy_spanner_map;
     std::unordered_map<int, std::vector<geodesic::SurfacePoint>> pairwise_path_poi_to_poi_pre_hierarchy_greedy_spanner_map;
     hierarchy_greedy_spanner(pairwise_distance_poi_to_poi, epsilon, pairwise_distance_poi_to_poi_pre_hierarchy_greedy_spanner_map,
@@ -1647,8 +1647,8 @@ void POU(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
     complete_graph_query(poi_num, pairwise_distance_poi_to_poi_pre_hierarchy_greedy_spanner_map, pairwise_path_poi_to_poi_pre_hierarchy_greedy_spanner_map,
                          source_poi_index, destination_poi_index, pre_approximate_distance, pre_approximate_path, pre_query_time);
 
-    std::cout << "Pre terrain preprocessing time (CG): " << pre_preprocessing_time << " ms" << std::endl;
-    std::cout << "Pre terrain preprocessing time (HGS): " << pre_HGS_time << " ms" << std::endl;
+    std::cout << "Pre terrain construction time (CG): " << pre_construction_time << " ms" << std::endl;
+    std::cout << "Pre terrain construction time (HGS): " << pre_HGS_time << " ms" << std::endl;
     std::cout << "Pre terrain query time: " << pre_query_time << " ms" << std::endl;
     std::cout << "Pre terrain memory usage (CG): " << pre_memory_usage / 1e6 << " MB" << std::endl;
     std::cout << "Pre terrain memory usage (HGS): " << pre_HGS_memory_usage / 1e6 << " MB" << std::endl;
@@ -1661,7 +1661,7 @@ void POU(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
     std::ofstream ofs1("../output/output.txt", std::ios_base::app);
     ofs1 << "== POU ==\n";
     ofs1 << write_file_header << "\t"
-         << pre_preprocessing_time << "\t"
+         << pre_construction_time << "\t"
          << pre_HGS_time << "\t"
          << pre_query_time << "\t"
          << pre_memory_usage / 1e6 << "\t"
@@ -1672,7 +1672,7 @@ void POU(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
          << pre_approximate_distance / pre_exact_distance - 1 << "\t";
     ofs1.close();
 
-    double post_updating_time = 0;
+    double post_Update_time = 0;
     double post_HGS_time = 0;
     double post_query_time = 0;
     double post_memory_usage = 0;
@@ -1684,11 +1684,11 @@ void POU(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
     std::vector<geodesic::SurfacePoint> post_approximate_path;
     post_approximate_path.clear();
 
-    post_complete_graph_updating(poi_num, pre_mesh, pre_poi_list, post_mesh, post_poi_list,
-                                 pre_face_sequence_index_list, pairwise_distance_poi_to_poi,
-                                 pairwise_distance_poi_to_poi_changed,
-                                 pairwise_path_poi_to_poi, pairwise_distance_poi_to_vertex,
-                                 post_updating_time, post_memory_usage);
+    post_complete_graph_Update(poi_num, pre_mesh, pre_poi_list, post_mesh, post_poi_list,
+                               pre_face_sequence_index_list, pairwise_distance_poi_to_poi,
+                               pairwise_distance_poi_to_poi_changed,
+                               pairwise_path_poi_to_poi, pairwise_distance_poi_to_vertex,
+                               post_Update_time, post_memory_usage);
     std::unordered_map<int, double> pairwise_distance_poi_to_poi_post_hierarchy_greedy_spanner_map;
     std::unordered_map<int, std::vector<geodesic::SurfacePoint>> pairwise_path_poi_to_poi_post_hierarchy_greedy_spanner_map;
     hierarchy_greedy_spanner(pairwise_distance_poi_to_poi, epsilon, pairwise_distance_poi_to_poi_post_hierarchy_greedy_spanner_map,
@@ -1697,8 +1697,8 @@ void POU(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
     complete_graph_query(poi_num, pairwise_distance_poi_to_poi_post_hierarchy_greedy_spanner_map, pairwise_path_poi_to_poi_post_hierarchy_greedy_spanner_map,
                          source_poi_index, destination_poi_index, post_approximate_distance, post_approximate_path, post_query_time);
 
-    std::cout << "Post terrain updating time (CG): " << post_updating_time << " ms" << std::endl;
-    std::cout << "Post terrain updating time (HGS): " << post_HGS_time << " ms" << std::endl;
+    std::cout << "Post terrain Update time (CG): " << post_Update_time << " ms" << std::endl;
+    std::cout << "Post terrain Update time (HGS): " << post_HGS_time << " ms" << std::endl;
     std::cout << "Post terrain query time: " << post_query_time << " ms" << std::endl;
     std::cout << "Post terrain memory usage (CG): " << post_memory_usage / 1e6 << " MB" << std::endl;
     std::cout << "Post terrain memory usage (HGS): " << post_HGS_memory_usage / 1e6 << " MB" << std::endl;
@@ -1708,7 +1708,7 @@ void POU(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
     std::cout << "Post terrain approximate distance: " << post_approximate_distance << ", post terrain exact distance: " << post_exact_distance << ", distance error: " << post_approximate_distance / post_exact_distance - 1 << std::endl;
 
     std::ofstream ofs2("../output/output.txt", std::ios_base::app);
-    ofs2 << post_updating_time << "\t"
+    ofs2 << post_Update_time << "\t"
          << post_HGS_time << "\t"
          << post_query_time << "\t"
          << post_memory_usage / 1e6 << "\t"
@@ -1726,7 +1726,7 @@ void WSPD_oracle(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_po
                  double post_exact_distance, int pre_MST_weight, int post_MST_weight,
                  std::string write_file_header)
 {
-    double pre_preprocessing_time = 0;
+    double pre_construction_time = 0;
     double pre_query_time = 0;
     double pre_memory_usage = 0;
     double pre_index_size = 0;
@@ -1736,14 +1736,14 @@ void WSPD_oracle(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_po
     std::vector<geodesic::SurfacePoint> pre_approximate_path;
     pre_approximate_path.clear();
 
-    pre_or_post_WSPD_oracle_preprocessing_and_query(poi_num, pre_mesh, pre_poi_list, epsilon,
-                                                    source_poi_index, destination_poi_index,
-                                                    pre_preprocessing_time, pre_query_time,
-                                                    pre_memory_usage, pre_index_size, pre_index_edge_num,
-                                                    pre_index_weight, pre_approximate_distance,
-                                                    pre_approximate_path);
+    pre_or_post_WSPD_oracle_construction_and_query(poi_num, pre_mesh, pre_poi_list, epsilon,
+                                                   source_poi_index, destination_poi_index,
+                                                   pre_construction_time, pre_query_time,
+                                                   pre_memory_usage, pre_index_size, pre_index_edge_num,
+                                                   pre_index_weight, pre_approximate_distance,
+                                                   pre_approximate_path);
 
-    std::cout << "Pre terrain preprocessing time: " << pre_preprocessing_time << " ms" << std::endl;
+    std::cout << "Pre terrain construction time: " << pre_construction_time << " ms" << std::endl;
     std::cout << "Pre terrain query time: " << pre_query_time << " ms" << std::endl;
     std::cout << "Pre terrain memory usage: " << pre_memory_usage / 1e6 << " MB" << std::endl;
     std::cout << "Pre terrain index size: " << pre_index_size / 1e6 << " MB" << std::endl;
@@ -1755,7 +1755,7 @@ void WSPD_oracle(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_po
     std::ofstream ofs1("../output/output.txt", std::ios_base::app);
     ofs1 << "== WSPD_oracle ==\n";
     ofs1 << write_file_header << "\t"
-         << pre_preprocessing_time << "\t"
+         << pre_construction_time << "\t"
          << 0 << "\t"
          << pre_query_time << "\t"
          << pre_memory_usage / 1e6 << "\t"
@@ -1766,7 +1766,7 @@ void WSPD_oracle(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_po
          << abs(pre_approximate_distance / pre_exact_distance - 1) << "\t";
     ofs1.close();
 
-    double post_preprocessing_time = 0;
+    double post_construction_time = 0;
     double post_query_time = 0;
     double post_memory_usage = 0;
     double post_index_size = 0;
@@ -1776,14 +1776,14 @@ void WSPD_oracle(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_po
     std::vector<geodesic::SurfacePoint> post_approximate_path;
     post_approximate_path.clear();
 
-    pre_or_post_WSPD_oracle_preprocessing_and_query(poi_num, post_mesh, post_poi_list, epsilon,
-                                                    source_poi_index, destination_poi_index,
-                                                    post_preprocessing_time, post_query_time,
-                                                    post_memory_usage, post_index_size, post_index_edge_num,
-                                                    post_index_weight, post_approximate_distance,
-                                                    post_approximate_path);
+    pre_or_post_WSPD_oracle_construction_and_query(poi_num, post_mesh, post_poi_list, epsilon,
+                                                   source_poi_index, destination_poi_index,
+                                                   post_construction_time, post_query_time,
+                                                   post_memory_usage, post_index_size, post_index_edge_num,
+                                                   post_index_weight, post_approximate_distance,
+                                                   post_approximate_path);
 
-    std::cout << "Post terrain preprocessing time: " << post_preprocessing_time << " ms" << std::endl;
+    std::cout << "Post terrain construction time: " << post_construction_time << " ms" << std::endl;
     std::cout << "Post terrain query time: " << post_query_time << " ms" << std::endl;
     std::cout << "Post terrain memory usage: " << post_memory_usage / 1e6 << " MB" << std::endl;
     std::cout << "Post terrain index size: " << pre_index_size / 1e6 << " MB" << std::endl;
@@ -1792,7 +1792,7 @@ void WSPD_oracle(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_po
     std::cout << "Post terrain approximate distance: " << post_approximate_distance << ", post terrain exact distance: " << post_exact_distance << ", distance error: " << abs(post_approximate_distance / post_exact_distance - 1) << std::endl;
 
     std::ofstream ofs2("../output/output.txt", std::ios_base::app);
-    ofs2 << post_preprocessing_time << "\t"
+    ofs2 << post_construction_time << "\t"
          << 0 << "\t"
          << post_query_time << "\t"
          << post_memory_usage / 1e6 << "\t"
@@ -1809,7 +1809,7 @@ void SP_oracle(geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
                int source_poi_index, int destination_poi_index, double pre_exact_distance,
                double post_exact_distance, std::string write_file_header)
 {
-    double pre_preprocessing_time = 0;
+    double pre_construction_time = 0;
     double pre_query_time = 0;
     double pre_memory_usage = 0;
     double pre_index_size = 0;
@@ -1817,13 +1817,13 @@ void SP_oracle(geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
     std::vector<geodesic::SurfacePoint> pre_approximate_path;
     pre_approximate_path.clear();
 
-    pre_or_post_SP_oracle_preprocessing_and_query(pre_mesh, pre_poi_list,
-                                                  epsilon, source_poi_index, destination_poi_index,
-                                                  pre_preprocessing_time, pre_query_time,
-                                                  pre_memory_usage, pre_index_size, pre_approximate_distance,
-                                                  pre_approximate_path);
+    pre_or_post_SP_oracle_construction_and_query(pre_mesh, pre_poi_list,
+                                                 epsilon, source_poi_index, destination_poi_index,
+                                                 pre_construction_time, pre_query_time,
+                                                 pre_memory_usage, pre_index_size, pre_approximate_distance,
+                                                 pre_approximate_path);
 
-    std::cout << "Pre terrain preprocessing time: " << pre_preprocessing_time << " ms" << std::endl;
+    std::cout << "Pre terrain construction time: " << pre_construction_time << " ms" << std::endl;
     std::cout << "Pre terrain query time: " << pre_query_time << " ms" << std::endl;
     std::cout << "Pre terrain memory usage: " << pre_memory_usage / 1e6 << " MB" << std::endl;
     std::cout << "Pre terrain index size: " << pre_index_size / 1e6 << " MB" << std::endl;
@@ -1833,7 +1833,7 @@ void SP_oracle(geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
     std::ofstream ofs1("../output/output.txt", std::ios_base::app);
     ofs1 << "== SP_oracle ==\n";
     ofs1 << write_file_header << "\t"
-         << pre_preprocessing_time << "\t"
+         << pre_construction_time << "\t"
          << 0 << "\t"
          << pre_query_time << "\t"
          << pre_memory_usage / 1e6 << "\t"
@@ -1844,7 +1844,7 @@ void SP_oracle(geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
          << pre_approximate_distance / pre_exact_distance - 1 << "\t";
     ofs1.close();
 
-    double post_preprocessing_time = 0;
+    double post_construction_time = 0;
     double post_query_time = 0;
     double post_memory_usage = 0;
     double post_index_size = 0;
@@ -1852,20 +1852,20 @@ void SP_oracle(geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
     std::vector<geodesic::SurfacePoint> post_approximate_path;
     post_approximate_path.clear();
 
-    pre_or_post_SP_oracle_preprocessing_and_query(post_mesh, post_poi_list,
-                                                  epsilon, source_poi_index, destination_poi_index,
-                                                  post_preprocessing_time, post_query_time,
-                                                  post_memory_usage, post_index_size, post_approximate_distance,
-                                                  post_approximate_path);
+    pre_or_post_SP_oracle_construction_and_query(post_mesh, post_poi_list,
+                                                 epsilon, source_poi_index, destination_poi_index,
+                                                 post_construction_time, post_query_time,
+                                                 post_memory_usage, post_index_size, post_approximate_distance,
+                                                 post_approximate_path);
 
-    std::cout << "Post terrain preprocessing time: " << post_preprocessing_time << " ms" << std::endl;
+    std::cout << "Post terrain construction time: " << post_construction_time << " ms" << std::endl;
     std::cout << "Post terrain query time: " << post_query_time << " ms" << std::endl;
     std::cout << "Post terrain memory usage: " << post_memory_usage / 1e6 << " MB" << std::endl;
     std::cout << "Post terrain index size: " << post_index_size / 1e6 << " MB" << std::endl;
     std::cout << "Post terrain approximate distance: " << post_approximate_distance << ", post terrain exact distance: " << post_exact_distance << ", distance error: " << post_approximate_distance / post_exact_distance - 1 << std::endl;
 
     std::ofstream ofs2("../output/output.txt", std::ios_base::app);
-    ofs2 << post_preprocessing_time << "\t"
+    ofs2 << post_construction_time << "\t"
          << 0 << "\t"
          << post_query_time << "\t"
          << post_memory_usage / 1e6 << "\t"

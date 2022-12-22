@@ -129,7 +129,7 @@ int main(int argc, char **argv)
        std::cout << std::endl;
 
        std::ofstream ofs("../output/output.txt", std::ofstream::app);
-       ofs << "# pre_dataset\tpost_dataset\tdatasize\tpoi_num\tepsilon\tpre_preprocessing_time1\tpre_preprocessing_time2\tpre_query_time\tpre_memory_usage1\tpre_memory_usage2\tpre_index_size\tpre_index_edge_num\tpre_index/MST_weight\tpre_distance_error\tpost_updating_time1\tpost_updating_time2\tpost_query_time\tpost_memory_usage1\tpost_memory_usage2\tpost_index_size\tpost_index_edge_num\tpost_index/MST_weight\tpost_distance_error\n\n";
+       ofs << "# pre_dataset\tpost_dataset\tdatasize\tpoi_num\tepsilon\tpre_construction_time1\tpre_construction_time2\tpre_query_time\tpre_memory_usage1\tpre_memory_usage2\tpre_index_size\tpre_index_edge_num\tpre_index/MST_weight\tpre_distance_error\tpost_Update_time1\tpost_Update_time2\tpost_query_time\tpost_memory_usage1\tpost_memory_usage2\tpost_index_size\tpost_index_edge_num\tpost_index/MST_weight\tpost_distance_error\n\n";
        ofs.close();
 
        assert(source_poi_index <= poi_num - 1 && destination_poi_index <= poi_num - 1);
