@@ -1389,7 +1389,7 @@ void exact_distance(geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
                                destination_poi_index, post_exact_distance);
 }
 
-void POD_N1(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
+void POU_N1(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
             geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list,
             int source_poi_index, int destination_poi_index, double pre_exact_distance,
             double post_exact_distance, int &pre_MST_weight, int &post_MST_weight,
@@ -1439,7 +1439,7 @@ void POD_N1(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_lis
     std::cout << std::endl;
 
     std::ofstream ofs1("../output/output.txt", std::ios_base::app);
-    ofs1 << "== POD_N1 ==\n";
+    ofs1 << "== POU_N1 ==\n";
     ofs1 << write_file_header << "\t"
          << pre_preprocessing_time << "\t"
          << pre_hash_mapping_time << "\t"
@@ -1502,7 +1502,7 @@ void POD_N1(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_lis
     ofs2.close();
 }
 
-void POD_N2(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
+void POU_N2(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
             geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list, double epsilon,
             int source_poi_index, int destination_poi_index, double pre_exact_distance,
             double post_exact_distance, int pre_MST_weight, int post_MST_weight,
@@ -1550,7 +1550,7 @@ void POD_N2(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_lis
     std::cout << std::endl;
 
     std::ofstream ofs1("../output/output.txt", std::ios_base::app);
-    ofs1 << "== POD_N2 ==\n";
+    ofs1 << "== POU_N2 ==\n";
     ofs1 << write_file_header << "\t"
          << pre_preprocessing_time << "\t"
          << pre_GS_time << "\t"
@@ -1611,7 +1611,7 @@ void POD_N2(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_lis
     ofs2.close();
 }
 
-void POD(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
+void POU(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
          geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list, double epsilon,
          int source_poi_index, int destination_poi_index, double pre_exact_distance,
          double post_exact_distance, int pre_MST_weight, int post_MST_weight,
@@ -1659,7 +1659,7 @@ void POD(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
     std::cout << std::endl;
 
     std::ofstream ofs1("../output/output.txt", std::ios_base::app);
-    ofs1 << "== POD ==\n";
+    ofs1 << "== POU ==\n";
     ofs1 << write_file_header << "\t"
          << pre_preprocessing_time << "\t"
          << pre_HGS_time << "\t"

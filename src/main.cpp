@@ -142,20 +142,20 @@ int main(int argc, char **argv)
        exact_distance(&pre_mesh, pre_poi_list, &post_mesh, post_poi_list, source_poi_index,
                       destination_poi_index, pre_exact_distance, post_exact_distance);
 
-       std::cout << "== POD_N1 ==" << std::endl;
-       POD_N1(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, source_poi_index,
+       std::cout << "== POU_N1 ==" << std::endl;
+       POU_N1(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, source_poi_index,
              destination_poi_index, pre_exact_distance, post_exact_distance, pre_MST_weight,
              post_MST_weight, write_file_header);
        std::cout << std::endl;
 
-       std::cout << "== POD_N2 ==" << std::endl;
-       POD_N2(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
+       std::cout << "== POU_N2 ==" << std::endl;
+       POU_N2(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
              source_poi_index, destination_poi_index, pre_exact_distance, post_exact_distance,
              pre_MST_weight, post_MST_weight, write_file_header);
        std::cout << std::endl;
 
-       std::cout << "== POD ==" << std::endl;
-       POD(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
+       std::cout << "== POU ==" << std::endl;
+       POU(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
           source_poi_index, destination_poi_index, pre_exact_distance, post_exact_distance,
           pre_MST_weight, post_MST_weight, write_file_header);
        std::cout << std::endl;
