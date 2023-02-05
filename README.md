@@ -4,12 +4,12 @@
 
 This project provides the implementation of the algorithm for calculating a shortest path oracle on updated terrain surface.
 
-Our oralce POU, and the baselines, i.e., WSPD-oracle, SP-oracle, and KF are studied in the experiments. In order to conduct the ablation study, i.e., show that algorithm HGS could significantly reduce the running time compared with algorithm GS, and could significantly reduce the oracle size and oracle weight compared with original complete graph, we also studied POU-N1 and POU-N2 in the experiments. In total, we compared six algorithms, namely, WSPD-oracle, SP-oracle, POU-N1, POU-N2, POU, and KF. Since WSPD-oracle, SP-oracle are not feasible on large datasets due to their expensive running time, so we (1) compared these six algorithms on SC-small, AU-small and VS-small datasets, and the set of small-version datasets, and (2) compared POU-N1, POU-N2, POU, and KF on SC, AU and VS datasets, and the set of large-version datasets. We refer the readers to our paper for more details.
+Our oralce POU, and the baselines, i.e., WSPD-oracle, WSPDA-oracle, and KF are studied in the experiments. In order to conduct the ablation study, i.e., show that algorithm HGS could significantly reduce the running time compared with algorithm GS, and could significantly reduce the oracle size and oracle weight compared with original complete graph, we also studied POU-N1 and POU-N2 in the experiments. In total, we compared six algorithms, namely, WSPD-oracle, WSPDA-oracle, POU-N1, POU-N2, POU, and KF. Since WSPD-oracle and WSPDA-oracle are not feasible on large-version POI due to their expensive oracle construction time, so we (1) compared these six algorithms on our 15 datasets with small-version POI (default 50 POIs), and (2) compared POU-N1, POU-N2, POU, and KF on our 15 datasets with large-version POI (default 500 POIs). We refer the readers to our paper for more details.
 
 In total, we compared six algorithms as follows:
 
 - WSPD-oracle (oracle based baseline)
-- SP-oracle (oracle based baseline)
+- WSPDA-oracle (adapted oracle based baseline)
 - POU-N1 (variation)
 - POU-N2 (variation)
 - POU (our oracle)
@@ -25,50 +25,36 @@ The dataset are stored in "input/" folder.
 
 The datasets are as follows:
 
-- "SCpre_500000.off" (large version default resolution SC pre earthquake terrain dataset with dataset size of 500000)
-- "SCpost_500000.off" (large version default resolution SC post earthquake terrain dataset with dataset size of 500000)
-- "SCpre_1002528.off" (large version multiresolution SC pre earthquake terrain dataset with dataset size of 1002528)
-- "SCpost_1002528.off" (large version multiresolution SC post earthquake terrain dataset with dataset size of 1002528)
-- "SCpre_1503378.off" (large version multiresolution SC pre earthquake terrain dataset with dataset size of 1503378)
-- "SCpost_1503378.off" (large version multiresolution SC post earthquake terrain dataset with dataset size of 1503378)
-- "SCpre_2000000.off" (large version multiresolution SC pre earthquake terrain dataset with dataset size of 2000000)
-- "SCpost_2000000.off" (large version multiresolution SC post earthquake terrain dataset with dataset size of 2000000)
-- "SCpre_2504322.off" (large version multiresolution SC pre earthquake terrain dataset with dataset size of 2504322)
-- "SCpost_2504322.off" (large version multiresolution SC post earthquake terrain dataset with dataset size of 2504322)
-- "SCpre_10082.off" (small version default resolution SC pre earthquake terrain dataset with dataset size of 10082)
-- "SCpost_10082.off" (small version default resolution SC post earthquake terrain dataset with dataset size of 10082)
-- "SCpre_20000.off" (small version multiresolution SC pre earthquake terrain dataset with dataset size of 20000)
-- "SCpost_20000.off" (small version multiresolution SC post earthquake terrain dataset with dataset size of 20000)
-- "SCpre_30258.off" (small version multiresolution SC pre earthquake terrain dataset with dataset size of 30258)
-- "SCpost_30258.off" (small version multiresolution SC post earthquake terrain dataset with dataset size of 30258)
-- "SCpre_40328.off" (small version multiresolution SC pre earthquake terrain dataset with dataset size of 40328)
-- "SCpost_40328.off" (small version multiresolution SC post earthquake terrain dataset with dataset size of 40328)
-- "SCpre_50562.off" (small version multiresolution SC pre earthquake terrain dataset with dataset size of 50562)
-- "SCpost_50562.off" (small version multiresolution SC post earthquake terrain dataset with dataset size of 50562)
-- "AUpre_500000.off" (large version default resolution AU pre earthquake terrain dataset with dataset size of 500000)
-- "AUpost_500000.off" (large version default resolution AU post earthquake terrain dataset with dataset size of 500000)
-- "AUpre_1002528.off" (large version multiresolution AU pre earthquake terrain dataset with dataset size of 1002528)
-- "AUpost_1002528.off" (large version multiresolution AU post earthquake terrain dataset with dataset size of 1002528)
-- "AUpre_1503378.off" (large version multiresolution AU pre earthquake terrain dataset with dataset size of 1503378)
-- "AUpost_1503378.off" (large version multiresolution AU post earthquake terrain dataset with dataset size of 1503378)
-- "AUpre_2000000.off" (large version multiresolution AU pre earthquake terrain dataset with dataset size of 2000000)
-- "AUpost_2000000.off" (large version multiresolution AU post earthquake terrain dataset with dataset size of 2000000)
-- "AUpre_2504322.off" (large version multiresolution AU pre earthquake terrain dataset with dataset size of 2504322)
-- "AUpost_2504322.off" (large version multiresolution AU post earthquake terrain dataset with dataset size of 2504322)
-- "AUpre_10082.off" (small version default resolution AU pre earthquake terrain dataset with dataset size of 10082)
-- "AUpost_10082.off" (small version default resolution AU post earthquake terrain dataset with dataset size of 10082)
-- "VSpre_500000.off" (large version default resolution VS pre earthquake terrain dataset with dataset size of 500000)
-- "VSpost_500000.off" (large version default resolution VS post earthquake terrain dataset with dataset size of 500000)
-- "VSpre_1002528.off" (large version multiresolution VS pre earthquake terrain dataset with dataset size of 1002528)
-- "VSpost_1002528.off" (large version multiresolution VS post earthquake terrain dataset with dataset size of 1002528)
-- "VSpre_1503378.off" (large version multiresolution VS pre earthquake terrain dataset with dataset size of 1503378)
-- "VSpost_1503378.off" (large version multiresolution VS post earthquake terrain dataset with dataset size of 1503378)
-- "VSpre_2000000.off" (large version multiresolution VS pre earthquake terrain dataset with dataset size of 2000000)
-- "VSpost_2000000.off" (large version multiresolution VS post earthquake terrain dataset with dataset size of 2000000)
-- "VSpre_2504322.off" (large version multiresolution VS pre earthquake terrain dataset with dataset size of 2504322)
-- "VSpost_2504322.off" (large version multiresolution VS post earthquake terrain dataset with dataset size of 2504322)
-- "VSpre_10082.off" (small version default resolution VS pre earthquake terrain dataset with dataset size of 10082)
-- "VSpost_10082.off" (small version default resolution VS post earthquake terrain dataset with dataset size of 10082)
+- "SCpre_500000.off" (default resolution SC pre earthquake terrain dataset with dataset size of 500000)
+- "SCpost_500000.off" (default resolution SC post earthquake terrain dataset with dataset size of 500000)
+- "SCpre_1002528.off" (multiresolution SC pre earthquake terrain dataset with dataset size of 1002528)
+- "SCpost_1002528.off" (multiresolution SC post earthquake terrain dataset with dataset size of 1002528)
+- "SCpre_1503378.off" (multiresolution SC pre earthquake terrain dataset with dataset size of 1503378)
+- "SCpost_1503378.off" (multiresolution SC post earthquake terrain dataset with dataset size of 1503378)
+- "SCpre_2000000.off" (multiresolution SC pre earthquake terrain dataset with dataset size of 2000000)
+- "SCpost_2000000.off" (multiresolution SC post earthquake terrain dataset with dataset size of 2000000)
+- "SCpre_2504322.off" (multiresolution SC pre earthquake terrain dataset with dataset size of 2504322)
+- "SCpost_2504322.off" (multiresolution SC post earthquake terrain dataset with dataset size of 2504322)
+- "AUpre_500000.off" (default resolution AU pre earthquake terrain dataset with dataset size of 500000)
+- "AUpost_500000.off" (default resolution AU post earthquake terrain dataset with dataset size of 500000)
+- "AUpre_1002528.off" (multiresolution AU pre earthquake terrain dataset with dataset size of 1002528)
+- "AUpost_1002528.off" (multiresolution AU post earthquake terrain dataset with dataset size of 1002528)
+- "AUpre_1503378.off" (multiresolution AU pre earthquake terrain dataset with dataset size of 1503378)
+- "AUpost_1503378.off" (multiresolution AU post earthquake terrain dataset with dataset size of 1503378)
+- "AUpre_2000000.off" (multiresolution AU pre earthquake terrain dataset with dataset size of 2000000)
+- "AUpost_2000000.off" (multiresolution AU post earthquake terrain dataset with dataset size of 2000000)
+- "AUpre_2504322.off" (multiresolution AU pre earthquake terrain dataset with dataset size of 2504322)
+- "AUpost_2504322.off" (multiresolution AU post earthquake terrain dataset with dataset size of 2504322)
+- "VSpre_500000.off" (default resolution VS pre earthquake terrain dataset with dataset size of 500000)
+- "VSpost_500000.off" (default resolution VS post earthquake terrain dataset with dataset size of 500000)
+- "VSpre_1002528.off" (multiresolution VS pre earthquake terrain dataset with dataset size of 1002528)
+- "VSpost_1002528.off" (multiresolution VS post earthquake terrain dataset with dataset size of 1002528)
+- "VSpre_1503378.off" (multiresolution VS pre earthquake terrain dataset with dataset size of 1503378)
+- "VSpost_1503378.off" (multiresolution VS post earthquake terrain dataset with dataset size of 1503378)
+- "VSpre_2000000.off" (multiresolution VS pre earthquake terrain dataset with dataset size of 2000000)
+- "VSpost_2000000.off" (multiresolution VS post earthquake terrain dataset with dataset size of 2000000)
+- "VSpre_2504322.off" (multiresolution VS pre earthquake terrain dataset with dataset size of 2504322)
+- "VSpost_2504322.off" (multiresolution VS post earthquake terrain dataset with dataset size of 2504322)
 - "SCpre_500_poi_on_500000.txt" (POI list with POI number of 500 on "SCpre_500000.off")
 - "SCpost_500_poi_on_500000.txt" (POI list with POI number of 500 on "SCpost_500000.off")
 - "SCpre_500_poi_on_1002528.txt" (POI list with POI number of 500 on "SCpre_1002528.off")
@@ -87,24 +73,24 @@ The datasets are as follows:
 - "SCpost_2000_poi_on_500000.txt" (POI list with POI number of 2000 on "SCpost_500000.off")
 - "SCpre_2500_poi_on_500000.txt" (POI list with POI number of 2500 on "SCpre_500000.off")
 - "SCpost_2500_poi_on_500000.txt" (POI list with POI number of 2500 on "SCpost_500000.off")
-- "SCpre_50_poi_on_10082.txt" (POI list with POI number of 50 on "SCpre_10082.off")
-- "SCpost_50_poi_on_10082.txt" (POI list with POI number of 50 on "SCpost_10082.off")
-- "SCpre_50_poi_on_20000.txt" (POI list with POI number of 50 on "SCpre_20000.off")
-- "SCpost_50_poi_on_20000.txt" (POI list with POI number of 50 on "SCpost_20000.off")
-- "SCpre_50_poi_on_30258.txt" (POI list with POI number of 50 on "SCpre_30258.off")
-- "SCpost_50_poi_on_30258.txt" (POI list with POI number of 50 on "SCpost_30258.off")
-- "SCpre_50_poi_on_40328.txt" (POI list with POI number of 50 on "SCpre_40328.off")
-- "SCpost_50_poi_on_40328.txt" (POI list with POI number of 50 on "SCpost_40328.off")
-- "SCpre_50_poi_on_50562.txt" (POI list with POI number of 50 on "SCpre_50562.off")
-- "SCpost_50_poi_on_50562.txt" (POI list with POI number of 50 on "SCpost_50562.off")
-- "SCpre_100_poi_on_10082.txt" (POI list with POI number of 100 on "SCpre_10082.off")
-- "SCpost_100_poi_on_10082.txt" (POI list with POI number of 100 on "SCpost_10082.off")
-- "SCpre_150_poi_on_10082.txt" (POI list with POI number of 150 on "SCpre_10082.off")
-- "SCpost_150_poi_on_10082.txt" (POI list with POI number of 150 on "SCpost_10082.off")
-- "SCpre_200_poi_on_10082.txt" (POI list with POI number of 200 on "SCpre_10082.off")
-- "SCpost_200_poi_on_10082.txt" (POI list with POI number of 200 on "SCpost_10082.off")
-- "SCpre_250_poi_on_10082.txt" (POI list with POI number of 250 on "SCpre_10082.off")
-- "SCpost_250_poi_on_10082.txt" (POI list with POI number of 250 on "SCpost_10082.off")
+- "SCpre_50_poi_on_500000.txt" (POI list with POI number of 50 on "SCpre_500000.off")
+- "SCpost_50_poi_on_500000.txt" (POI list with POI number of 50 on "SCpost_500000.off")
+- "SCpre_50_poi_on_1002528.txt" (POI list with POI number of 50 on "SCpre_1002528.off")
+- "SCpost_50_poi_on_1002528.txt" (POI list with POI number of 50 on "SCpost_1002528.off")
+- "SCpre_50_poi_on_1503378.txt" (POI list with POI number of 50 on "SCpre_1503378.off")
+- "SCpost_50_poi_on_1503378.txt" (POI list with POI number of 50 on "SCpost_1503378.off")
+- "SCpre_50_poi_on_2000000.txt" (POI list with POI number of 50 on "SCpre_2000000.off")
+- "SCpost_50_poi_on_2000000.txt" (POI list with POI number of 50 on "SCpost_2000000.off")
+- "SCpre_50_poi_on_2504322.txt" (POI list with POI number of 50 on "SCpre_2504322.off")
+- "SCpost_50_poi_on_2504322.txt" (POI list with POI number of 50 on "SCpost_2504322.off")
+- "SCpre_100_poi_on_500000.txt" (POI list with POI number of 100 on "SCpre_500000.off")
+- "SCpost_100_poi_on_500000.txt" (POI list with POI number of 100 on "SCpost_500000.off")
+- "SCpre_150_poi_on_500000.txt" (POI list with POI number of 150 on "SCpre_500000.off")
+- "SCpost_150_poi_on_500000.txt" (POI list with POI number of 150 on "SCpost_500000.off")
+- "SCpre_200_poi_on_500000.txt" (POI list with POI number of 200 on "SCpre_500000.off")
+- "SCpost_200_poi_on_500000.txt" (POI list with POI number of 200 on "SCpost_500000.off")
+- "SCpre_250_poi_on_500000.txt" (POI list with POI number of 250 on "SCpre_500000.off")
+- "SCpost_250_poi_on_500000.txt" (POI list with POI number of 250 on "SCpost_500000.off")
 - "AUpre_500_poi_on_500000.txt" (POI list with POI number of 500 on "AUpre_500000.off")
 - "AUpost_500_poi_on_500000.txt" (POI list with POI number of 500 on "AUpost_500000.off")
 - "AUpre_500_poi_on_1002528.txt" (POI list with POI number of 500 on "AUpre_1002528.off")
@@ -123,16 +109,24 @@ The datasets are as follows:
 - "AUpost_2000_poi_on_500000.txt" (POI list with POI number of 2000 on "AUpost_500000.off")
 - "AUpre_2500_poi_on_500000.txt" (POI list with POI number of 2500 on "AUpre_500000.off")
 - "AUpost_2500_poi_on_500000.txt" (POI list with POI number of 2500 on "AUpost_500000.off")
-- "AUpre_50_poi_on_10082.txt" (POI list with POI number of 50 on "AUpre_10082.off")
-- "AUpost_50_poi_on_10082.txt" (POI list with POI number of 50 on "AUpost_10082.off")
-- "AUpre_100_poi_on_10082.txt" (POI list with POI number of 100 on "AUpre_10082.off")
-- "AUpost_100_poi_on_10082.txt" (POI list with POI number of 100 on "AUpost_10082.off")
-- "AUpre_150_poi_on_10082.txt" (POI list with POI number of 150 on "AUpre_10082.off")
-- "AUpost_150_poi_on_10082.txt" (POI list with POI number of 150 on "AUpost_10082.off")
-- "AUpre_200_poi_on_10082.txt" (POI list with POI number of 200 on "AUpre_10082.off")
-- "AUpost_200_poi_on_10082.txt" (POI list with POI number of 200 on "AUpost_10082.off")
-- "AUpre_250_poi_on_10082.txt" (POI list with POI number of 250 on "AUpre_10082.off")
-- "AUpost_250_poi_on_10082.txt" (POI list with POI number of 250 on "AUpost_10082.off")
+- "AUpre_50_poi_on_500000.txt" (POI list with POI number of 50 on "AUpre_500000.off")
+- "AUpost_50_poi_on_500000.txt" (POI list with POI number of 50 on "AUpost_500000.off")
+- "AUpre_50_poi_on_1002528.txt" (POI list with POI number of 50 on "AUpre_1002528.off")
+- "AUpost_50_poi_on_1002528.txt" (POI list with POI number of 50 on "AUpost_1002528.off")
+- "AUpre_50_poi_on_1503378.txt" (POI list with POI number of 50 on "AUpre_1503378.off")
+- "AUpost_50_poi_on_1503378.txt" (POI list with POI number of 50 on "AUpost_1503378.off")
+- "AUpre_50_poi_on_2000000.txt" (POI list with POI number of 50 on "AUpre_2000000.off")
+- "AUpost_50_poi_on_2000000.txt" (POI list with POI number of 50 on "AUpost_2000000.off")
+- "AUpre_50_poi_on_2504322.txt" (POI list with POI number of 50 on "AUpre_2504322.off")
+- "AUpost_50_poi_on_2504322.txt" (POI list with POI number of 50 on "AUpost_2504322.off")
+- "AUpre_100_poi_on_500000.txt" (POI list with POI number of 100 on "AUpre_500000.off")
+- "AUpost_100_poi_on_500000.txt" (POI list with POI number of 100 on "AUpost_500000.off")
+- "AUpre_150_poi_on_500000.txt" (POI list with POI number of 150 on "AUpre_500000.off")
+- "AUpost_150_poi_on_500000.txt" (POI list with POI number of 150 on "AUpost_500000.off")
+- "AUpre_200_poi_on_500000.txt" (POI list with POI number of 200 on "AUpre_500000.off")
+- "AUpost_200_poi_on_500000.txt" (POI list with POI number of 200 on "AUpost_500000.off")
+- "AUpre_250_poi_on_500000.txt" (POI list with POI number of 250 on "AUpre_500000.off")
+- "AUpost_250_poi_on_500000.txt" (POI list with POI number of 250 on "AUpost_500000.off")
 - "VSpre_500_poi_on_500000.txt" (POI list with POI number of 500 on "VSpre_500000.off")
 - "VSpost_500_poi_on_500000.txt" (POI list with POI number of 500 on "VSpost_500000.off")
 - "VSpre_500_poi_on_1002528.txt" (POI list with POI number of 500 on "VSpre_1002528.off")
@@ -151,16 +145,24 @@ The datasets are as follows:
 - "VSpost_2000_poi_on_500000.txt" (POI list with POI number of 2000 on "VSpost_500000.off")
 - "VSpre_2500_poi_on_500000.txt" (POI list with POI number of 2500 on "VSpre_500000.off")
 - "VSpost_2500_poi_on_500000.txt" (POI list with POI number of 2500 on "VSpost_500000.off")
-- "VSpre_50_poi_on_10082.txt" (POI list with POI number of 50 on "VSpre_10082.off")
-- "VSpost_50_poi_on_10082.txt" (POI list with POI number of 50 on "VSpost_10082.off")
-- "VSpre_100_poi_on_10082.txt" (POI list with POI number of 100 on "VSpre_10082.off")
-- "VSpost_100_poi_on_10082.txt" (POI list with POI number of 100 on "VSpost_10082.off")
-- "VSpre_150_poi_on_10082.txt" (POI list with POI number of 150 on "VSpre_10082.off")
-- "VSpost_150_poi_on_10082.txt" (POI list with POI number of 150 on "VSpost_10082.off")
-- "VSpre_200_poi_on_10082.txt" (POI list with POI number of 200 on "VSpre_10082.off")
-- "VSpost_200_poi_on_10082.txt" (POI list with POI number of 200 on "VSpost_10082.off")
-- "VSpre_250_poi_on_10082.txt" (POI list with POI number of 250 on "VSpre_10082.off")
-- "VSpost_250_poi_on_10082.txt" (POI list with POI number of 250 on "VSpost_10082.off")
+- "VSpre_50_poi_on_500000.txt" (POI list with POI number of 50 on "VSpre_500000.off")
+- "VSpost_50_poi_on_500000.txt" (POI list with POI number of 50 on "VSpost_500000.off")
+- "VSpre_50_poi_on_1002528.txt" (POI list with POI number of 50 on "VSpre_1002528.off")
+- "VSpost_50_poi_on_1002528.txt" (POI list with POI number of 50 on "VSpost_1002528.off")
+- "VSpre_50_poi_on_1503378.txt" (POI list with POI number of 50 on "VSpre_1503378.off")
+- "VSpost_50_poi_on_1503378.txt" (POI list with POI number of 50 on "VSpost_1503378.off")
+- "VSpre_50_poi_on_2000000.txt" (POI list with POI number of 50 on "VSpre_2000000.off")
+- "VSpost_50_poi_on_2000000.txt" (POI list with POI number of 50 on "VSpost_2000000.off")
+- "VSpre_50_poi_on_2504322.txt" (POI list with POI number of 50 on "VSpre_2504322.off")
+- "VSpost_50_poi_on_2504322.txt" (POI list with POI number of 50 on "VSpost_2504322.off")
+- "VSpre_100_poi_on_500000.txt" (POI list with POI number of 100 on "VSpre_500000.off")
+- "VSpost_100_poi_on_500000.txt" (POI list with POI number of 100 on "VSpost_500000.off")
+- "VSpre_100_poi_on_500000.txt" (POI list with POI number of 150 on "VSpre_500000.off")
+- "VSpost_100_poi_on_500000.txt" (POI list with POI number of 150 on "VSpost_500000.off")
+- "VSpre_200_poi_on_500000.txt" (POI list with POI number of 200 on "VSpre_500000.off")
+- "VSpost_200_poi_on_500000.txt" (POI list with POI number of 200 on "VSpost_500000.off")
+- "VSpre_250_poi_on_500000.txt" (POI list with POI number of 250 on "VSpre_500000.off")
+- "VSpost_250_poi_on_500000.txt" (POI list with POI number of 250 on "VSpost_500000.off")
 
 Data Format:
 
@@ -217,54 +219,62 @@ For the [terrain_data_and_dataset_size_and_poi_number_map_index], each index val
 
 | Index | Terrain data | Dataset size | POI number |
 | ----------- | ----------- | ----------- | ----------- |
-| 0 | SC | 10082 | 50 |
-| 1 | SC | 10082 | 100 |
-| 2 | SC | 10082 | 150 |
-| 3 | SC | 10082 | 200 |
-| 4 | SC | 10082 | 250 |
-| 5 | SC | 20000 | 50 |
-| 6 | SC | 30258 | 50 |
-| 7 | SC | 40328 | 50 |
-| 8 | SC | 50562 | 50 |
-| 9 | AU | 10082 | 50 |
-| 10 | AU | 10082 | 100 |
-| 11 | AU | 10082 | 150 |
-| 12 | AU | 10082 | 200 |
-| 13 | AU | 10082 | 250 |
-| 14 | VS | 10082 | 50 |
-| 15 | VS | 10082 | 100 |
-| 16 | VS | 10082 | 150 |
-| 17 | VS | 10082 | 200 |
-| 18 | VS | 10082 | 250 |
-| 19 | SC | 500000 | 500 |
-| 20 | SC | 500000 | 1000 |
-| 21 | SC | 500000 | 1500 |
-| 22 | SC | 500000 | 2000 |
-| 23 | SC | 500000 | 2500 |
-| 24 | SC | 1002528 | 500 |
-| 25 | SC | 1503378 | 500 |
-| 26 | SC | 2000000 | 500 |
-| 27 | SC | 2504322 | 500 |
-| 28 | AU | 500000 | 500 |
-| 29 | AU | 500000 | 1000 |
-| 30 | AU | 500000 | 1500 |
-| 31 | AU | 500000 | 2000 |
-| 32 | AU | 500000 | 2500 |
-| 33 | AU | 1002528 | 500 |
-| 34 | AU | 1503378 | 500 |
-| 35 | AU | 2000000 | 500 |
-| 36 | AU | 2504322 | 500 |
-| 37 | VS | 500000 | 500 |
-| 38 | VS | 500000 | 1000 |
-| 39 | VS | 500000 | 1500 |
-| 40 | VS | 500000 | 2000 |
-| 41 | VS | 500000 | 2500 |
-| 42 | VS | 1002528 | 500 |
-| 43 | VS | 1503378 | 500 |
-| 44 | VS | 2000000 | 500 |
-| 45 | VS | 2504322 | 500 |
+| 0 | SC | 500000 | 50 |
+| 1 | SC | 500000 | 100 |
+| 2 | SC | 500000 | 150 |
+| 3 | SC | 500000 | 200 |
+| 4 | SC | 500000 | 250 |
+| 5 | SC | 1002528 | 50 |
+| 6 | SC | 1503378 | 50 |
+| 7 | SC | 2000000 | 50 |
+| 8 | SC | 2504322 | 50 |
+| 9 | AU | 500000 | 50 |
+| 10 | AU | 500000 | 100 |
+| 11 | AU | 500000 | 150 |
+| 12 | AU | 500000 | 200 |
+| 13 | AU | 500000 | 250 |
+| 14 | AU | 1002528 | 50 |
+| 15 | AU | 1503378 | 50 |
+| 16 | AU | 2000000 | 50 |
+| 17 | AU | 2504322 | 50 |
+| 18 | VS | 500000 | 50 |
+| 19 | VS | 500000 | 100 |
+| 20 | VS | 500000 | 150 |
+| 21 | VS | 500000 | 200 |
+| 22 | VS | 500000 | 250 |
+| 23 | VS | 1002528 | 50 |
+| 24 | VS | 1503378 | 50 |
+| 25 | VS | 2000000 | 50 |
+| 26 | VS | 2504322 | 50 |
+| 27 | SC | 500000 | 50 |
+| 28 | SC | 500000 | 1000 |
+| 29 | SC | 500000 | 1500 |
+| 30 | SC | 500000 | 2000 |
+| 31 | SC | 500000 | 2500 |
+| 32 | SC | 1002528 | 500 |
+| 33 | SC | 1503378 | 500 |
+| 34 | SC | 2000000 | 500 |
+| 35 | SC | 2504322 | 500 |
+| 36 | AU | 500000 | 500 |
+| 37 | AU | 500000 | 1000 |
+| 38 | AU | 500000 | 1500 |
+| 39 | AU | 500000 | 2000 |
+| 40 | AU | 500000 | 2500 |
+| 41 | AU | 1002528 | 500 |
+| 42 | AU | 1503378 | 500 |
+| 43 | AU | 2000000 | 500 |
+| 44 | AU | 2504322 | 500 |
+| 45 | VS | 500000 | 500 |
+| 46 | VS | 500000 | 1000 |
+| 47 | VS | 500000 | 1500 |
+| 48 | VS | 500000 | 2000 |
+| 49 | VS | 500000 | 2500 |
+| 50 | VS | 1002528 | 500 |
+| 51 | VS | 1503378 | 500 |
+| 52 | VS | 2000000 | 500 |
+| 53 | VS | 2504322 | 500 |
 
-By default, the project will run POU-N1, POU-N2, POU, WSPD-oracle, SP-oracle, and KF. But as mentioned in our paper, WSPD_oracle and SP_oracle are very time consuming. So when the dataset size is large, i.e., [terrain_data_and_dataset_size_and_poi_number_map_index] > 18, the project will only run POU-N1, POU-N2, POU, and KF.
+By default, the project will run POU-N1, POU-N2, POU, WSPD-oracle, WSPDA-oracle, and KF. But as mentioned in our paper, WSPD-oracle and WSPDA-oracle are very time consuming. So when the dataset size is large, i.e., [terrain_data_and_dataset_size_and_poi_number_map_index] > 27, the project will only run POU-N1, POU-N2, POU, and KF.
 
 An example:
 
@@ -272,7 +282,7 @@ An example:
 ./main 0 0.5
 ```
 
-In this example, [terrain_data_and_dataset_size_and_poi_number_map_index] is 0, [epsilon] is 0.5. So, it will run SC pre earthquake terrain dataset and SC post earthquake terrain dataset, with dataset size equal to 10082 and poi number equal to 50, and epsilon is 0.5. It will run siz algorithms, i.e., POU-N1, POU-N2, POU, WSPD-oracle, SP-oracle, and KF.
+In this example, [terrain_data_and_dataset_size_and_poi_number_map_index] is 0, [epsilon] is 0.5. So, it will run SC pre earthquake terrain dataset and SC post earthquake terrain dataset, with dataset size equal to 500000 and poi number equal to 50, and epsilon is 0.5. It will run six algorithms, i.e., POU-N1, POU-N2, POU, WSPD-oracle, WSPDA-oracle, and KF.
 
 ## Output
 
@@ -280,7 +290,7 @@ The output will be stored in "output/output.txt" file. The format will be as fol
 
 ```
 
-[pre_dataset] [post_dataset] [datasize] [poi_num] [epsilon] [pre_construction_time1 (ms)] [pre_construction_time2 (ms)] [pre_query_time (ms)] [pre_memory_usage1 (MB)] [pre_memory_usage2 (MB)] [pre_index_size] [pre_index_edge_num] [pre_index/MST_weight] [pre_distance_error] [post_Update_time1 (ms)] [post_Update_time2 (ms)] [post_query_time (ms)] [post_memory_usage1 (MB)] [post_memory_usage2 (MB)] [post_index_size] [post_index_edge_num] [post_index/MST_weight] [post_distance_error]
+[pre_dataset] [post_dataset] [datasize] [poi_num] [epsilon] [pre_construction_time (ms)] [pre_memory_usage (MB)]  [pre_index_size (MB)] [pre_index_edge_num] [pre_index/MST_weight] [post_update_time1 (ms)] [post_update_time2 (ms)] [post_query_time (ms)] [post_memory_usage (MB)] [post_index_size (MB)] [post_output_size (MB)] [post_index_edge_num] [post_index/MST_weight] [post_distance_error]
 
 ```
 

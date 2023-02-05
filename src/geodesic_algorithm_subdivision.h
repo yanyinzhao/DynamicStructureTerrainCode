@@ -114,16 +114,17 @@ namespace geodesic
 
 			m_nodes.resize(m_mesh->vertices().size());
 			m_nodes.reserve(m_mesh->vertices().size() +
-							m_mesh->longest_edge / std::sqrt(2) / subdivision_level);
+							m_mesh->edges().size() * subdivision_level);
+			// m_mesh->longest_edge / std::sqrt(2) / subdivision_level);
 
 			for (unsigned i = 0; i < m_mesh->edges().size(); ++i)
 			{
 				edge_pointer e = &m_mesh->edges()[i];
 				//        int noofpoints = e->length()/std::sqrt(2)/subdivision_level;
-				for (unsigned i = 0; i < subdivision_level; ++i)
+				for (unsigned j = 0; j < subdivision_level; ++j)
 				// for(unsigned i=0; i<noofpoints; ++i)
 				{
-					double offset = (double)(i + 1) / (double)(subdivision_level + 1);
+					double offset = (double)(j + 1) / (double)(subdivision_level + 1);
 					m_nodes.push_back(Node(e, offset));
 				}
 			}

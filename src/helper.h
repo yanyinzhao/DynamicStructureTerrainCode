@@ -82,6 +82,7 @@ public:
     GeoNode *node2;
     double distance;
     std::vector<geodesic::SurfacePoint> path;
+    std::vector<int> face_sequence_index_list;
 };
 
 void hash_function_two_keys_to_one_key(int row_or_column, int i, int j, int &i_j)
@@ -93,6 +94,27 @@ void hash_function_one_key_to_two_keys(int row_or_column, int i_j, int &i, int &
 {
     i = i_j / row_or_column;
     j = i_j % row_or_column;
+}
+
+void get_face_sequence(std::vector<geodesic::SurfacePoint> &path,
+                       std::vector<int> &face_sequence_index_list)
+{
+    face_sequence_index_list.clear();
+    for (unsigned i = 0; i < path.size() - 1; ++i)
+    {
+        geodesic::SurfacePoint &s_1 = path[i];
+        geodesic::SurfacePoint &s_2 = path[i + 1];
+        for (unsigned j = 0; j < s_2.base_element()->adjacent_faces().size(); ++j)
+        {
+            for (unsigned k = 0; k < s_1.base_element()->adjacent_faces().size(); ++k)
+            {
+                if (s_2.base_element()->adjacent_faces()[j]->id() == s_1.base_element()->adjacent_faces()[k]->id())
+                {
+                    face_sequence_index_list.push_back(s_2.base_element()->adjacent_faces()[j]->id());
+                }
+            }
+        }
+    }
 }
 
 void build_level(int &geo_tree_node_id, geodesic::Mesh *mesh, int depth,
@@ -325,7 +347,7 @@ void generate_geo_pair(int geo_tree_node_id, int &WSPD_oracle_edge_num, double &
                        std::unordered_map<int, int> &geo_pair_unordered_map,
                        std::unordered_map<int, double> &pairwise_distance_unordered_map,
                        std::unordered_map<int, std::vector<geodesic::SurfacePoint>> &pairwise_path_unordered_map,
-                       int &pairwise_path_poi_to_poi_size)
+                       int &pairwise_path_poi_to_poi_size, int &face_sequence_index_list_size)
 {
     int x_in_geo_node_id = x.id;
     int y_in_geo_node_id = y.id;
@@ -388,15 +410,19 @@ void generate_geo_pair(int geo_tree_node_id, int &WSPD_oracle_edge_num, double &
         }
         if (distancexy >= (2.0 / epsilon + 2.0) * max(x.radius, y.radius))
         {
+            std::vector<int> face_sequence_index_listxy;
+            face_sequence_index_listxy.clear();
+            get_face_sequence(pathxy, face_sequence_index_listxy);
             WSPD_oracle_edge_num++;
             GeoPair *nodepair = new GeoPair();
             nodepair->node1 = &x;
             nodepair->node2 = &y;
             nodepair->distance = distancexy;
             nodepair->path = pathxy;
+            nodepair->face_sequence_index_list = face_sequence_index_listxy;
             WSPD_oracle_weight += distancexy;
             pairwise_path_poi_to_poi_size += pathxy.size();
-
+            face_sequence_index_list_size += face_sequence_index_listxy.size();
             int x_in_geo_node_id_for_geo_pair = x.id;
             int y_in_geo_node_id_for_geo_pair = y.id;
             int x_y_in_geo_node_id_for_geo_pair;
@@ -415,24 +441,26 @@ void generate_geo_pair(int geo_tree_node_id, int &WSPD_oracle_edge_num, double &
             {
                 for (std::list<GeoNode *>::iterator ite = x.children.begin(); ite != x.children.end(); ite++)
                 {
-                    generate_geo_pair(geo_tree_node_id, WSPD_oracle_edge_num, WSPD_oracle_weight, mesh, (**ite), y, algorithm, epsilon, geopairs, poi_unordered_map, geo_pair_unordered_map, pairwise_distance_unordered_map, pairwise_path_unordered_map, pairwise_path_poi_to_poi_size);
+                    generate_geo_pair(geo_tree_node_id, WSPD_oracle_edge_num, WSPD_oracle_weight, mesh, (**ite), y, algorithm, epsilon, geopairs, poi_unordered_map, geo_pair_unordered_map, pairwise_distance_unordered_map, pairwise_path_unordered_map, pairwise_path_poi_to_poi_size, face_sequence_index_list_size);
                 }
             }
             else
             {
                 for (std::list<GeoNode *>::iterator jte = y.children.begin(); jte != y.children.end(); jte++)
                 {
-                    generate_geo_pair(geo_tree_node_id, WSPD_oracle_edge_num, WSPD_oracle_weight, mesh, x, (**jte), algorithm, epsilon, geopairs, poi_unordered_map, geo_pair_unordered_map, pairwise_distance_unordered_map, pairwise_path_unordered_map, pairwise_path_poi_to_poi_size);
+                    generate_geo_pair(geo_tree_node_id, WSPD_oracle_edge_num, WSPD_oracle_weight, mesh, x, (**jte), algorithm, epsilon, geopairs, poi_unordered_map, geo_pair_unordered_map, pairwise_distance_unordered_map, pairwise_path_unordered_map, pairwise_path_poi_to_poi_size, face_sequence_index_list_size);
                 }
             }
         }
     }
 }
 
-double distance_query_geo(int geo_tree_node_id, GeoNode &x, GeoNode &y,
+double one_path_query_geo(int geo_tree_node_id, GeoNode &x, GeoNode &y,
+                          int &returned_source_neighbour_index, int &returned_destination_neighbour_index,
                           std::unordered_map<int, GeoPair *> &geopairs,
                           std::unordered_map<int, int> &poi_unordered_map,
-                          std::vector<geodesic::SurfacePoint> &approximate_path)
+                          std::vector<geodesic::SurfacePoint> &approximate_path,
+                          std::vector<int> &face_sequence_index_list)
 {
     GeoNode *p;
 
@@ -454,7 +482,10 @@ double distance_query_geo(int geo_tree_node_id, GeoNode &x, GeoNode &y,
 
     if (geopairs.count(x_y_in_geo_node_id_for_geo_pair) != 0)
     {
+        returned_source_neighbour_index = x.index;
+        returned_destination_neighbour_index = y.index;
         approximate_path = geopairs[x_y_in_geo_node_id_for_geo_pair]->path;
+        face_sequence_index_list = geopairs[x_y_in_geo_node_id_for_geo_pair]->face_sequence_index_list;
         return geopairs[x_y_in_geo_node_id_for_geo_pair]->distance;
     }
 
@@ -475,7 +506,10 @@ double distance_query_geo(int geo_tree_node_id, GeoNode &x, GeoNode &y,
 
         if (geopairs.count(x_y_in_geo_node_id_for_geo_pair) != 0)
         {
+            returned_source_neighbour_index = (*p).index;
+            returned_destination_neighbour_index = y.index;
             approximate_path = geopairs[x_y_in_geo_node_id_for_geo_pair]->path;
+            face_sequence_index_list = geopairs[x_y_in_geo_node_id_for_geo_pair]->face_sequence_index_list;
             return geopairs[x_y_in_geo_node_id_for_geo_pair]->distance;
         }
     }
@@ -496,30 +530,185 @@ double distance_query_geo(int geo_tree_node_id, GeoNode &x, GeoNode &y,
 
         if (geopairs.count(x_y_in_geo_node_id_for_geo_pair) != 0)
         {
+            returned_source_neighbour_index = x.index;
+            returned_destination_neighbour_index = (*p).index;
             approximate_path = geopairs[x_y_in_geo_node_id_for_geo_pair]->path;
+            face_sequence_index_list = geopairs[x_y_in_geo_node_id_for_geo_pair]->face_sequence_index_list;
             return geopairs[x_y_in_geo_node_id_for_geo_pair]->distance;
         }
     }
-    return distance_query_geo(geo_tree_node_id, *x.parent, *y.parent, geopairs, poi_unordered_map, approximate_path);
+    return one_path_query_geo(geo_tree_node_id, *x.parent, *y.parent, returned_source_neighbour_index, returned_destination_neighbour_index, geopairs, poi_unordered_map, approximate_path, face_sequence_index_list);
 }
 
-void get_face_sequence(std::vector<geodesic::SurfacePoint> &path,
-                       std::vector<int> &face_sequence_index_list)
+void three_paths_query_geo(int geo_tree_node_id, int source_poi_index, int destination_poi_index, bool &one_path,
+                           std::vector<GeoNode *> &all_poi,
+                           std::unordered_map<int, GeoNode *> &geo_node_in_partition_tree_unordered_map,
+                           std::unordered_map<int, GeoPair *> &geopairs,
+                           std::unordered_map<int, int> &poi_unordered_map,
+                           double &approximate_distance,
+                           std::vector<geodesic::SurfacePoint> &approximate_path,
+                           std::vector<int> &face_sequence_index_list)
 {
-    face_sequence_index_list.clear();
-    for (unsigned i = 0; i < path.size() - 1; ++i)
+    double approximate_distance_source_short;
+    double approximate_distance_destination_short;
+    std::vector<geodesic::SurfacePoint> approximate_path_source_short;
+    std::vector<geodesic::SurfacePoint> approximate_path_destination_short;
+    std::vector<int> face_sequence_index_list_source_short;
+    std::vector<int> face_sequence_index_list_destination_short;
+
+    int returned_source_neighbour_index;
+    int returned_destination_neighbour_index;
+
+    approximate_distance = one_path_query_geo(geo_tree_node_id, *geo_node_in_partition_tree_unordered_map[all_poi[source_poi_index]->index], *geo_node_in_partition_tree_unordered_map[all_poi[destination_poi_index]->index],
+                                              returned_source_neighbour_index, returned_destination_neighbour_index, geopairs, poi_unordered_map, approximate_path, face_sequence_index_list);
+    one_path = true;
+
+    if (all_poi[destination_poi_index]->index != returned_destination_neighbour_index)
     {
-        geodesic::SurfacePoint &s_1 = path[i];
-        geodesic::SurfacePoint &s_2 = path[i + 1];
-        for (unsigned j = 0; j < s_2.base_element()->adjacent_faces().size(); ++j)
+        int destination_returned_source_neighbour_index;
+        int destination_returned_destination_neighbour_index;
+        approximate_distance_destination_short = one_path_query_geo(geo_tree_node_id, *geo_node_in_partition_tree_unordered_map[returned_destination_neighbour_index], *geo_node_in_partition_tree_unordered_map[all_poi[destination_poi_index]->index],
+                                                                    destination_returned_source_neighbour_index, destination_returned_destination_neighbour_index, geopairs, poi_unordered_map, approximate_path_destination_short, face_sequence_index_list_destination_short);
+        assert(destination_returned_source_neighbour_index == returned_destination_neighbour_index && destination_returned_destination_neighbour_index == all_poi[destination_poi_index]->index);
+        approximate_distance += approximate_distance_destination_short;
+        one_path = false;
+    }
+    if (all_poi[source_poi_index]->index != returned_source_neighbour_index)
+    {
+        int source_returned_source_neighbour_index;
+        int source_returned_destination_neighbour_index;
+        approximate_distance_source_short = one_path_query_geo(geo_tree_node_id, *geo_node_in_partition_tree_unordered_map[all_poi[source_poi_index]->index], *geo_node_in_partition_tree_unordered_map[returned_source_neighbour_index],
+                                                               source_returned_source_neighbour_index, source_returned_destination_neighbour_index, geopairs, poi_unordered_map, approximate_path_source_short, face_sequence_index_list_source_short);
+        assert(source_returned_source_neighbour_index == all_poi[source_poi_index]->index && source_returned_destination_neighbour_index == returned_source_neighbour_index);
+        approximate_distance += approximate_distance_source_short;
+        one_path = false;
+    }
+
+    if (approximate_path_destination_short.size() > 0)
+    {
+        if (approximate_path_destination_short[0].getx() == approximate_path[0].getx() &&
+            approximate_path_destination_short[0].gety() == approximate_path[0].gety() &&
+            approximate_path_destination_short[0].getz() == approximate_path[0].getz())
         {
-            for (unsigned k = 0; k < s_1.base_element()->adjacent_faces().size(); ++k)
+            std::reverse(approximate_path.begin(), approximate_path.end());
+            std::reverse(face_sequence_index_list.begin(), face_sequence_index_list.end());
+            for (int i = 0; i < approximate_path_destination_short.size(); i++)
             {
-                if (s_2.base_element()->adjacent_faces()[j]->id() == s_1.base_element()->adjacent_faces()[k]->id())
-                {
-                    face_sequence_index_list.push_back(s_2.base_element()->adjacent_faces()[j]->id());
-                }
+                approximate_path.push_back(approximate_path_destination_short[i]);
             }
+            for (int i = 0; i < face_sequence_index_list_destination_short.size(); i++)
+            {
+                face_sequence_index_list.push_back(face_sequence_index_list_destination_short[i]);
+            }
+        }
+        else if (approximate_path_destination_short[0].getx() == approximate_path[approximate_path.size() - 1].getx() &&
+                 approximate_path_destination_short[0].gety() == approximate_path[approximate_path.size() - 1].gety() &&
+                 approximate_path_destination_short[0].getz() == approximate_path[approximate_path.size() - 1].getz())
+        {
+            for (int i = 0; i < approximate_path_destination_short.size(); i++)
+            {
+                approximate_path.push_back(approximate_path_destination_short[i]);
+            }
+            for (int i = 0; i < face_sequence_index_list_destination_short.size(); i++)
+            {
+                face_sequence_index_list.push_back(face_sequence_index_list_destination_short[i]);
+            }
+        }
+        else if (approximate_path_destination_short[approximate_path_destination_short.size() - 1].getx() == approximate_path[0].getx() &&
+                 approximate_path_destination_short[approximate_path_destination_short.size() - 1].gety() == approximate_path[0].gety() &&
+                 approximate_path_destination_short[approximate_path_destination_short.size() - 1].getz() == approximate_path[0].getz())
+        {
+            std::reverse(approximate_path.begin(), approximate_path.end());
+            std::reverse(face_sequence_index_list.begin(), face_sequence_index_list.end());
+            for (int i = approximate_path_destination_short.size() - 1; i >= 0; i--)
+            {
+                approximate_path.push_back(approximate_path_destination_short[i]);
+            }
+            for (int i = face_sequence_index_list_destination_short.size() - 1; i >= 0; i--)
+            {
+                face_sequence_index_list.push_back(face_sequence_index_list_destination_short[i]);
+            }
+        }
+        else if (approximate_path_destination_short[approximate_path_destination_short.size() - 1].getx() == approximate_path[approximate_path.size() - 1].getx() &&
+                 approximate_path_destination_short[approximate_path_destination_short.size() - 1].gety() == approximate_path[approximate_path.size() - 1].gety() &&
+                 approximate_path_destination_short[approximate_path_destination_short.size() - 1].getz() == approximate_path[approximate_path.size() - 1].getz())
+        {
+            for (int i = approximate_path_destination_short.size() - 1; i >= 0; i--)
+            {
+                approximate_path.push_back(approximate_path_destination_short[i]);
+            }
+            for (int i = face_sequence_index_list_destination_short.size() - 1; i >= 0; i--)
+            {
+                face_sequence_index_list.push_back(face_sequence_index_list_destination_short[i]);
+            }
+        }
+        else
+        {
+            assert(false);
+        }
+    }
+
+    if (approximate_path_source_short.size() > 0)
+    {
+        if (approximate_path_source_short[0].getx() == approximate_path[0].getx() &&
+            approximate_path_source_short[0].gety() == approximate_path[0].gety() &&
+            approximate_path_source_short[0].getz() == approximate_path[0].getz())
+        {
+            std::reverse(approximate_path.begin(), approximate_path.end());
+            std::reverse(face_sequence_index_list.begin(), face_sequence_index_list.end());
+            for (int i = 0; i < approximate_path_source_short.size(); i++)
+            {
+                approximate_path.push_back(approximate_path_source_short[i]);
+            }
+            for (int i = 0; i < face_sequence_index_list_source_short.size(); i++)
+            {
+                face_sequence_index_list.push_back(face_sequence_index_list_source_short[i]);
+            }
+        }
+        else if (approximate_path_source_short[0].getx() == approximate_path[approximate_path.size() - 1].getx() &&
+                 approximate_path_source_short[0].gety() == approximate_path[approximate_path.size() - 1].gety() &&
+                 approximate_path_source_short[0].getz() == approximate_path[approximate_path.size() - 1].getz())
+        {
+            for (int i = 0; i < approximate_path_source_short.size(); i++)
+            {
+                approximate_path.push_back(approximate_path_source_short[i]);
+            }
+            for (int i = 0; i < face_sequence_index_list_source_short.size(); i++)
+            {
+                face_sequence_index_list.push_back(face_sequence_index_list_source_short[i]);
+            }
+        }
+        else if (approximate_path_source_short[approximate_path_source_short.size() - 1].getx() == approximate_path[0].getx() &&
+                 approximate_path_source_short[approximate_path_source_short.size() - 1].gety() == approximate_path[0].gety() &&
+                 approximate_path_source_short[approximate_path_source_short.size() - 1].getz() == approximate_path[0].getz())
+        {
+            std::reverse(approximate_path.begin(), approximate_path.end());
+            std::reverse(face_sequence_index_list.begin(), face_sequence_index_list.end());
+            for (int i = approximate_path_source_short.size() - 1; i >= 0; i--)
+            {
+                approximate_path.push_back(approximate_path_source_short[i]);
+            }
+            for (int i = face_sequence_index_list_source_short.size() - 1; i >= 0; i--)
+            {
+                face_sequence_index_list.push_back(face_sequence_index_list_source_short[i]);
+            }
+        }
+        else if (approximate_path_source_short[approximate_path_source_short.size() - 1].getx() == approximate_path[approximate_path.size() - 1].getx() &&
+                 approximate_path_source_short[approximate_path_source_short.size() - 1].gety() == approximate_path[approximate_path.size() - 1].gety() &&
+                 approximate_path_source_short[approximate_path_source_short.size() - 1].getz() == approximate_path[approximate_path.size() - 1].getz())
+        {
+            for (int i = approximate_path_source_short.size() - 1; i >= 0; i--)
+            {
+                approximate_path.push_back(approximate_path_source_short[i]);
+            }
+            for (int i = face_sequence_index_list_source_short.size() - 1; i >= 0; i--)
+            {
+                face_sequence_index_list.push_back(face_sequence_index_list_source_short[i]);
+            }
+        }
+        else
+        {
+            assert(false);
         }
     }
 }
@@ -833,7 +1022,6 @@ void Graph::shortest_path_Dijkstra(int src, std::vector<double> &dist, std::vect
             double weight = (*i).second;
             if (dist[v] > dist[u] + weight)
             {
-
                 dist[v] = dist[u] + weight;
                 prev[v] = u;
                 pq.push(std::make_pair(dist[v], v));
@@ -851,7 +1039,6 @@ void Graph::shortest_path_Dijkstra(int src, std::vector<double> &dist, std::vect
             {
                 j = prev[j];
                 path[i].push_back(j);
-                // std::cout << j << std::endl;
             } while (j != src);
         }
     }
@@ -886,19 +1073,18 @@ void Graph::shortest_path_Dijkstra(int src, int dest, std::vector<double> &dist,
             }
         }
     }
-    for (int i = 0; i < dist.size(); i++)
+
+    int i = dest;
+    // note that the path is in reverse order
+    path[i].push_back(i);
+    if (i != src)
     {
-        // note that the path is in reverse order
-        path[i].push_back(i);
-        if (i != src)
+        int j = i;
+        do
         {
-            int j = i;
-            do
-            {
-                j = prev[j];
-                path[i].push_back(j);
-            } while (j != src);
-        }
+            j = prev[j];
+            path[i].push_back(j);
+        } while (j != src);
     }
 }
 
