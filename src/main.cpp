@@ -148,16 +148,16 @@ int main(int argc, char **argv)
 
        exact_distance(&post_mesh, post_poi_list, source_poi_index, destination_poi_index, post_exact_distance);
 
-       std::cout << "== POU_N1 ==" << std::endl;
-       POU_N1(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, source_poi_index,
-              destination_poi_index, post_exact_distance, pre_MST_weight,
-              post_MST_weight, write_file_header);
+       std::cout << "== POU_Naive1 ==" << std::endl;
+       POU_Naive1(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, source_poi_index,
+                  destination_poi_index, post_exact_distance, pre_MST_weight,
+                  post_MST_weight, write_file_header);
        std::cout << std::endl;
 
-       std::cout << "== POU_N2 ==" << std::endl;
-       POU_N2(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
-              source_poi_index, destination_poi_index, post_exact_distance,
-              pre_MST_weight, post_MST_weight, write_file_header);
+       std::cout << "== POU_Naive2 ==" << std::endl;
+       POU_Naive2(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
+                  source_poi_index, destination_poi_index, post_exact_distance,
+                  pre_MST_weight, post_MST_weight, write_file_header);
        std::cout << std::endl;
 
        std::cout << "== POU ==" << std::endl;
@@ -174,10 +174,10 @@ int main(int argc, char **argv)
                           pre_MST_weight, post_MST_weight, write_file_header);
               std::cout << std::endl;
 
-              std::cout << "== WSPDA_oracle ==" << std::endl;
-              WSPDA_oracle(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
-                           source_poi_index, destination_poi_index, post_exact_distance,
-                           pre_MST_weight, post_MST_weight, write_file_header);
+              std::cout << "== WSPD_oracle_Adapt ==" << std::endl;
+              WSPD_oracle_Adapt(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
+                                source_poi_index, destination_poi_index, post_exact_distance,
+                                pre_MST_weight, post_MST_weight, write_file_header);
               std::cout << std::endl;
        }
 

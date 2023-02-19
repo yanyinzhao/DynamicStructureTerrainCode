@@ -4,14 +4,14 @@
 
 This project provides the implementation of the algorithm for calculating a shortest path oracle on updated terrain surface.
 
-Our oralce POU, and the baselines, i.e., WSPD-oracle, WSPDA-oracle, and KF are studied in the experiments. In order to conduct the ablation study, i.e., show that algorithm HGS could significantly reduce the running time compared with algorithm GS, and could significantly reduce the oracle size and oracle weight compared with original complete graph, we also studied POU-N1 and POU-N2 in the experiments. In total, we compared six algorithms, namely, WSPD-oracle, WSPDA-oracle, POU-N1, POU-N2, POU, and KF. Since WSPD-oracle and WSPDA-oracle are not feasible on large-version POI due to their expensive oracle construction time, so we (1) compared these six algorithms on our 15 datasets with small-version POI (default 50 POIs), and (2) compared POU-N1, POU-N2, POU, and KF on our 15 datasets with large-version POI (default 500 POIs). We refer the readers to our paper for more details.
+Our oralce POU, and the baselines, i.e., WSPD-oracle, WSPD-oracle-Adapt, and KF are studied in the experiments. In order to conduct the ablation study, i.e., show that algorithm HGS could significantly reduce the running time compared with algorithm GS, and could significantly reduce the oracle size and oracle weight compared with original complete graph, we also studied POU-Naive1 and POU-Naive2 in the experiments. In total, we compared six algorithms, namely, WSPD-oracle, WSPD-oracle-Adapt, POU-Naive1, POU-Naive2, POU, and KF. Since WSPD-oracle and WSPD-oracle-Adapt are not feasible on large-version POI due to their expensive oracle construction time, so we (1) compared these six algorithms on our 15 datasets with small-version POI (default 50 POIs), and (2) compared POU-Naive1, POU-Naive2, POU, and KF on our 15 datasets with large-version POI (default 500 POIs). We refer the readers to our paper for more details.
 
 In total, we compared six algorithms as follows:
 
 - WSPD-oracle (oracle based baseline)
-- WSPDA-oracle (adapted oracle based baseline)
-- POU-N1 (variation)
-- POU-N2 (variation)
+- WSPD-oracle-Adapt (adapted oracle based baseline)
+- POU-Naive1 (variation)
+- POU-Naive2 (variation)
 - POU (our oracle)
 - KF (on-the-fly baseline)
 
@@ -274,7 +274,7 @@ For the [terrain_data_and_dataset_size_and_poi_number_map_index], each index val
 | 52 | VS | 2000000 | 500 |
 | 53 | VS | 2504322 | 500 |
 
-By default, the project will run POU-N1, POU-N2, POU, WSPD-oracle, WSPDA-oracle, and KF. But as mentioned in our paper, WSPD-oracle and WSPDA-oracle are very time consuming. So when the dataset size is large, i.e., [terrain_data_and_dataset_size_and_poi_number_map_index] > 27, the project will only run POU-N1, POU-N2, POU, and KF.
+By default, the project will run POU-Naive1, POU-Naive2, POU, WSPD-oracle, WSPD-oracle-Adapt, and KF. But as mentioned in our paper, WSPD-oracle and WSPD-oracle-Adapt are very time consuming. So when the dataset size is large, i.e., [terrain_data_and_dataset_size_and_poi_number_map_index] > 27, the project will only run POU-Naive1, POU-Naive2, POU, and KF.
 
 An example:
 
@@ -282,7 +282,7 @@ An example:
 ./main 0 0.5
 ```
 
-In this example, [terrain_data_and_dataset_size_and_poi_number_map_index] is 0, [epsilon] is 0.5. So, it will run SC pre earthquake terrain dataset and SC post earthquake terrain dataset, with dataset size equal to 500000 and poi number equal to 50, and epsilon is 0.5. It will run six algorithms, i.e., POU-N1, POU-N2, POU, WSPD-oracle, WSPDA-oracle, and KF.
+In this example, [terrain_data_and_dataset_size_and_poi_number_map_index] is 0, [epsilon] is 0.5. So, it will run SC pre earthquake terrain dataset and SC post earthquake terrain dataset, with dataset size equal to 500000 and poi number equal to 50, and epsilon is 0.5. It will run six algorithms, i.e., POU-Naive1, POU-Naive2, POU, WSPD-oracle, WSPD-oracle-Adapt, and KF.
 
 ## Output
 

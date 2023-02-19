@@ -1138,11 +1138,11 @@ void spanner_query(int poi_num, Graph graph,
     query_time /= 1000000;
 }
 
-void pre_or_post_WSPD_oracle_and_pre_WSPDA_oracle_construction(
+void pre_or_post_WSPD_oracle_and_pre_WSPD_oracle_Adapt_construction(
     int poi_num, geodesic::Mesh *mesh, std::vector<int> &poi_list, double epsilon,
     int &geo_tree_node_id, std::vector<GeoNode *> &all_poi, std::unordered_map<int, GeoNode *> &geo_node_in_partition_tree_unordered_map,
     std::unordered_map<int, GeoPair *> &geopairs, std::unordered_map<int, int> &poi_unordered_map, std::vector<std::vector<double>> &pairwise_distance_poi_to_vertex,
-    bool run_WSPDA_oracle, double &construction_time, double &memory_usage, double &WSPD_oracle_size, int &WSPD_oracle_edge_num, double &WSPD_oracle_weight)
+    bool run_WSPD_oracle_Adapt, double &construction_time, double &memory_usage, double &WSPD_oracle_size, int &WSPD_oracle_edge_num, double &WSPD_oracle_weight)
 {
     auto start_construction_time = std::chrono::high_resolution_clock::now();
 
@@ -1209,7 +1209,7 @@ void pre_or_post_WSPD_oracle_and_pre_WSPDA_oracle_construction(
 
     memory_usage += algorithm.get_memory() + (geo_tree_node_id + 1) * sizeof(GeoNode) + WSPD_oracle_edge_num * sizeof(double) + pairwise_path_poi_to_poi_size * sizeof(geodesic::SurfacePoint);
 
-    if (run_WSPDA_oracle)
+    if (run_WSPD_oracle_Adapt)
     {
         std::vector<geodesic::SurfacePoint> one_source_poi_list2;
 
@@ -1239,7 +1239,7 @@ void pre_or_post_WSPD_oracle_and_pre_WSPDA_oracle_construction(
     construction_time = duration_construction_time.count();
 }
 
-void pre_or_post_WSPD_oracle_and_pre_WSPDA_oracle_query(
+void pre_or_post_WSPD_oracle_and_pre_WSPD_oracle_Adapt_query(
     int geo_tree_node_id, std::vector<GeoNode *> &all_poi, std::unordered_map<int, GeoNode *> &geo_node_in_partition_tree_unordered_map,
     std::unordered_map<int, GeoPair *> &geopairs, std::unordered_map<int, int> &poi_unordered_map, int source_poi_index,
     int destination_poi_index, double &query_time, double &approximate_distance, std::vector<geodesic::SurfacePoint> &approximate_path)
@@ -1258,15 +1258,15 @@ void pre_or_post_WSPD_oracle_and_pre_WSPDA_oracle_query(
     query_time /= 1000000;
 }
 
-void post_WSPDA_oracle_update(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
-                              geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list,
-                              int geo_tree_node_id, std::vector<GeoNode *> &all_poi,
-                              std::unordered_map<int, GeoNode *> &geo_node_in_partition_tree_unordered_map,
-                              std::unordered_map<int, GeoPair *> &geopairs, std::unordered_map<int, int> &poi_unordered_map,
-                              std::vector<std::vector<double>> &pairwise_distance_poi_to_poi,
-                              std::vector<std::vector<std::vector<geodesic::SurfacePoint>>> &pairwise_path_poi_to_poi,
-                              std::vector<std::vector<double>> &pairwise_distance_poi_to_vertex,
-                              double &update_time, double &memory_usage)
+void post_WSPD_oracle_Adapt_update(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
+                                   geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list,
+                                   int geo_tree_node_id, std::vector<GeoNode *> &all_poi,
+                                   std::unordered_map<int, GeoNode *> &geo_node_in_partition_tree_unordered_map,
+                                   std::unordered_map<int, GeoPair *> &geopairs, std::unordered_map<int, int> &poi_unordered_map,
+                                   std::vector<std::vector<double>> &pairwise_distance_poi_to_poi,
+                                   std::vector<std::vector<std::vector<geodesic::SurfacePoint>>> &pairwise_path_poi_to_poi,
+                                   std::vector<std::vector<double>> &pairwise_distance_poi_to_vertex,
+                                   double &update_time, double &memory_usage)
 {
     auto start_update_time = std::chrono::high_resolution_clock::now();
 
@@ -1282,7 +1282,7 @@ void post_WSPDA_oracle_update(int poi_num, geodesic::Mesh *pre_mesh, std::vector
     // pairwise_distance_poi_to_poi: if there is an edge between s and t, store the distance, otherwise, set it to be -1
     // pairwise_distance_poi_to_poi_changed: all false
     // pairwise_path_poi_to_poi: if there is an edge between s and t, store the path, otherwise, set it to be empty
-    // pre_face_sequence_index_list: all face sequence using pre WSPDA query
+    // pre_face_sequence_index_list: all face sequence using pre WSPD_Adapt query
     std::vector<std::vector<bool>> pairwise_distance_poi_to_poi_changed;
     std::vector<std::vector<std::vector<int>>> pre_face_sequence_index_list;
 
@@ -1705,11 +1705,11 @@ void pre_or_post_KF_query(geodesic::Mesh *mesh, std::vector<int> &poi_list,
     query_time /= 1000;
 }
 
-void POU_N1(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
-            geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list,
-            int source_poi_index, int destination_poi_index,
-            double post_exact_distance, int &pre_MST_weight, int &post_MST_weight,
-            std::string write_file_header)
+void POU_Naive1(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
+                geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list,
+                int source_poi_index, int destination_poi_index,
+                double post_exact_distance, int &pre_MST_weight, int &post_MST_weight,
+                std::string write_file_header)
 {
     std::vector<std::vector<std::vector<int>>> pre_face_sequence_index_list;
     std::vector<std::vector<double>> pairwise_distance_poi_to_poi;
@@ -1743,7 +1743,7 @@ void POU_N1(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_lis
     std::cout << std::endl;
 
     std::ofstream ofs1("../output/output.txt", std::ios_base::app);
-    ofs1 << "== POU_N1 ==\n";
+    ofs1 << "== POU_Naive1 ==\n";
     ofs1 << write_file_header << "\t"
          << (pre_construction_time + pre_hash_mapping_time) << "\t"
          << (pre_memory_usage + pre_complete_graph_size) / 1e6 << "\t"
@@ -1800,11 +1800,11 @@ void POU_N1(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_lis
     ofs2.close();
 }
 
-void POU_N2(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
-            geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list, double epsilon,
-            int source_poi_index, int destination_poi_index,
-            double post_exact_distance, int pre_MST_weight, int post_MST_weight,
-            std::string write_file_header)
+void POU_Naive2(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
+                geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list, double epsilon,
+                int source_poi_index, int destination_poi_index,
+                double post_exact_distance, int pre_MST_weight, int post_MST_weight,
+                std::string write_file_header)
 {
     std::vector<std::vector<std::vector<int>>> pre_face_sequence_index_list;
     std::vector<std::vector<double>> pairwise_distance_poi_to_poi;
@@ -1837,7 +1837,7 @@ void POU_N2(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_lis
     std::cout << std::endl;
 
     std::ofstream ofs1("../output/output.txt", std::ios_base::app);
-    ofs1 << "== POU_N2 ==\n";
+    ofs1 << "== POU_Naive2 ==\n";
     ofs1 << write_file_header << "\t"
          << (pre_construction_time + pre_hash_mapping_time) << "\t"
          << (pre_memory_usage + pre_complete_graph_size) / 1e6 << "\t"
@@ -2007,7 +2007,7 @@ void WSPD_oracle(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_po
     int pre_index_edge_num = 0;
     double pre_index_weight = 0;
 
-    pre_or_post_WSPD_oracle_and_pre_WSPDA_oracle_construction(
+    pre_or_post_WSPD_oracle_and_pre_WSPD_oracle_Adapt_construction(
         poi_num, pre_mesh, pre_poi_list, epsilon, pre_geo_tree_node_id, pre_all_poi,
         pre_geo_node_in_partition_tree_unordered_map, pre_geopairs, pre_poi_unordered_map,
         pairwise_distance_poi_to_vertex, false, pre_construction_time, pre_memory_usage,
@@ -2046,12 +2046,12 @@ void WSPD_oracle(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_po
     std::vector<geodesic::SurfacePoint> post_approximate_path;
     post_approximate_path.clear();
 
-    pre_or_post_WSPD_oracle_and_pre_WSPDA_oracle_construction(
+    pre_or_post_WSPD_oracle_and_pre_WSPD_oracle_Adapt_construction(
         poi_num, post_mesh, post_poi_list, epsilon, post_geo_tree_node_id, post_all_poi,
         post_geo_node_in_partition_tree_unordered_map, post_geopairs, post_poi_unordered_map,
         pairwise_distance_poi_to_vertex, false, post_construction_time, post_memory_usage,
         post_index_size, post_index_edge_num, post_index_weight);
-    pre_or_post_WSPD_oracle_and_pre_WSPDA_oracle_query(
+    pre_or_post_WSPD_oracle_and_pre_WSPD_oracle_Adapt_query(
         post_geo_tree_node_id, post_all_poi, post_geo_node_in_partition_tree_unordered_map,
         post_geopairs, post_poi_unordered_map, source_poi_index, destination_poi_index,
         post_query_time, post_approximate_distance, post_approximate_path);
@@ -2078,11 +2078,11 @@ void WSPD_oracle(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_po
     ofs2.close();
 }
 
-void WSPDA_oracle(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
-                  geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list, double epsilon,
-                  int source_poi_index, int destination_poi_index,
-                  double post_exact_distance, int pre_MST_weight, int post_MST_weight,
-                  std::string write_file_header)
+void WSPD_oracle_Adapt(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
+                       geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list, double epsilon,
+                       int source_poi_index, int destination_poi_index,
+                       double post_exact_distance, int pre_MST_weight, int post_MST_weight,
+                       std::string write_file_header)
 {
     int geo_tree_node_id = 1;
     std::vector<GeoNode *> all_poi;
@@ -2097,7 +2097,7 @@ void WSPDA_oracle(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_p
     int pre_index_edge_num = 0;
     double pre_index_weight = 0;
 
-    pre_or_post_WSPD_oracle_and_pre_WSPDA_oracle_construction(
+    pre_or_post_WSPD_oracle_and_pre_WSPD_oracle_Adapt_construction(
         poi_num, pre_mesh, pre_poi_list, epsilon, geo_tree_node_id, all_poi,
         geo_node_in_partition_tree_unordered_map, geopairs, poi_unordered_map,
         pairwise_distance_poi_to_vertex, true, pre_construction_time, pre_memory_usage,
@@ -2111,7 +2111,7 @@ void WSPDA_oracle(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_p
     std::cout << std::endl;
 
     std::ofstream ofs1("../output/output.txt", std::ios_base::app);
-    ofs1 << "== WSPDA_oracle ==\n";
+    ofs1 << "== WSPD_oracle_Adapt ==\n";
     ofs1 << write_file_header << "\t"
          << pre_construction_time << "\t"
          << pre_memory_usage / 1e6 << "\t"
@@ -2137,7 +2137,7 @@ void WSPDA_oracle(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_p
     post_approximate_path.clear();
     Graph graph(poi_num);
 
-    post_WSPDA_oracle_update(
+    post_WSPD_oracle_Adapt_update(
         poi_num, pre_mesh, pre_poi_list, post_mesh, post_poi_list, geo_tree_node_id, all_poi,
         geo_node_in_partition_tree_unordered_map, geopairs, poi_unordered_map,
         pairwise_distance_poi_to_poi, pairwise_path_poi_to_poi,
@@ -2147,7 +2147,7 @@ void WSPDA_oracle(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_p
     spanner_query(poi_num, graph, post_path_poi_to_poi_map, source_poi_index, destination_poi_index, post_approximate_distance,
                   post_approximate_path, post_query_time);
 
-    std::cout << "Post terrain update time (WSPDA): " << post_update_time << " ms" << std::endl;
+    std::cout << "Post terrain update time (WSPD_Adapt): " << post_update_time << " ms" << std::endl;
     std::cout << "Post terrain update time (HGS): " << post_HGS_time << " ms" << std::endl;
     std::cout << "Post terrain query time: " << post_query_time << " ms" << std::endl;
     std::cout << "Post terrain memory usage: " << (post_memory_usage + post_full_graph_size) / 1e6 << " MB" << std::endl;
