@@ -148,41 +148,41 @@ int main(int argc, char **argv)
 
        exact_distance(&post_mesh, post_poi_list, source_poi_index, destination_poi_index, post_exact_distance);
 
-       std::cout << "== POU_Naive1 ==" << std::endl;
-       POU_Naive1(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, source_poi_index,
-                  destination_poi_index, post_exact_distance, pre_MST_weight,
-                  post_MST_weight, write_file_header);
+       std::cout << "== FU_Oracle_Naive1 ==" << std::endl;
+       FU_Oracle_Naive1(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, source_poi_index,
+                        destination_poi_index, post_exact_distance, pre_MST_weight,
+                        post_MST_weight, write_file_header);
        std::cout << std::endl;
 
-       std::cout << "== POU_Naive2 ==" << std::endl;
-       POU_Naive2(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
-                  source_poi_index, destination_poi_index, post_exact_distance,
-                  pre_MST_weight, post_MST_weight, write_file_header);
+       std::cout << "== FU_Oracle_Naive2 ==" << std::endl;
+       FU_Oracle_Naive2(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
+                        source_poi_index, destination_poi_index, post_exact_distance,
+                        pre_MST_weight, post_MST_weight, write_file_header);
        std::cout << std::endl;
 
-       std::cout << "== POU ==" << std::endl;
-       POU(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
-           source_poi_index, destination_poi_index, post_exact_distance,
-           pre_MST_weight, post_MST_weight, write_file_header);
+       std::cout << "== FU_Oracle ==" << std::endl;
+       FU_Oracle(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
+                 source_poi_index, destination_poi_index, post_exact_distance,
+                 pre_MST_weight, post_MST_weight, write_file_header);
        std::cout << std::endl;
 
        if (input_file_index >= 0 && input_file_index <= 27)
        {
-              std::cout << "== WSPD_oracle ==" << std::endl;
-              WSPD_oracle(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
+              std::cout << "== WSPD_Oracle ==" << std::endl;
+              WSPD_Oracle(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
                           source_poi_index, destination_poi_index, post_exact_distance,
                           pre_MST_weight, post_MST_weight, write_file_header);
               std::cout << std::endl;
 
-              std::cout << "== WSPD_oracle_Adapt ==" << std::endl;
-              WSPD_oracle_Adapt(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
+              std::cout << "== WSPD_Oracle_Adapt ==" << std::endl;
+              WSPD_Oracle_Adapt(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
                                 source_poi_index, destination_poi_index, post_exact_distance,
                                 pre_MST_weight, post_MST_weight, write_file_header);
               std::cout << std::endl;
        }
 
-       std::cout << "== KF ==" << std::endl;
-       KF(&post_mesh, post_poi_list, epsilon, source_poi_index, destination_poi_index,
-          post_exact_distance, write_file_header);
+       std::cout << "== K_Algo ==" << std::endl;
+       K_Algo(&post_mesh, post_poi_list, epsilon, source_poi_index, destination_poi_index,
+              post_exact_distance, write_file_header);
        std::cout << std::endl;
 }

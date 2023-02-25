@@ -339,7 +339,7 @@ double max(double x, double y)
     return y;
 }
 
-void generate_geo_pair(int geo_tree_node_id, int &WSPD_oracle_edge_num, double &WSPD_oracle_weight,
+void generate_geo_pair(int geo_tree_node_id, int &WSPD_Oracle_edge_num, double &WSPD_Oracle_weight,
                        geodesic::Mesh *mesh, GeoNode &x, GeoNode &y,
                        geodesic::GeodesicAlgorithmExact &algorithm, double epsilon,
                        std::unordered_map<int, GeoPair *> &geopairs,
@@ -413,14 +413,14 @@ void generate_geo_pair(int geo_tree_node_id, int &WSPD_oracle_edge_num, double &
             std::vector<int> face_sequence_index_listxy;
             face_sequence_index_listxy.clear();
             get_face_sequence(pathxy, face_sequence_index_listxy);
-            WSPD_oracle_edge_num++;
+            WSPD_Oracle_edge_num++;
             GeoPair *nodepair = new GeoPair();
             nodepair->node1 = &x;
             nodepair->node2 = &y;
             nodepair->distance = distancexy;
             nodepair->path = pathxy;
             nodepair->face_sequence_index_list = face_sequence_index_listxy;
-            WSPD_oracle_weight += distancexy;
+            WSPD_Oracle_weight += distancexy;
             pairwise_path_poi_to_poi_size += pathxy.size();
             face_sequence_index_list_size += face_sequence_index_listxy.size();
             int x_in_geo_node_id_for_geo_pair = x.id;
@@ -441,14 +441,14 @@ void generate_geo_pair(int geo_tree_node_id, int &WSPD_oracle_edge_num, double &
             {
                 for (std::list<GeoNode *>::iterator ite = x.children.begin(); ite != x.children.end(); ite++)
                 {
-                    generate_geo_pair(geo_tree_node_id, WSPD_oracle_edge_num, WSPD_oracle_weight, mesh, (**ite), y, algorithm, epsilon, geopairs, poi_unordered_map, geo_pair_unordered_map, pairwise_distance_unordered_map, pairwise_path_unordered_map, pairwise_path_poi_to_poi_size, face_sequence_index_list_size);
+                    generate_geo_pair(geo_tree_node_id, WSPD_Oracle_edge_num, WSPD_Oracle_weight, mesh, (**ite), y, algorithm, epsilon, geopairs, poi_unordered_map, geo_pair_unordered_map, pairwise_distance_unordered_map, pairwise_path_unordered_map, pairwise_path_poi_to_poi_size, face_sequence_index_list_size);
                 }
             }
             else
             {
                 for (std::list<GeoNode *>::iterator jte = y.children.begin(); jte != y.children.end(); jte++)
                 {
-                    generate_geo_pair(geo_tree_node_id, WSPD_oracle_edge_num, WSPD_oracle_weight, mesh, x, (**jte), algorithm, epsilon, geopairs, poi_unordered_map, geo_pair_unordered_map, pairwise_distance_unordered_map, pairwise_path_unordered_map, pairwise_path_poi_to_poi_size, face_sequence_index_list_size);
+                    generate_geo_pair(geo_tree_node_id, WSPD_Oracle_edge_num, WSPD_Oracle_weight, mesh, x, (**jte), algorithm, epsilon, geopairs, poi_unordered_map, geo_pair_unordered_map, pairwise_distance_unordered_map, pairwise_path_unordered_map, pairwise_path_poi_to_poi_size, face_sequence_index_list_size);
                 }
             }
         }
