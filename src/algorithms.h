@@ -1280,13 +1280,17 @@ void post_WSPD_Oracle_Adapt_update(int poi_num, geodesic::Mesh *pre_mesh, std::v
     int changed_pairwise_distance_poi_to_poi_size = 0;
 
     // pairwise_distance_poi_to_poi: if there is an edge between s and t, store the distance, otherwise, set it to be -1
+    // pairwise_distance_poi_to_poi_with_appro: if there is an edge between s and t, store the distance, otherwise, store the approximate distance using three path query
+    // this is used for checking whether a poi is close to changed area or not (calculating the radius of the circle)
     // pairwise_distance_poi_to_poi_changed: all false
     // pairwise_path_poi_to_poi: if there is an edge between s and t, store the path, otherwise, set it to be empty
     // pre_face_sequence_index_list: all face sequence using pre WSPD_Adapt query
+    std::vector<std::vector<double>> pairwise_distance_poi_to_poi_with_appro;
     std::vector<std::vector<bool>> pairwise_distance_poi_to_poi_changed;
     std::vector<std::vector<std::vector<int>>> pre_face_sequence_index_list;
 
     pairwise_distance_poi_to_poi.clear();
+    pairwise_distance_poi_to_poi_with_appro.clear();
     pairwise_distance_poi_to_poi_changed.clear();
     pairwise_path_poi_to_poi.clear();
     pre_face_sequence_index_list.clear();
@@ -1294,12 +1298,14 @@ void post_WSPD_Oracle_Adapt_update(int poi_num, geodesic::Mesh *pre_mesh, std::v
     for (int i = 0; i < poi_num; i++)
     {
         std::vector<double> one_distance;
+        std::vector<double> one_distance_with_appro;
         std::vector<bool> one_distance_changed;
         std::vector<std::vector<geodesic::SurfacePoint>> one_path;
         std::vector<std::vector<int>> one_poi_to_other_poi_pre_face_sequence_index_list;
         std::vector<int> one_poi_pre_face_sequence_index_list;
 
         one_distance.clear();
+        one_distance_with_appro.clear();
         one_distance_changed.clear();
         one_path.clear();
         one_poi_to_other_poi_pre_face_sequence_index_list.clear();
@@ -1324,6 +1330,7 @@ void post_WSPD_Oracle_Adapt_update(int poi_num, geodesic::Mesh *pre_mesh, std::v
                 if (one_path_bool)
                 {
                     one_distance.push_back(distance);
+                    one_distance_with_appro.push_back(distance);
                     if ((path[0].getx() == geodesic::SurfacePoint(&pre_mesh->vertices()[pre_poi_list[j]]).getx()) &&
                         (path[0].gety() == geodesic::SurfacePoint(&pre_mesh->vertices()[pre_poi_list[j]]).gety()) &&
                         (path[0].getz() == geodesic::SurfacePoint(&pre_mesh->vertices()[pre_poi_list[j]]).getz()) &&
@@ -1350,12 +1357,14 @@ void post_WSPD_Oracle_Adapt_update(int poi_num, geodesic::Mesh *pre_mesh, std::v
                 else
                 {
                     one_distance.push_back(-1);
+                    one_distance_with_appro.push_back(distance);
                     path.clear();
                 }
             }
             else
             {
                 one_distance.push_back(0);
+                one_distance_with_appro.push_back(0);
                 path.push_back(geodesic::SurfacePoint(&pre_mesh->vertices()[pre_poi_list[i]]));
             }
 
@@ -1364,6 +1373,7 @@ void post_WSPD_Oracle_Adapt_update(int poi_num, geodesic::Mesh *pre_mesh, std::v
             one_poi_to_other_poi_pre_face_sequence_index_list.push_back(one_poi_pre_face_sequence_index_list);
         }
         pairwise_distance_poi_to_poi.push_back(one_distance);
+        pairwise_distance_poi_to_poi_with_appro.push_back(one_distance_with_appro);
         pairwise_distance_poi_to_poi_changed.push_back(one_distance_changed);
         pairwise_path_poi_to_poi.push_back(one_path);
         pre_face_sequence_index_list.push_back(one_poi_to_other_poi_pre_face_sequence_index_list);
@@ -1572,6 +1582,7 @@ void post_WSPD_Oracle_Adapt_update(int poi_num, geodesic::Mesh *pre_mesh, std::v
         int current_poi_index = euclidean_distance_of_poi_to_changed_face_and_original_index[i].second;
 
         assert(pairwise_distance_poi_to_poi[current_poi_index].size() == pairwise_distance_poi_to_poi_changed[current_poi_index].size());
+        assert(pairwise_distance_poi_to_poi_with_appro[current_poi_index].size() == pairwise_distance_poi_to_poi_changed[current_poi_index].size());
 
         double max_distance = 0;
         for (int j = 0; j < euclidean_distance_of_poi_to_changed_face_and_original_index.size(); j++)
@@ -1588,7 +1599,7 @@ void post_WSPD_Oracle_Adapt_update(int poi_num, geodesic::Mesh *pre_mesh, std::v
                 {
                     continue;
                 }
-                max_distance = std::max(max_distance, pairwise_distance_poi_to_poi[current_poi_index][checking_poi_index - current_poi_index]);
+                max_distance = std::max(max_distance, pairwise_distance_poi_to_poi_with_appro[current_poi_index][checking_poi_index - current_poi_index]);
             }
             else
             {
@@ -1596,7 +1607,7 @@ void post_WSPD_Oracle_Adapt_update(int poi_num, geodesic::Mesh *pre_mesh, std::v
                 {
                     continue;
                 }
-                max_distance = std::max(max_distance, pairwise_distance_poi_to_poi[checking_poi_index][current_poi_index - checking_poi_index]);
+                max_distance = std::max(max_distance, pairwise_distance_poi_to_poi_with_appro[checking_poi_index][current_poi_index - checking_poi_index]);
             }
         }
 
