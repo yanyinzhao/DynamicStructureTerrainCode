@@ -1,8 +1,8 @@
-# Path Oracle on Updated Terrain Surface
+# Fast Update Path Oracle on Updated Terrain Surface
 
 ## Overview
 
-This project provides the implementation of the algorithm for calculating a shortest path oracle on updated terrain surface.
+This project provides the implementation of the algorithm for calculating a fast update path oracle on updated terrain surface.
 
 Our oralce FU-Oracle, and the baselines, i.e., WSPD-Oracle, WSPD-Oracle-Adapt, and K-Algo are studied in the experiments. In order to conduct the ablation study, i.e., show that algorithm HGS could significantly reduce the running time compared with algorithm GS, and could significantly reduce the oracle size and oracle weight compared with original complete graph, we also studied FU-Oracle-Naive1 and FU-Oracle-Naive2 in the experiments. In total, we compared six algorithms, namely, WSPD-Oracle, WSPD-Oracle-Adapt, FU-Oracle-Naive1, FU-Oracle-Naive2, FU-Oracle, and K-Algo. Since WSPD-Oracle and WSPD-Oracle-Adapt are not feasible on large-version POI due to their expensive oracle construction time, so we (1) compared these six algorithms on our 15 datasets with small-version POI (default 50 POIs), and (2) compared FU-Oracle-Naive1, FU-Oracle-Naive2, FU-Oracle, and K-Algo on our 15 datasets with large-version POI (default 500 POIs). We refer the readers to our paper for more details.
 
