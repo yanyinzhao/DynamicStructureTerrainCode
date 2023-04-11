@@ -1673,7 +1673,7 @@ void post_WSPD_Oracle_Adapt_update(int poi_num, geodesic::Mesh *pre_mesh, std::v
     update_time = duration_update_time.count();
 }
 
-void pre_or_post_K_Algo_query(geodesic::Mesh *mesh, std::vector<int> &poi_list,
+void pre_or_post_K_Fly_Algo_query(geodesic::Mesh *mesh, std::vector<int> &poi_list,
                               double epsilon, int source_poi_index, int destination_poi_index,
                               double &query_time, double &memory_usage, double &approximate_distance,
                               std::vector<geodesic::SurfacePoint> &approximate_path)
@@ -2181,7 +2181,7 @@ void WSPD_Oracle_Adapt(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &
     ofs2.close();
 }
 
-void K_Algo(geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list, double epsilon,
+void K_Fly_Algo(geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list, double epsilon,
             int source_poi_index, int destination_poi_index,
             double post_exact_distance, std::string write_file_header)
 {
@@ -2191,7 +2191,7 @@ void K_Algo(geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list, double e
     std::vector<geodesic::SurfacePoint> post_approximate_path;
     post_approximate_path.clear();
 
-    pre_or_post_K_Algo_query(post_mesh, post_poi_list, epsilon, source_poi_index,
+    pre_or_post_K_Fly_Algo_query(post_mesh, post_poi_list, epsilon, source_poi_index,
                              destination_poi_index, post_query_time, post_memory_usage,
                              post_approximate_distance, post_approximate_path);
 
@@ -2200,7 +2200,7 @@ void K_Algo(geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list, double e
     std::cout << "Post terrain approximate distance: " << post_approximate_distance << ", post terrain exact distance: " << post_exact_distance << ", distance error: " << post_approximate_distance / post_exact_distance - 1 << std::endl;
 
     std::ofstream ofs1("../output/output.txt", std::ios_base::app);
-    ofs1 << "== K_Algo ==\n";
+    ofs1 << "== K_Fly_Algo ==\n";
     ofs1 << write_file_header << "\t"
          << 0 << "\t"
          << 0 << "\t"
