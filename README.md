@@ -2,16 +2,18 @@
 
 ## Overview
 
-This project provides the implementation of the algorithm for calculating a fast update path oracle on updated terrain surface.
+This project provides the implementation of the algorithm for calculating a fast update path oracle on updated terrain surface. We refer the readers to our paper for more details.
 
-Our oralce FU-Oracle, and the baselines, i.e., WSPD-Oracle, WSPD-Oracle-Adapt, and K-Fly-Algo are studied in the experiments. In order to conduct the ablation study, i.e., show that algorithm HGS could significantly reduce the running time compared with algorithm GS, and could significantly reduce the oracle size and oracle weight compared with original complete graph, we also studied FU-Oracle-Naive1 and FU-Oracle-Naive2 in the experiments. In total, we compared six algorithms, namely, WSPD-Oracle, WSPD-Oracle-Adapt, FU-Oracle-Naive1, FU-Oracle-Naive2, FU-Oracle, and K-Fly-Algo. Since WSPD-Oracle and WSPD-Oracle-Adapt are not feasible on large-version POI due to their expensive oracle construction time, so we (1) compared these six algorithms on our 15 datasets with small-version POI (default 50 POIs), and (2) compared FU-Oracle-Naive1, FU-Oracle-Naive2, FU-Oracle, and K-Fly-Algo on our 15 datasets with large-version POI (default 500 POIs). We refer the readers to our paper for more details.
-
-In total, we compared six algorithms as follows:
+We compared 10 algorithms as follows:
 
 - WSPD-Oracle (oracle based baseline)
 - WSPD-Oracle-Adapt (adapted oracle based baseline)
-- FU-Oracle-Naive1 (variation)
-- FU-Oracle-Naive2 (variation)
+- FU-Oracle-RanUpdSeq (variation)
+- FU-Oracle-FullRad (variation)
+- FU-Oracle-NoDistAppr (variation)
+- FU-Oracle-NoEffIntChe (variation)
+- FU-Oracle-NoEdgPru (variation)
+- FU-Oracle-NoEffEdgPru (variation)
 - FU-Oracle (our oracle)
 - K-Fly-Algo (on-the-fly baseline)
 
@@ -23,146 +25,54 @@ The source code are stored in "src/" folder.
 
 The dataset are stored in "input/" folder.
 
-The datasets are as follows:
+The datasets are as follows, where XX could be {TJ, SC, GI, AU, LH, VS}:
 
-- "SCpre_500000.off" (default resolution SC pre earthquake terrain dataset with dataset size of 500000)
-- "SCpost_500000.off" (default resolution SC post earthquake terrain dataset with dataset size of 500000)
-- "SCpre_1002528.off" (multiresolution SC pre earthquake terrain dataset with dataset size of 1002528)
-- "SCpost_1002528.off" (multiresolution SC post earthquake terrain dataset with dataset size of 1002528)
-- "SCpre_1503378.off" (multiresolution SC pre earthquake terrain dataset with dataset size of 1503378)
-- "SCpost_1503378.off" (multiresolution SC post earthquake terrain dataset with dataset size of 1503378)
-- "SCpre_2000000.off" (multiresolution SC pre earthquake terrain dataset with dataset size of 2000000)
-- "SCpost_2000000.off" (multiresolution SC post earthquake terrain dataset with dataset size of 2000000)
-- "SCpre_2504322.off" (multiresolution SC pre earthquake terrain dataset with dataset size of 2504322)
-- "SCpost_2504322.off" (multiresolution SC post earthquake terrain dataset with dataset size of 2504322)
-- "AUpre_500000.off" (default resolution AU pre earthquake terrain dataset with dataset size of 500000)
-- "AUpost_500000.off" (default resolution AU post earthquake terrain dataset with dataset size of 500000)
-- "AUpre_1002528.off" (multiresolution AU pre earthquake terrain dataset with dataset size of 1002528)
-- "AUpost_1002528.off" (multiresolution AU post earthquake terrain dataset with dataset size of 1002528)
-- "AUpre_1503378.off" (multiresolution AU pre earthquake terrain dataset with dataset size of 1503378)
-- "AUpost_1503378.off" (multiresolution AU post earthquake terrain dataset with dataset size of 1503378)
-- "AUpre_2000000.off" (multiresolution AU pre earthquake terrain dataset with dataset size of 2000000)
-- "AUpost_2000000.off" (multiresolution AU post earthquake terrain dataset with dataset size of 2000000)
-- "AUpre_2504322.off" (multiresolution AU pre earthquake terrain dataset with dataset size of 2504322)
-- "AUpost_2504322.off" (multiresolution AU post earthquake terrain dataset with dataset size of 2504322)
-- "VSpre_500000.off" (default resolution VS pre earthquake terrain dataset with dataset size of 500000)
-- "VSpost_500000.off" (default resolution VS post earthquake terrain dataset with dataset size of 500000)
-- "VSpre_1002528.off" (multiresolution VS pre earthquake terrain dataset with dataset size of 1002528)
-- "VSpost_1002528.off" (multiresolution VS post earthquake terrain dataset with dataset size of 1002528)
-- "VSpre_1503378.off" (multiresolution VS pre earthquake terrain dataset with dataset size of 1503378)
-- "VSpost_1503378.off" (multiresolution VS post earthquake terrain dataset with dataset size of 1503378)
-- "VSpre_2000000.off" (multiresolution VS pre earthquake terrain dataset with dataset size of 2000000)
-- "VSpost_2000000.off" (multiresolution VS post earthquake terrain dataset with dataset size of 2000000)
-- "VSpre_2504322.off" (multiresolution VS pre earthquake terrain dataset with dataset size of 2504322)
-- "VSpost_2504322.off" (multiresolution VS post earthquake terrain dataset with dataset size of 2504322)
-- "SCpre_500_poi_on_500000.txt" (POI list with POI number of 500 on "SCpre_500000.off")
-- "SCpost_500_poi_on_500000.txt" (POI list with POI number of 500 on "SCpost_500000.off")
-- "SCpre_500_poi_on_1002528.txt" (POI list with POI number of 500 on "SCpre_1002528.off")
-- "SCpost_500_poi_on_1002528.txt" (POI list with POI number of 500 on "SCpost_1002528.off")
-- "SCpre_500_poi_on_1503378.txt" (POI list with POI number of 500 on "SCpre_1503378.off")
-- "SCpost_500_poi_on_1503378.txt" (POI list with POI number of 500 on "SCpost_1503378.off")
-- "SCpre_500_poi_on_2000000.txt" (POI list with POI number of 500 on "SCpre_2000000.off")
-- "SCpost_500_poi_on_2000000.txt" (POI list with POI number of 500 on "SCpost_2000000.off")
-- "SCpre_500_poi_on_2504322.txt" (POI list with POI number of 500 on "SCpre_2504322.off")
-- "SCpost_500_poi_on_2504322.txt" (POI list with POI number of 500 on "SCpost_2504322.off")
-- "SCpre_1000_poi_on_500000.txt" (POI list with POI number of 1000 on "SCpre_500000.off")
-- "SCpost_1000_poi_on_500000.txt" (POI list with POI number of 1000 on "SCpost_500000.off")
-- "SCpre_1500_poi_on_500000.txt" (POI list with POI number of 1500 on "SCpre_500000.off")
-- "SCpost_1500_poi_on_500000.txt" (POI list with POI number of 1500 on "SCpost_500000.off")
-- "SCpre_2000_poi_on_500000.txt" (POI list with POI number of 2000 on "SCpre_500000.off")
-- "SCpost_2000_poi_on_500000.txt" (POI list with POI number of 2000 on "SCpost_500000.off")
-- "SCpre_2500_poi_on_500000.txt" (POI list with POI number of 2500 on "SCpre_500000.off")
-- "SCpost_2500_poi_on_500000.txt" (POI list with POI number of 2500 on "SCpost_500000.off")
-- "SCpre_50_poi_on_500000.txt" (POI list with POI number of 50 on "SCpre_500000.off")
-- "SCpost_50_poi_on_500000.txt" (POI list with POI number of 50 on "SCpost_500000.off")
-- "SCpre_50_poi_on_1002528.txt" (POI list with POI number of 50 on "SCpre_1002528.off")
-- "SCpost_50_poi_on_1002528.txt" (POI list with POI number of 50 on "SCpost_1002528.off")
-- "SCpre_50_poi_on_1503378.txt" (POI list with POI number of 50 on "SCpre_1503378.off")
-- "SCpost_50_poi_on_1503378.txt" (POI list with POI number of 50 on "SCpost_1503378.off")
-- "SCpre_50_poi_on_2000000.txt" (POI list with POI number of 50 on "SCpre_2000000.off")
-- "SCpost_50_poi_on_2000000.txt" (POI list with POI number of 50 on "SCpost_2000000.off")
-- "SCpre_50_poi_on_2504322.txt" (POI list with POI number of 50 on "SCpre_2504322.off")
-- "SCpost_50_poi_on_2504322.txt" (POI list with POI number of 50 on "SCpost_2504322.off")
-- "SCpre_100_poi_on_500000.txt" (POI list with POI number of 100 on "SCpre_500000.off")
-- "SCpost_100_poi_on_500000.txt" (POI list with POI number of 100 on "SCpost_500000.off")
-- "SCpre_150_poi_on_500000.txt" (POI list with POI number of 150 on "SCpre_500000.off")
-- "SCpost_150_poi_on_500000.txt" (POI list with POI number of 150 on "SCpost_500000.off")
-- "SCpre_200_poi_on_500000.txt" (POI list with POI number of 200 on "SCpre_500000.off")
-- "SCpost_200_poi_on_500000.txt" (POI list with POI number of 200 on "SCpost_500000.off")
-- "SCpre_250_poi_on_500000.txt" (POI list with POI number of 250 on "SCpre_500000.off")
-- "SCpost_250_poi_on_500000.txt" (POI list with POI number of 250 on "SCpost_500000.off")
-- "AUpre_500_poi_on_500000.txt" (POI list with POI number of 500 on "AUpre_500000.off")
-- "AUpost_500_poi_on_500000.txt" (POI list with POI number of 500 on "AUpost_500000.off")
-- "AUpre_500_poi_on_1002528.txt" (POI list with POI number of 500 on "AUpre_1002528.off")
-- "AUpost_500_poi_on_1002528.txt" (POI list with POI number of 500 on "AUpost_1002528.off")
-- "AUpre_500_poi_on_1503378.txt" (POI list with POI number of 500 on "AUpre_1503378.off")
-- "AUpost_500_poi_on_1503378.txt" (POI list with POI number of 500 on "AUpost_1503378.off")
-- "AUpre_500_poi_on_2000000.txt" (POI list with POI number of 500 on "AUpre_2000000.off")
-- "AUpost_500_poi_on_2000000.txt" (POI list with POI number of 500 on "AUpost_2000000.off")
-- "AUpre_500_poi_on_2504322.txt" (POI list with POI number of 500 on "AUpre_2504322.off")
-- "AUpost_500_poi_on_2504322.txt" (POI list with POI number of 500 on "AUpost_2504322.off")
-- "AUpre_1000_poi_on_500000.txt" (POI list with POI number of 1000 on "AUpre_500000.off")
-- "AUpost_1000_poi_on_500000.txt" (POI list with POI number of 1000 on "AUpost_500000.off")
-- "AUpre_1500_poi_on_500000.txt" (POI list with POI number of 1500 on "AUpre_500000.off")
-- "AUpost_1500_poi_on_500000.txt" (POI list with POI number of 1500 on "AUpost_500000.off")
-- "AUpre_2000_poi_on_500000.txt" (POI list with POI number of 2000 on "AUpre_500000.off")
-- "AUpost_2000_poi_on_500000.txt" (POI list with POI number of 2000 on "AUpost_500000.off")
-- "AUpre_2500_poi_on_500000.txt" (POI list with POI number of 2500 on "AUpre_500000.off")
-- "AUpost_2500_poi_on_500000.txt" (POI list with POI number of 2500 on "AUpost_500000.off")
-- "AUpre_50_poi_on_500000.txt" (POI list with POI number of 50 on "AUpre_500000.off")
-- "AUpost_50_poi_on_500000.txt" (POI list with POI number of 50 on "AUpost_500000.off")
-- "AUpre_50_poi_on_1002528.txt" (POI list with POI number of 50 on "AUpre_1002528.off")
-- "AUpost_50_poi_on_1002528.txt" (POI list with POI number of 50 on "AUpost_1002528.off")
-- "AUpre_50_poi_on_1503378.txt" (POI list with POI number of 50 on "AUpre_1503378.off")
-- "AUpost_50_poi_on_1503378.txt" (POI list with POI number of 50 on "AUpost_1503378.off")
-- "AUpre_50_poi_on_2000000.txt" (POI list with POI number of 50 on "AUpre_2000000.off")
-- "AUpost_50_poi_on_2000000.txt" (POI list with POI number of 50 on "AUpost_2000000.off")
-- "AUpre_50_poi_on_2504322.txt" (POI list with POI number of 50 on "AUpre_2504322.off")
-- "AUpost_50_poi_on_2504322.txt" (POI list with POI number of 50 on "AUpost_2504322.off")
-- "AUpre_100_poi_on_500000.txt" (POI list with POI number of 100 on "AUpre_500000.off")
-- "AUpost_100_poi_on_500000.txt" (POI list with POI number of 100 on "AUpost_500000.off")
-- "AUpre_150_poi_on_500000.txt" (POI list with POI number of 150 on "AUpre_500000.off")
-- "AUpost_150_poi_on_500000.txt" (POI list with POI number of 150 on "AUpost_500000.off")
-- "AUpre_200_poi_on_500000.txt" (POI list with POI number of 200 on "AUpre_500000.off")
-- "AUpost_200_poi_on_500000.txt" (POI list with POI number of 200 on "AUpost_500000.off")
-- "AUpre_250_poi_on_500000.txt" (POI list with POI number of 250 on "AUpre_500000.off")
-- "AUpost_250_poi_on_500000.txt" (POI list with POI number of 250 on "AUpost_500000.off")
-- "VSpre_500_poi_on_500000.txt" (POI list with POI number of 500 on "VSpre_500000.off")
-- "VSpost_500_poi_on_500000.txt" (POI list with POI number of 500 on "VSpost_500000.off")
-- "VSpre_500_poi_on_1002528.txt" (POI list with POI number of 500 on "VSpre_1002528.off")
-- "VSpost_500_poi_on_1002528.txt" (POI list with POI number of 500 on "VSpost_1002528.off")
-- "VSpre_500_poi_on_1503378.txt" (POI list with POI number of 500 on "VSpre_1503378.off")
-- "VSpost_500_poi_on_1503378.txt" (POI list with POI number of 500 on "VSpost_1503378.off")
-- "VSpre_500_poi_on_2000000.txt" (POI list with POI number of 500 on "VSpre_2000000.off")
-- "VSpost_500_poi_on_2000000.txt" (POI list with POI number of 500 on "VSpost_2000000.off")
-- "VSpre_500_poi_on_2504322.txt" (POI list with POI number of 500 on "VSpre_2504322.off")
-- "VSpost_500_poi_on_2504322.txt" (POI list with POI number of 500 on "VSpost_2504322.off")
-- "VSpre_1000_poi_on_500000.txt" (POI list with POI number of 1000 on "VSpre_500000.off")
-- "VSpost_1000_poi_on_500000.txt" (POI list with POI number of 1000 on "VSpost_500000.off")
-- "VSpre_1500_poi_on_500000.txt" (POI list with POI number of 1500 on "VSpre_500000.off")
-- "VSpost_1500_poi_on_500000.txt" (POI list with POI number of 1500 on "VSpost_500000.off")
-- "VSpre_2000_poi_on_500000.txt" (POI list with POI number of 2000 on "VSpre_500000.off")
-- "VSpost_2000_poi_on_500000.txt" (POI list with POI number of 2000 on "VSpost_500000.off")
-- "VSpre_2500_poi_on_500000.txt" (POI list with POI number of 2500 on "VSpre_500000.off")
-- "VSpost_2500_poi_on_500000.txt" (POI list with POI number of 2500 on "VSpost_500000.off")
-- "VSpre_50_poi_on_500000.txt" (POI list with POI number of 50 on "VSpre_500000.off")
-- "VSpost_50_poi_on_500000.txt" (POI list with POI number of 50 on "VSpost_500000.off")
-- "VSpre_50_poi_on_1002528.txt" (POI list with POI number of 50 on "VSpre_1002528.off")
-- "VSpost_50_poi_on_1002528.txt" (POI list with POI number of 50 on "VSpost_1002528.off")
-- "VSpre_50_poi_on_1503378.txt" (POI list with POI number of 50 on "VSpre_1503378.off")
-- "VSpost_50_poi_on_1503378.txt" (POI list with POI number of 50 on "VSpost_1503378.off")
-- "VSpre_50_poi_on_2000000.txt" (POI list with POI number of 50 on "VSpre_2000000.off")
-- "VSpost_50_poi_on_2000000.txt" (POI list with POI number of 50 on "VSpost_2000000.off")
-- "VSpre_50_poi_on_2504322.txt" (POI list with POI number of 50 on "VSpre_2504322.off")
-- "VSpost_50_poi_on_2504322.txt" (POI list with POI number of 50 on "VSpost_2504322.off")
-- "VSpre_100_poi_on_500000.txt" (POI list with POI number of 100 on "VSpre_500000.off")
-- "VSpost_100_poi_on_500000.txt" (POI list with POI number of 100 on "VSpost_500000.off")
-- "VSpre_100_poi_on_500000.txt" (POI list with POI number of 150 on "VSpre_500000.off")
-- "VSpost_100_poi_on_500000.txt" (POI list with POI number of 150 on "VSpost_500000.off")
-- "VSpre_200_poi_on_500000.txt" (POI list with POI number of 200 on "VSpre_500000.off")
-- "VSpost_200_poi_on_500000.txt" (POI list with POI number of 200 on "VSpost_500000.off")
-- "VSpre_250_poi_on_500000.txt" (POI list with POI number of 250 on "VSpre_500000.off")
-- "VSpost_250_poi_on_500000.txt" (POI list with POI number of 250 on "VSpost_500000.off")
+- "XXpre_500000.off" (default resolution XX pre earthquake terrain dataset with dataset size of 500000)
+- "XXpost_500000.off" (default resolution XX post earthquake terrain dataset with dataset size of 500000)
+- "XXpre_1002528.off" (multiresolution XX pre earthquake terrain dataset with dataset size of 1002528)
+- "XXpost_1002528.off" (multiresolution XX post earthquake terrain dataset with dataset size of 1002528)
+- "XXpre_1503378.off" (multiresolution XX pre earthquake terrain dataset with dataset size of 1503378)
+- "XXpost_1503378.off" (multiresolution XX post earthquake terrain dataset with dataset size of 1503378)
+- "XXpre_2000000.off" (multiresolution XX pre earthquake terrain dataset with dataset size of 2000000)
+- "XXpost_2000000.off" (multiresolution XX post earthquake terrain dataset with dataset size of 2000000)
+- "XXpre_2504322.off" (multiresolution XX pre earthquake terrain dataset with dataset size of 2504322)
+- "XXpost_2504322.off" (multiresolution XX post earthquake terrain dataset with dataset size of 2504322)
+- "XXpre_500_poi_on_500000.txt" (POI list with POI number of 500 on "XXpre_500000.off")
+- "XXpost_500_poi_on_500000.txt" (POI list with POI number of 500 on "XXpost_500000.off")
+- "XXpre_500_poi_on_1002528.txt" (POI list with POI number of 500 on "XXpre_1002528.off")
+- "XXpost_500_poi_on_1002528.txt" (POI list with POI number of 500 on "XXpost_1002528.off")
+- "XXpre_500_poi_on_1503378.txt" (POI list with POI number of 500 on "XXpre_1503378.off")
+- "XXpost_500_poi_on_1503378.txt" (POI list with POI number of 500 on "XXpost_1503378.off")
+- "XXpre_500_poi_on_2000000.txt" (POI list with POI number of 500 on "XXpre_2000000.off")
+- "XXpost_500_poi_on_2000000.txt" (POI list with POI number of 500 on "XXpost_2000000.off")
+- "XXpre_500_poi_on_2504322.txt" (POI list with POI number of 500 on "XXpre_2504322.off")
+- "XXpost_500_poi_on_2504322.txt" (POI list with POI number of 500 on "XXpost_2504322.off")
+- "XXpre_1000_poi_on_500000.txt" (POI list with POI number of 1000 on "XXpre_500000.off")
+- "XXpost_1000_poi_on_500000.txt" (POI list with POI number of 1000 on "XXpost_500000.off")
+- "XXpre_1500_poi_on_500000.txt" (POI list with POI number of 1500 on "XXpre_500000.off")
+- "XXpost_1500_poi_on_500000.txt" (POI list with POI number of 1500 on "XXpost_500000.off")
+- "XXpre_2000_poi_on_500000.txt" (POI list with POI number of 2000 on "XXpre_500000.off")
+- "XXpost_2000_poi_on_500000.txt" (POI list with POI number of 2000 on "XXpost_500000.off")
+- "XXpre_2500_poi_on_500000.txt" (POI list with POI number of 2500 on "XXpre_500000.off")
+- "XXpost_2500_poi_on_500000.txt" (POI list with POI number of 2500 on "XXpost_500000.off")
+- "XXpre_50_poi_on_500000.txt" (POI list with POI number of 50 on "XXpre_500000.off")
+- "XXpost_50_poi_on_500000.txt" (POI list with POI number of 50 on "XXpost_500000.off")
+- "XXpre_50_poi_on_1002528.txt" (POI list with POI number of 50 on "XXpre_1002528.off")
+- "XXpost_50_poi_on_1002528.txt" (POI list with POI number of 50 on "XXpost_1002528.off")
+- "XXpre_50_poi_on_1503378.txt" (POI list with POI number of 50 on "XXpre_1503378.off")
+- "XXpost_50_poi_on_1503378.txt" (POI list with POI number of 50 on "XXpost_1503378.off")
+- "XXpre_50_poi_on_2000000.txt" (POI list with POI number of 50 on "XXpre_2000000.off")
+- "XXpost_50_poi_on_2000000.txt" (POI list with POI number of 50 on "XXpost_2000000.off")
+- "XXpre_50_poi_on_2504322.txt" (POI list with POI number of 50 on "XXpre_2504322.off")
+- "XXpost_50_poi_on_2504322.txt" (POI list with POI number of 50 on "XXpost_2504322.off")
+- "XXpre_100_poi_on_500000.txt" (POI list with POI number of 100 on "XXpre_500000.off")
+- "XXpost_100_poi_on_500000.txt" (POI list with POI number of 100 on "XXpost_500000.off")
+- "XXpre_150_poi_on_500000.txt" (POI list with POI number of 150 on "XXpre_500000.off")
+- "XXpost_150_poi_on_500000.txt" (POI list with POI number of 150 on "XXpost_500000.off")
+- "XXpre_200_poi_on_500000.txt" (POI list with POI number of 200 on "XXpre_500000.off")
+- "XXpost_200_poi_on_500000.txt" (POI list with POI number of 200 on "XXpost_500000.off")
+- "XXpre_250_poi_on_500000.txt" (POI list with POI number of 250 on "XXpre_500000.off")
+- "XXpost_250_poi_on_500000.txt" (POI list with POI number of 250 on "XXpost_500000.off")
 
 Data Format:
 
@@ -212,69 +122,123 @@ g++ -o main main.cpp -std=c++11
 
 The meaning for each parameter is as follows:
 
-- [terrain_data_and_dataset_size_and_poi_number_map_index]: an index for the map of terrain data and dataset size and poi number (a integer from 0 to 45)
+- [terrain_data_and_dataset_size_and_poi_number_map_index]: an index for the map of terrain data and dataset size and poi number (a integer from 0 to 107)
 - [epsilon]: the epsilon value (0 < epsilon <= 1)
 
 For the [terrain_data_and_dataset_size_and_poi_number_map_index], each index value corresponding to a terrain data, the dataset size of the terrain and the poi number on the terrain, their relationships are as follows:
 
 | Index | Terrain data | Dataset size | POI number |
 | ----------- | ----------- | ----------- | ----------- |
-| 0 | SC | 500000 | 50 |
-| 1 | SC | 500000 | 100 |
-| 2 | SC | 500000 | 150 |
-| 3 | SC | 500000 | 200 |
-| 4 | SC | 500000 | 250 |
-| 5 | SC | 1002528 | 50 |
-| 6 | SC | 1503378 | 50 |
-| 7 | SC | 2000000 | 50 |
-| 8 | SC | 2504322 | 50 |
-| 9 | AU | 500000 | 50 |
-| 10 | AU | 500000 | 100 |
-| 11 | AU | 500000 | 150 |
-| 12 | AU | 500000 | 200 |
-| 13 | AU | 500000 | 250 |
-| 14 | AU | 1002528 | 50 |
-| 15 | AU | 1503378 | 50 |
-| 16 | AU | 2000000 | 50 |
-| 17 | AU | 2504322 | 50 |
-| 18 | VS | 500000 | 50 |
-| 19 | VS | 500000 | 100 |
-| 20 | VS | 500000 | 150 |
-| 21 | VS | 500000 | 200 |
-| 22 | VS | 500000 | 250 |
-| 23 | VS | 1002528 | 50 |
-| 24 | VS | 1503378 | 50 |
-| 25 | VS | 2000000 | 50 |
-| 26 | VS | 2504322 | 50 |
-| 27 | SC | 500000 | 50 |
-| 28 | SC | 500000 | 1000 |
-| 29 | SC | 500000 | 1500 |
-| 30 | SC | 500000 | 2000 |
-| 31 | SC | 500000 | 2500 |
-| 32 | SC | 1002528 | 500 |
-| 33 | SC | 1503378 | 500 |
-| 34 | SC | 2000000 | 500 |
-| 35 | SC | 2504322 | 500 |
-| 36 | AU | 500000 | 500 |
-| 37 | AU | 500000 | 1000 |
-| 38 | AU | 500000 | 1500 |
-| 39 | AU | 500000 | 2000 |
-| 40 | AU | 500000 | 2500 |
-| 41 | AU | 1002528 | 500 |
-| 42 | AU | 1503378 | 500 |
-| 43 | AU | 2000000 | 500 |
-| 44 | AU | 2504322 | 500 |
-| 45 | VS | 500000 | 500 |
-| 46 | VS | 500000 | 1000 |
-| 47 | VS | 500000 | 1500 |
-| 48 | VS | 500000 | 2000 |
-| 49 | VS | 500000 | 2500 |
-| 50 | VS | 1002528 | 500 |
-| 51 | VS | 1503378 | 500 |
-| 52 | VS | 2000000 | 500 |
-| 53 | VS | 2504322 | 500 |
+| 0 | TJ | 500000 | 50 |
+| 1 | TJ | 500000 | 100 |
+| 2 | TJ | 500000 | 150 |
+| 3 | TJ | 500000 | 200 |
+| 4 | TJ | 500000 | 250 |
+| 5 | TJ | 1002528 | 50 |
+| 6 | TJ | 1503378 | 50 |
+| 7 | TJ | 2000000 | 50 |
+| 8 | TJ | 2504322 | 50 |
+| 9 | SC | 500000 | 50 |
+| 10 | SC | 500000 | 100 |
+| 11 | SC | 500000 | 150 |
+| 12 | SC | 500000 | 200 |
+| 13 | SC | 500000 | 250 |
+| 14 | SC | 1002528 | 50 |
+| 15 | SC | 1503378 | 50 |
+| 16 | SC | 2000000 | 50 |
+| 17 | SC | 2504322 | 50 |
+| 18 | GI | 500000 | 50 |
+| 19 | GI | 500000 | 100 |
+| 20 | GI | 500000 | 150 |
+| 21 | GI | 500000 | 200 |
+| 22 | GI | 500000 | 250 |
+| 23 | GI | 1002528 | 50 |
+| 24 | GI | 1503378 | 50 |
+| 25 | GI | 2000000 | 50 |
+| 26 | GI | 2504322 | 50 |
+| 27 | AU | 500000 | 50 |
+| 28 | AU | 500000 | 100 |
+| 29 | AU | 500000 | 150 |
+| 30 | AU | 500000 | 200 |
+| 31 | AU | 500000 | 250 |
+| 32 | AU | 1002528 | 50 |
+| 33 | AU | 1503378 | 50 |
+| 34 | AU | 2000000 | 50 |
+| 35 | AU | 2504322 | 50 |
+| 36 | LH | 500000 | 50 |
+| 37 | LH | 500000 | 100 |
+| 38 | LH | 500000 | 150 |
+| 39 | LH | 500000 | 200 |
+| 40 | LH | 500000 | 250 |
+| 41 | LH | 1002528 | 50 |
+| 42 | LH | 1503378 | 50 |
+| 43 | LH | 2000000 | 50 |
+| 44 | LH | 2504322 | 50 |
+| 45 | VS | 500000 | 50 |
+| 46 | VS | 500000 | 100 |
+| 47 | VS | 500000 | 150 |
+| 48 | VS | 500000 | 200 |
+| 49 | VS | 500000 | 250 |
+| 50 | VS | 1002528 | 50 |
+| 51 | VS | 1503378 | 50 |
+| 52 | VS | 2000000 | 50 |
+| 53 | VS | 2504322 | 50 |
+| 54 | SC | 500000 | 500 |
+| 55 | SC | 500000 | 1000 |
+| 56 | SC | 500000 | 1500 |
+| 57 | SC | 500000 | 2000 |
+| 58 | SC | 500000 | 2500 |
+| 59 | SC | 1002528 | 500 |
+| 60 | SC | 1503378 | 500 |
+| 61 | SC | 2000000 | 500 |
+| 62 | SC | 2504322 | 500 |
+| 63 | TJ | 500000 | 500 |
+| 64 | TJ | 500000 | 1000 |
+| 65 | TJ | 500000 | 1500 |
+| 66 | TJ | 500000 | 2000 |
+| 67 | TJ | 500000 | 2500 |
+| 68 | TJ | 1002528 | 500 |
+| 69 | TJ | 1503378 | 500 |
+| 70 | TJ | 2000000 | 500 |
+| 71 | TJ | 2504322 | 500 |
+| 72 | GI | 500000 | 500 |
+| 73 | GI | 500000 | 1000 |
+| 74 | GI | 500000 | 1500 |
+| 75 | GI | 500000 | 2000 |
+| 76 | GI | 500000 | 2500 |
+| 77 | GI | 1002528 | 500 |
+| 78 | GI | 1503378 | 500 |
+| 79 | GI | 2000000 | 500 |
+| 80 | GI | 2504322 | 500 |
+| 81 | AU | 500000 | 500 |
+| 82 | AU | 500000 | 1000 |
+| 83 | AU | 500000 | 1500 |
+| 84 | AU | 500000 | 2000 |
+| 85 | AU | 500000 | 2500 |
+| 86 | AU | 1002528 | 500 |
+| 87 | AU | 1503378 | 500 |
+| 88 | AU | 2000000 | 500 |
+| 89 | AU | 2504322 | 500 |
+| 90 | LH | 500000 | 500 |
+| 91 | LH | 500000 | 1000 |
+| 92 | LH | 500000 | 1500 |
+| 93 | LH | 500000 | 2000 |
+| 94 | LH | 500000 | 2500 |
+| 95 | LH | 1002528 | 500 |
+| 96 | LH | 1503378 | 500 |
+| 97 | LH | 2000000 | 500 |
+| 98 | LH | 2504322 | 500 |
+| 99 | VS | 500000 | 500 |
+| 100 | VS | 500000 | 1000 |
+| 101 | VS | 500000 | 1500 |
+| 102 | VS | 500000 | 2000 |
+| 103 | VS | 500000 | 2500 |
+| 104 | VS | 1002528 | 500 |
+| 105 | VS | 1503378 | 500 |
+| 106 | VS | 2000000 | 500 |
+| 107 | VS | 2504322 | 500 |
 
-By default, the project will run FU-Oracle-Naive1, FU-Oracle-Naive2, FU-Oracle, WSPD-Oracle, WSPD-Oracle-Adapt, and K-Fly-Algo. But as mentioned in our paper, WSPD-Oracle and WSPD-Oracle-Adapt are very time consuming. So when the dataset size is large, i.e., [terrain_data_and_dataset_size_and_poi_number_map_index] > 27, the project will only run FU-Oracle-Naive1, FU-Oracle-Naive2, FU-Oracle, and K-Fly-Algo.
+By default, the project will run WSPD-Oracle, WSPD-Oracle-Adapt, FU-Oracle-RanUpdSeq, FU-Oracle-FullRad, FU-Oracle-NoDistAppr, FU-Oracle-NoEffIntChe, FU-Oracle-NoEdgPru, FU-Oracle-NoEffEdgPru, FU-Oracle, and K-Fly-Algo. But as mentioned in our paper, WSPD-Oracle and WSPD-Oracle-Adapt, FU-Oracle-RanUpdSeq, FU-Oracle-FullRad, FU-Oracle-NoDistAppr are very time consuming. So when the POI number is large, i.e., [terrain_data_and_dataset_size_and_poi_number_map_index] > 53, the project will only run FU-Oracle-NoEffIntChe,FU-Oracle-NoEdgPru, FU-Oracle-NoEffEdgPru, FU-Oracle, and K-Fly-Algo.
 
 An example:
 
@@ -282,7 +246,7 @@ An example:
 ./main 0 0.5
 ```
 
-In this example, [terrain_data_and_dataset_size_and_poi_number_map_index] is 0, [epsilon] is 0.5. So, it will run SC pre earthquake terrain dataset and SC post earthquake terrain dataset, with dataset size equal to 500000 and poi number equal to 50, and epsilon is 0.5. It will run six algorithms, i.e., FU-Oracle-Naive1, FU-Oracle-Naive2, FU-Oracle, WSPD-Oracle, WSPD-Oracle-Adapt, and K-Fly-Algo.
+In this example, [terrain_data_and_dataset_size_and_poi_number_map_index] is 0, [epsilon] is 0.5. So, it will run TJ pre earthquake terrain dataset and TJ post earthquake terrain dataset, with dataset size equal to 500000 and poi number equal to 50, and epsilon is 0.5. It will run 10 algorithms, i.e., WSPD-Oracle, WSPD-Oracle-Adapt, FU-Oracle-RanUpdSeq, FU-Oracle-FullRad, FU-Oracle-NoDistAppr, FU-Oracle-NoEffIntChe, FU-Oracle-NoEdgPru, FU-Oracle-NoEffEdgPru, FU-Oracle, and K-Fly-Algo.
 
 ## Output
 
@@ -295,3 +259,5 @@ The output will be stored in "output/output.txt" file. The format will be as fol
 ```
 
 These information will also be shown in the terminal. 
+
+[post_update_time1] means the update time for terrain surface and POIs change detection step and pairwise P2P exact shortest path updating time, and [post_update_time2] means the update time for sub-graph generating step. 

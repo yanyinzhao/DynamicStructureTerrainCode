@@ -31,63 +31,117 @@ int main(int argc, char **argv)
 
        std::string input_folder = "../input/";
 
-       std::map<int, input_struct> input_file{
-           {0, input_struct("SCpre_500000.off", "SCpost_500000.off", "SCpre_50_poi_on_500000.txt", "SCpost_50_poi_on_500000.txt", 0, 1)},
-           {1, input_struct("SCpre_500000.off", "SCpost_500000.off", "SCpre_100_poi_on_500000.txt", "SCpost_100_poi_on_500000.txt", 0, 1)},
-           {2, input_struct("SCpre_500000.off", "SCpost_500000.off", "SCpre_150_poi_on_500000.txt", "SCpost_150_poi_on_500000.txt", 0, 1)},
-           {3, input_struct("SCpre_500000.off", "SCpost_500000.off", "SCpre_200_poi_on_500000.txt", "SCpost_200_poi_on_500000.txt", 0, 1)},
-           {4, input_struct("SCpre_500000.off", "SCpost_500000.off", "SCpre_250_poi_on_500000.txt", "SCpost_250_poi_on_500000.txt", 0, 1)},
-           {5, input_struct("SCpre_1002528.off", "SCpost_1002528.off", "SCpre_50_poi_on_1002528.txt", "SCpost_50_poi_on_1002528.txt", 0, 1)},
-           {6, input_struct("SCpre_1503378.off", "SCpost_1503378.off", "SCpre_50_poi_on_1503378.txt", "SCpost_50_poi_on_1503378.txt", 0, 1)},
-           {7, input_struct("SCpre_2000000.off", "SCpost_2000000.off", "SCpre_50_poi_on_2000000.txt", "SCpost_50_poi_on_2000000.txt", 0, 1)},
-           {8, input_struct("SCpre_2504322.off", "SCpost_2504322.off", "SCpre_50_poi_on_2504322.txt", "SCpost_50_poi_on_2504322.txt", 0, 1)},
-           {9, input_struct("AUpre_500000.off", "AUpost_500000.off", "AUpre_50_poi_on_500000.txt", "AUpost_50_poi_on_500000.txt", 0, 1)},
-           {10, input_struct("AUpre_500000.off", "AUpost_500000.off", "AUpre_100_poi_on_500000.txt", "AUpost_1000_poi_on_500000.txt", 0, 1)},
-           {11, input_struct("AUpre_500000.off", "AUpost_500000.off", "AUpre_150_poi_on_500000.txt", "AUpost_150_poi_on_500000.txt", 0, 1)},
-           {12, input_struct("AUpre_500000.off", "AUpost_500000.off", "AUpre_200_poi_on_500000.txt", "AUpost_200_poi_on_500000.txt", 0, 1)},
-           {13, input_struct("AUpre_500000.off", "AUpost_500000.off", "AUpre_250_poi_on_500000.txt", "AUpost_250_poi_on_500000.txt", 0, 1)},
-           {14, input_struct("AUpre_1002528.off", "AUpost_1002528.off", "AUpre_50_poi_on_1002528.txt", "AUpost_50_poi_on_1002528.txt", 0, 1)},
-           {15, input_struct("AUpre_1503378.off", "AUpost_1503378.off", "AUpre_50_poi_on_1503378.txt", "AUpost_50_poi_on_1503378.txt", 0, 1)},
-           {16, input_struct("AUpre_2000000.off", "AUpost_2000000.off", "AUpre_50_poi_on_2000000.txt", "AUpost_50_poi_on_2000000.txt", 0, 1)},
-           {17, input_struct("AUpre_2504322.off", "AUpost_2504322.off", "AUpre_50_poi_on_2504322.txt", "AUpost_50_poi_on_2504322.txt", 0, 1)},
-           {18, input_struct("VSpre_500000.off", "VSpost_500000.off", "VSpre_50_poi_on_500000.txt", "VSpost_50_poi_on_500000.txt", 0, 1)},
-           {19, input_struct("VSpre_500000.off", "VSpost_500000.off", "VSpre_100_poi_on_500000.txt", "VSpost_100_poi_on_500000.txt", 0, 1)},
-           {20, input_struct("VSpre_500000.off", "VSpost_500000.off", "VSpre_150_poi_on_500000.txt", "VSpost_150_poi_on_500000.txt", 0, 1)},
-           {21, input_struct("VSpre_500000.off", "VSpost_500000.off", "VSpre_200_poi_on_500000.txt", "VSpost_200_poi_on_500000.txt", 0, 1)},
-           {22, input_struct("VSpre_500000.off", "VSpost_500000.off", "VSpre_250_poi_on_500000.txt", "VSpost_250_poi_on_500000.txt", 0, 1)},
-           {23, input_struct("VSpre_1002528.off", "VSpost_1002528.off", "VSpre_50_poi_on_1002528.txt", "VSpost_50_poi_on_1002528.txt", 0, 1)},
-           {24, input_struct("VSpre_1503378.off", "VSpost_1503378.off", "VSpre_50_poi_on_1503378.txt", "VSpost_50_poi_on_1503378.txt", 0, 1)},
-           {25, input_struct("VSpre_2000000.off", "VSpost_2000000.off", "VSpre_50_poi_on_2000000.txt", "VSpost_50_poi_on_2000000.txt", 0, 1)},
-           {26, input_struct("VSpre_2504322.off", "VSpost_2504322.off", "VSpre_50_poi_on_2504322.txt", "VSpost_50_poi_on_2504322.txt", 0, 1)},
+       std::vector<input_struct> input_file;
 
-           {27, input_struct("SCpre_500000.off", "SCpost_500000.off", "SCpre_500_poi_on_500000.txt", "SCpost_500_poi_on_500000.txt", 0, 1)},
-           {28, input_struct("SCpre_500000.off", "SCpost_500000.off", "SCpre_1000_poi_on_500000.txt", "SCpost_1000_poi_on_500000.txt", 0, 1)},
-           {29, input_struct("SCpre_500000.off", "SCpost_500000.off", "SCpre_1500_poi_on_500000.txt", "SCpost_1500_poi_on_500000.txt", 0, 1)},
-           {30, input_struct("SCpre_500000.off", "SCpost_500000.off", "SCpre_2000_poi_on_500000.txt", "SCpost_2000_poi_on_500000.txt", 0, 1)},
-           {31, input_struct("SCpre_500000.off", "SCpost_500000.off", "SCpre_2500_poi_on_500000.txt", "SCpost_2500_poi_on_500000.txt", 0, 1)},
-           {32, input_struct("SCpre_1002528.off", "SCpost_1002528.off", "SCpre_500_poi_on_1002528.txt", "SCpost_500_poi_on_1002528.txt", 0, 1)},
-           {33, input_struct("SCpre_1503378.off", "SCpost_1503378.off", "SCpre_500_poi_on_1503378.txt", "SCpost_500_poi_on_1503378.txt", 0, 1)},
-           {34, input_struct("SCpre_2000000.off", "SCpost_2000000.off", "SCpre_500_poi_on_2000000.txt", "SCpost_500_poi_on_2000000.txt", 0, 1)},
-           {35, input_struct("SCpre_2504322.off", "SCpost_2504322.off", "SCpre_500_poi_on_2504322.txt", "SCpost_500_poi_on_2504322.txt", 0, 1)},
-           {36, input_struct("AUpre_500000.off", "AUpost_500000.off", "AUpre_500_poi_on_500000.txt", "AUpost_500_poi_on_500000.txt", 0, 1)},
-           {37, input_struct("AUpre_500000.off", "AUpost_500000.off", "AUpre_1000_poi_on_500000.txt", "AUpost_1000_poi_on_500000.txt", 0, 1)},
-           {38, input_struct("AUpre_500000.off", "AUpost_500000.off", "AUpre_1500_poi_on_500000.txt", "AUpost_1500_poi_on_500000.txt", 0, 1)},
-           {39, input_struct("AUpre_500000.off", "AUpost_500000.off", "AUpre_2000_poi_on_500000.txt", "AUpost_2000_poi_on_500000.txt", 0, 1)},
-           {40, input_struct("AUpre_500000.off", "AUpost_500000.off", "AUpre_2500_poi_on_500000.txt", "AUpost_2500_poi_on_500000.txt", 0, 1)},
-           {41, input_struct("AUpre_1002528.off", "AUpost_1002528.off", "AUpre_500_poi_on_1002528.txt", "AUpost_500_poi_on_1002528.txt", 0, 1)},
-           {42, input_struct("AUpre_1503378.off", "AUpost_1503378.off", "AUpre_500_poi_on_1503378.txt", "AUpost_500_poi_on_1503378.txt", 0, 1)},
-           {43, input_struct("AUpre_2000000.off", "AUpost_2000000.off", "AUpre_500_poi_on_2000000.txt", "AUpost_500_poi_on_2000000.txt", 0, 1)},
-           {44, input_struct("AUpre_2504322.off", "AUpost_2504322.off", "AUpre_500_poi_on_2504322.txt", "AUpost_500_poi_on_2504322.txt", 0, 1)},
-           {45, input_struct("VSpre_500000.off", "VSpost_500000.off", "VSpre_500_poi_on_500000.txt", "VSpost_500_poi_on_500000.txt", 0, 1)},
-           {46, input_struct("VSpre_500000.off", "VSpost_500000.off", "VSpre_1000_poi_on_500000.txt", "VSpost_1000_poi_on_500000.txt", 0, 1)},
-           {47, input_struct("VSpre_500000.off", "VSpost_500000.off", "VSpre_1500_poi_on_500000.txt", "VSpost_1500_poi_on_500000.txt", 0, 1)},
-           {48, input_struct("VSpre_500000.off", "VSpost_500000.off", "VSpre_2000_poi_on_500000.txt", "VSpost_2000_poi_on_500000.txt", 0, 1)},
-           {49, input_struct("VSpre_500000.off", "VSpost_500000.off", "VSpre_2500_poi_on_500000.txt", "VSpost_2500_poi_on_500000.txt", 0, 1)},
-           {50, input_struct("VSpre_1002528.off", "VSpost_1002528.off", "VSpre_500_poi_on_1002528.txt", "VSpost_500_poi_on_1002528.txt", 0, 1)},
-           {51, input_struct("VSpre_1503378.off", "VSpost_1503378.off", "VSpre_500_poi_on_1503378.txt", "VSpost_500_poi_on_1503378.txt", 0, 1)},
-           {52, input_struct("VSpre_2000000.off", "VSpost_2000000.off", "VSpre_500_poi_on_2000000.txt", "VSpost_500_poi_on_2000000.txt", 0, 1)},
-           {53, input_struct("VSpre_2504322.off", "VSpost_2504322.off", "VSpre_500_poi_on_2504322.txt", "VSpost_500_poi_on_2504322.txt", 0, 1)},
-       };
+       input_file.push_back(input_struct("TJpre_500000.off", "TJpost_500000.off", "TJpre_50_poi_on_500000.txt", "TJpost_50_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("TJpre_500000.off", "TJpost_500000.off", "TJpre_100_poi_on_500000.txt", "TJpost_100_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("TJpre_500000.off", "TJpost_500000.off", "TJpre_150_poi_on_500000.txt", "TJpost_150_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("TJpre_500000.off", "TJpost_500000.off", "TJpre_200_poi_on_500000.txt", "TJpost_200_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("TJpre_500000.off", "TJpost_500000.off", "TJpre_250_poi_on_500000.txt", "TJpost_250_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("TJpre_1002528.off", "TJpost_1002528.off", "TJpre_50_poi_on_1002528.txt", "TJpost_50_poi_on_1002528.txt", 0, 1));
+       input_file.push_back(input_struct("TJpre_1503378.off", "TJpost_1503378.off", "TJpre_50_poi_on_1503378.txt", "TJpost_50_poi_on_1503378.txt", 0, 1));
+       input_file.push_back(input_struct("TJpre_2000000.off", "TJpost_2000000.off", "TJpre_50_poi_on_2000000.txt", "TJpost_50_poi_on_2000000.txt", 0, 1));
+       input_file.push_back(input_struct("TJpre_2504322.off", "TJpost_2504322.off", "TJpre_50_poi_on_2504322.txt", "TJpost_50_poi_on_2504322.txt", 0, 1));
+       input_file.push_back(input_struct("SCpre_500000.off", "SCpost_500000.off", "SCpre_50_poi_on_500000.txt", "SCpost_50_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("SCpre_500000.off", "SCpost_500000.off", "SCpre_100_poi_on_500000.txt", "SCpost_100_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("SCpre_500000.off", "SCpost_500000.off", "SCpre_150_poi_on_500000.txt", "SCpost_150_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("SCpre_500000.off", "SCpost_500000.off", "SCpre_200_poi_on_500000.txt", "SCpost_200_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("SCpre_500000.off", "SCpost_500000.off", "SCpre_250_poi_on_500000.txt", "SCpost_250_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("SCpre_1002528.off", "SCpost_1002528.off", "SCpre_50_poi_on_1002528.txt", "SCpost_50_poi_on_1002528.txt", 0, 1));
+       input_file.push_back(input_struct("SCpre_1503378.off", "SCpost_1503378.off", "SCpre_50_poi_on_1503378.txt", "SCpost_50_poi_on_1503378.txt", 0, 1));
+       input_file.push_back(input_struct("SCpre_2000000.off", "SCpost_2000000.off", "SCpre_50_poi_on_2000000.txt", "SCpost_50_poi_on_2000000.txt", 0, 1));
+       input_file.push_back(input_struct("SCpre_2504322.off", "SCpost_2504322.off", "SCpre_50_poi_on_2504322.txt", "SCpost_50_poi_on_2504322.txt", 0, 1));
+       input_file.push_back(input_struct("GIpre_500000.off", "GIpost_500000.off", "GIpre_50_poi_on_500000.txt", "GIpost_50_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("GIpre_500000.off", "GIpost_500000.off", "GIpre_100_poi_on_500000.txt", "GIpost_1000_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("GIpre_500000.off", "GIpost_500000.off", "GIpre_150_poi_on_500000.txt", "GIpost_150_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("GIpre_500000.off", "GIpost_500000.off", "GIpre_200_poi_on_500000.txt", "GIpost_200_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("GIpre_500000.off", "GIpost_500000.off", "GIpre_250_poi_on_500000.txt", "GIpost_250_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("GIpre_1002528.off", "GIpost_1002528.off", "GIpre_50_poi_on_1002528.txt", "GIpost_50_poi_on_1002528.txt", 0, 1));
+       input_file.push_back(input_struct("GIpre_1503378.off", "GIpost_1503378.off", "GIpre_50_poi_on_1503378.txt", "GIpost_50_poi_on_1503378.txt", 0, 1));
+       input_file.push_back(input_struct("GIpre_2000000.off", "GIpost_2000000.off", "GIpre_50_poi_on_2000000.txt", "GIpost_50_poi_on_2000000.txt", 0, 1));
+       input_file.push_back(input_struct("GIpre_2504322.off", "GIpost_2504322.off", "GIpre_50_poi_on_2504322.txt", "GIpost_50_poi_on_2504322.txt", 0, 1));
+       input_file.push_back(input_struct("AUpre_500000.off", "AUpost_500000.off", "AUpre_50_poi_on_500000.txt", "AUpost_50_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("AUpre_500000.off", "AUpost_500000.off", "AUpre_100_poi_on_500000.txt", "AUpost_1000_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("AUpre_500000.off", "AUpost_500000.off", "AUpre_150_poi_on_500000.txt", "AUpost_150_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("AUpre_500000.off", "AUpost_500000.off", "AUpre_200_poi_on_500000.txt", "AUpost_200_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("AUpre_500000.off", "AUpost_500000.off", "AUpre_250_poi_on_500000.txt", "AUpost_250_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("AUpre_1002528.off", "AUpost_1002528.off", "AUpre_50_poi_on_1002528.txt", "AUpost_50_poi_on_1002528.txt", 0, 1));
+       input_file.push_back(input_struct("AUpre_1503378.off", "AUpost_1503378.off", "AUpre_50_poi_on_1503378.txt", "AUpost_50_poi_on_1503378.txt", 0, 1));
+       input_file.push_back(input_struct("AUpre_2000000.off", "AUpost_2000000.off", "AUpre_50_poi_on_2000000.txt", "AUpost_50_poi_on_2000000.txt", 0, 1));
+       input_file.push_back(input_struct("AUpre_2504322.off", "AUpost_2504322.off", "AUpre_50_poi_on_2504322.txt", "AUpost_50_poi_on_2504322.txt", 0, 1));
+       input_file.push_back(input_struct("LHpre_500000.off", "LHpost_500000.off", "LHpre_50_poi_on_500000.txt", "LHpost_50_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("LHpre_500000.off", "LHpost_500000.off", "LHpre_100_poi_on_500000.txt", "LHpost_100_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("LHpre_500000.off", "LHpost_500000.off", "LHpre_150_poi_on_500000.txt", "LHpost_150_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("LHpre_500000.off", "LHpost_500000.off", "LHpre_200_poi_on_500000.txt", "LHpost_200_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("LHpre_500000.off", "LHpost_500000.off", "LHpre_250_poi_on_500000.txt", "LHpost_250_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("LHpre_1002528.off", "LHpost_1002528.off", "LHpre_50_poi_on_1002528.txt", "LHpost_50_poi_on_1002528.txt", 0, 1));
+       input_file.push_back(input_struct("LHpre_1503378.off", "LHpost_1503378.off", "LHpre_50_poi_on_1503378.txt", "LHpost_50_poi_on_1503378.txt", 0, 1));
+       input_file.push_back(input_struct("LHpre_2000000.off", "LHpost_2000000.off", "LHpre_50_poi_on_2000000.txt", "LHpost_50_poi_on_2000000.txt", 0, 1));
+       input_file.push_back(input_struct("LHpre_2504322.off", "LHpost_2504322.off", "LHpre_50_poi_on_2504322.txt", "LHpost_50_poi_on_2504322.txt", 0, 1));
+       input_file.push_back(input_struct("VSpre_500000.off", "VSpost_500000.off", "VSpre_50_poi_on_500000.txt", "VSpost_50_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("VSpre_500000.off", "VSpost_500000.off", "VSpre_100_poi_on_500000.txt", "VSpost_100_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("VSpre_500000.off", "VSpost_500000.off", "VSpre_150_poi_on_500000.txt", "VSpost_150_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("VSpre_500000.off", "VSpost_500000.off", "VSpre_200_poi_on_500000.txt", "VSpost_200_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("VSpre_500000.off", "VSpost_500000.off", "VSpre_250_poi_on_500000.txt", "VSpost_250_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("VSpre_1002528.off", "VSpost_1002528.off", "VSpre_50_poi_on_1002528.txt", "VSpost_50_poi_on_1002528.txt", 0, 1));
+       input_file.push_back(input_struct("VSpre_1503378.off", "VSpost_1503378.off", "VSpre_50_poi_on_1503378.txt", "VSpost_50_poi_on_1503378.txt", 0, 1));
+       input_file.push_back(input_struct("VSpre_2000000.off", "VSpost_2000000.off", "VSpre_50_poi_on_2000000.txt", "VSpost_50_poi_on_2000000.txt", 0, 1));
+       input_file.push_back(input_struct("VSpre_2504322.off", "VSpost_2504322.off", "VSpre_50_poi_on_2504322.txt", "VSpost_50_poi_on_2504322.txt", 0, 1));
+
+       input_file.push_back(input_struct("TJpre_500000.off", "TJpost_500000.off", "TJpre_500_poi_on_500000.txt", "TJpost_500_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("TJpre_500000.off", "TJpost_500000.off", "TJpre_1000_poi_on_500000.txt", "TJpost_1000_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("TJpre_500000.off", "TJpost_500000.off", "TJpre_1500_poi_on_500000.txt", "TJpost_1500_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("TJpre_500000.off", "TJpost_500000.off", "TJpre_2000_poi_on_500000.txt", "TJpost_2000_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("TJpre_500000.off", "TJpost_500000.off", "TJpre_2500_poi_on_500000.txt", "TJpost_2500_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("TJpre_1002528.off", "TJpost_1002528.off", "TJpre_500_poi_on_1002528.txt", "TJpost_500_poi_on_1002528.txt", 0, 1));
+       input_file.push_back(input_struct("TJpre_1503378.off", "TJpost_1503378.off", "TJpre_500_poi_on_1503378.txt", "TJpost_500_poi_on_1503378.txt", 0, 1));
+       input_file.push_back(input_struct("TJpre_2000000.off", "TJpost_2000000.off", "TJpre_500_poi_on_2000000.txt", "TJpost_500_poi_on_2000000.txt", 0, 1));
+       input_file.push_back(input_struct("TJpre_2504322.off", "TJpost_2504322.off", "TJpre_500_poi_on_2504322.txt", "TJpost_500_poi_on_2504322.txt", 0, 1));
+       input_file.push_back(input_struct("SCpre_500000.off", "SCpost_500000.off", "SCpre_500_poi_on_500000.txt", "SCpost_500_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("SCpre_500000.off", "SCpost_500000.off", "SCpre_1000_poi_on_500000.txt", "SCpost_1000_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("SCpre_500000.off", "SCpost_500000.off", "SCpre_1500_poi_on_500000.txt", "SCpost_1500_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("SCpre_500000.off", "SCpost_500000.off", "SCpre_2000_poi_on_500000.txt", "SCpost_2000_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("SCpre_500000.off", "SCpost_500000.off", "SCpre_2500_poi_on_500000.txt", "SCpost_2500_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("SCpre_1002528.off", "SCpost_1002528.off", "SCpre_500_poi_on_1002528.txt", "SCpost_500_poi_on_1002528.txt", 0, 1));
+       input_file.push_back(input_struct("SCpre_1503378.off", "SCpost_1503378.off", "SCpre_500_poi_on_1503378.txt", "SCpost_500_poi_on_1503378.txt", 0, 1));
+       input_file.push_back(input_struct("SCpre_2000000.off", "SCpost_2000000.off", "SCpre_500_poi_on_2000000.txt", "SCpost_500_poi_on_2000000.txt", 0, 1));
+       input_file.push_back(input_struct("SCpre_2504322.off", "SCpost_2504322.off", "SCpre_500_poi_on_2504322.txt", "SCpost_500_poi_on_2504322.txt", 0, 1));
+       input_file.push_back(input_struct("GIpre_500000.off", "GIpost_500000.off", "GIpre_500_poi_on_500000.txt", "GIpost_500_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("GIpre_500000.off", "GIpost_500000.off", "GIpre_1000_poi_on_500000.txt", "GIpost_1000_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("GIpre_500000.off", "GIpost_500000.off", "GIpre_1500_poi_on_500000.txt", "GIpost_1500_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("GIpre_500000.off", "GIpost_500000.off", "GIpre_2000_poi_on_500000.txt", "GIpost_2000_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("GIpre_500000.off", "GIpost_500000.off", "GIpre_2500_poi_on_500000.txt", "GIpost_2500_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("GIpre_1002528.off", "GIpost_1002528.off", "GIpre_500_poi_on_1002528.txt", "GIpost_500_poi_on_1002528.txt", 0, 1));
+       input_file.push_back(input_struct("GIpre_1503378.off", "GIpost_1503378.off", "GIpre_500_poi_on_1503378.txt", "GIpost_500_poi_on_1503378.txt", 0, 1));
+       input_file.push_back(input_struct("GIpre_2000000.off", "GIpost_2000000.off", "GIpre_500_poi_on_2000000.txt", "GIpost_500_poi_on_2000000.txt", 0, 1));
+       input_file.push_back(input_struct("GIpre_2504322.off", "GIpost_2504322.off", "GIpre_500_poi_on_2504322.txt", "GIpost_500_poi_on_2504322.txt", 0, 1));
+       input_file.push_back(input_struct("AUpre_500000.off", "AUpost_500000.off", "AUpre_500_poi_on_500000.txt", "AUpost_500_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("AUpre_500000.off", "AUpost_500000.off", "AUpre_1000_poi_on_500000.txt", "AUpost_1000_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("AUpre_500000.off", "AUpost_500000.off", "AUpre_1500_poi_on_500000.txt", "AUpost_1500_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("AUpre_500000.off", "AUpost_500000.off", "AUpre_2000_poi_on_500000.txt", "AUpost_2000_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("AUpre_500000.off", "AUpost_500000.off", "AUpre_2500_poi_on_500000.txt", "AUpost_2500_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("AUpre_1002528.off", "AUpost_1002528.off", "AUpre_500_poi_on_1002528.txt", "AUpost_500_poi_on_1002528.txt", 0, 1));
+       input_file.push_back(input_struct("AUpre_1503378.off", "AUpost_1503378.off", "AUpre_500_poi_on_1503378.txt", "AUpost_500_poi_on_1503378.txt", 0, 1));
+       input_file.push_back(input_struct("AUpre_2000000.off", "AUpost_2000000.off", "AUpre_500_poi_on_2000000.txt", "AUpost_500_poi_on_2000000.txt", 0, 1));
+       input_file.push_back(input_struct("AUpre_2504322.off", "AUpost_2504322.off", "AUpre_500_poi_on_2504322.txt", "AUpost_500_poi_on_2504322.txt", 0, 1));
+       input_file.push_back(input_struct("LHpre_500000.off", "LHpost_500000.off", "LHpre_500_poi_on_500000.txt", "LHpost_500_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("LHpre_500000.off", "LHpost_500000.off", "LHpre_1000_poi_on_500000.txt", "LHpost_1000_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("LHpre_500000.off", "LHpost_500000.off", "LHpre_1500_poi_on_500000.txt", "LHpost_1500_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("LHpre_500000.off", "LHpost_500000.off", "LHpre_2000_poi_on_500000.txt", "LHpost_2000_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("LHpre_500000.off", "LHpost_500000.off", "LHpre_2500_poi_on_500000.txt", "LHpost_2500_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("LHpre_1002528.off", "LHpost_1002528.off", "LHpre_500_poi_on_1002528.txt", "LHpost_500_poi_on_1002528.txt", 0, 1));
+       input_file.push_back(input_struct("LHpre_1503378.off", "LHpost_1503378.off", "LHpre_500_poi_on_1503378.txt", "LHpost_500_poi_on_1503378.txt", 0, 1));
+       input_file.push_back(input_struct("LHpre_2000000.off", "LHpost_2000000.off", "LHpre_500_poi_on_2000000.txt", "LHpost_500_poi_on_2000000.txt", 0, 1));
+       input_file.push_back(input_struct("LHpre_2504322.off", "LHpost_2504322.off", "LHpre_500_poi_on_2504322.txt", "LHpost_500_poi_on_2504322.txt", 0, 1));
+       input_file.push_back(input_struct("VSpre_500000.off", "VSpost_500000.off", "VSpre_500_poi_on_500000.txt", "VSpost_500_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("VSpre_500000.off", "VSpost_500000.off", "VSpre_1000_poi_on_500000.txt", "VSpost_1000_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("VSpre_500000.off", "VSpost_500000.off", "VSpre_1500_poi_on_500000.txt", "VSpost_1500_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("VSpre_500000.off", "VSpost_500000.off", "VSpre_2000_poi_on_500000.txt", "VSpost_2000_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("VSpre_500000.off", "VSpost_500000.off", "VSpre_2500_poi_on_500000.txt", "VSpost_2500_poi_on_500000.txt", 0, 1));
+       input_file.push_back(input_struct("VSpre_1002528.off", "VSpost_1002528.off", "VSpre_500_poi_on_1002528.txt", "VSpost_500_poi_on_1002528.txt", 0, 1));
+       input_file.push_back(input_struct("VSpre_1503378.off", "VSpost_1503378.off", "VSpre_500_poi_on_1503378.txt", "VSpost_500_poi_on_1503378.txt", 0, 1));
+       input_file.push_back(input_struct("VSpre_2000000.off", "VSpost_2000000.off", "VSpre_500_poi_on_2000000.txt", "VSpost_500_poi_on_2000000.txt", 0, 1));
+       input_file.push_back(input_struct("VSpre_2504322.off", "VSpost_2504322.off", "VSpre_500_poi_on_2504322.txt", "VSpost_500_poi_on_2504322.txt", 0, 1));
 
        std::string pre_input_file = input_folder + input_file[input_file_index].pre_input;
        std::string post_input_file = input_folder + input_file[input_file_index].post_input;
@@ -148,25 +202,7 @@ int main(int argc, char **argv)
 
        exact_distance(&post_mesh, post_poi_list, source_poi_index, destination_poi_index, post_exact_distance);
 
-       std::cout << "== FU_Oracle_Naive1 ==" << std::endl;
-       FU_Oracle_Naive1(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, source_poi_index,
-                        destination_poi_index, post_exact_distance, pre_MST_weight,
-                        post_MST_weight, write_file_header);
-       std::cout << std::endl;
-
-       std::cout << "== FU_Oracle_Naive2 ==" << std::endl;
-       FU_Oracle_Naive2(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
-                        source_poi_index, destination_poi_index, post_exact_distance,
-                        pre_MST_weight, post_MST_weight, write_file_header);
-       std::cout << std::endl;
-
-       std::cout << "== FU_Oracle ==" << std::endl;
-       FU_Oracle(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
-                 source_poi_index, destination_poi_index, post_exact_distance,
-                 pre_MST_weight, post_MST_weight, write_file_header);
-       std::cout << std::endl;
-
-       if (input_file_index >= 0 && input_file_index <= 27)
+       if (input_file_index >= 0 && input_file_index <= 53)
        {
               std::cout << "== WSPD_Oracle ==" << std::endl;
               WSPD_Oracle(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
@@ -179,10 +215,52 @@ int main(int argc, char **argv)
                                 source_poi_index, destination_poi_index, post_exact_distance,
                                 pre_MST_weight, post_MST_weight, write_file_header);
               std::cout << std::endl;
+
+              std::cout << "== FU_Oracle_RanUpdSeq ==" << std::endl;
+              FU_Oracle_RanUpdSeq_NoDistAppr(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
+                                             source_poi_index, destination_poi_index, post_exact_distance,
+                                             pre_MST_weight, post_MST_weight, write_file_header, true);
+              std::cout << std::endl;
+
+              std::cout << "== FU_Oracle_FullRad ==" << std::endl;
+              FU_Oracle_FullRad(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
+                                source_poi_index, destination_poi_index, post_exact_distance,
+                                pre_MST_weight, post_MST_weight, write_file_header);
+              std::cout << std::endl;
+
+              std::cout << "== FU_Oracle_NoDistAppr ==" << std::endl;
+              FU_Oracle_RanUpdSeq_NoDistAppr(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
+                                             source_poi_index, destination_poi_index, post_exact_distance,
+                                             pre_MST_weight, post_MST_weight, write_file_header, false);
+              std::cout << std::endl;
        }
+
+       std::cout << "== FU_Oracle_NoEffIntChe ==" << std::endl;
+       FU_Oracle_NoEffIntChe(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
+                             source_poi_index, destination_poi_index, post_exact_distance,
+                             pre_MST_weight, post_MST_weight, write_file_header);
+       std::cout << std::endl;
+
+       std::cout << "== FU_Oracle_NoEdgPru ==" << std::endl;
+       FU_Oracle_NoEdgPru(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, source_poi_index,
+                          destination_poi_index, post_exact_distance, pre_MST_weight,
+                          post_MST_weight, write_file_header);
+       std::cout << std::endl;
+
+       std::cout << "== FU_Oracle_NoEffEdgPru ==" << std::endl;
+       FU_Oracle_NoEffEdgPru(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
+                             source_poi_index, destination_poi_index, post_exact_distance,
+                             pre_MST_weight, post_MST_weight, write_file_header);
+       std::cout << std::endl;
+
+       std::cout << "== FU_Oracle ==" << std::endl;
+       FU_Oracle(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
+                 source_poi_index, destination_poi_index, post_exact_distance,
+                 pre_MST_weight, post_MST_weight, write_file_header);
+       std::cout << std::endl;
 
        std::cout << "== K_Fly_Algo ==" << std::endl;
        K_Fly_Algo(&post_mesh, post_poi_list, epsilon, source_poi_index, destination_poi_index,
-              post_exact_distance, write_file_header);
+                  post_exact_distance, write_file_header);
        std::cout << std::endl;
 }
