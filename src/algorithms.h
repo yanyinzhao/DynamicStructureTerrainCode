@@ -1110,29 +1110,32 @@ void post_complete_graph_update_NoEffIntChe(int poi_num, geodesic::Mesh *pre_mes
         // if the current poi is too close to the changed face, we need to run SSAD for this poi to update it path on the new terrain
         for (int k = 0; k < changed_vertex_index_list.size(); k++)
         {
-            for (int m = 0; m < euclidean_distance_of_poi_to_changed_face_and_original_index.size(); m++)
+            for (int t = 0; t < poi_num / 2; t++)
             {
-                int the_other_poi_index = euclidean_distance_of_poi_to_changed_face_and_original_index[m].second;
-                if ((current_poi_index <= the_other_poi_index && !pairwise_distance_poi_to_poi_changed[current_poi_index][the_other_poi_index - current_poi_index]) ||
-                    (current_poi_index > the_other_poi_index && !pairwise_distance_poi_to_poi_changed[the_other_poi_index][current_poi_index - the_other_poi_index]))
+                for (int m = 0; m < euclidean_distance_of_poi_to_changed_face_and_original_index.size(); m++)
                 {
-                    if (pairwise_distance_poi_to_vertex[current_poi_index][changed_vertex_index_list[k]] < 0 ||
-                        pairwise_distance_poi_to_vertex[the_other_poi_index][changed_vertex_index_list[k]] < 0)
+                    int the_other_poi_index = euclidean_distance_of_poi_to_changed_face_and_original_index[m].second;
+                    if ((current_poi_index <= the_other_poi_index && !pairwise_distance_poi_to_poi_changed[current_poi_index][the_other_poi_index - current_poi_index]) ||
+                        (current_poi_index > the_other_poi_index && !pairwise_distance_poi_to_poi_changed[the_other_poi_index][current_poi_index - the_other_poi_index]))
                     {
-                        int counter = 0;
-                        for (int n = 0; n < changed_vertex_index_list.size(); n++)
+                        if (pairwise_distance_poi_to_vertex[current_poi_index][changed_vertex_index_list[k]] < 0 ||
+                            pairwise_distance_poi_to_vertex[the_other_poi_index][changed_vertex_index_list[k]] < 0)
                         {
-                            if (pairwise_distance_poi_to_vertex[current_poi_index][changed_vertex_index_list[n]] < 0)
+                            int counter = 0;
+                            for (int n = 0; n < changed_vertex_index_list.size(); n++)
                             {
-                                counter++;
+                                if (pairwise_distance_poi_to_vertex[current_poi_index][changed_vertex_index_list[n]] < 0)
+                                {
+                                    counter++;
+                                }
+                                else if (pairwise_distance_poi_to_vertex[the_other_poi_index][changed_vertex_index_list[n]] < 0)
+                                {
+                                    counter++;
+                                }
                             }
-                            else if (pairwise_distance_poi_to_vertex[the_other_poi_index][changed_vertex_index_list[n]] < 0)
-                            {
-                                counter++;
-                            }
+                            changed_poi_index_list[current_poi_index] = 2;
+                            break;
                         }
-                        changed_poi_index_list[current_poi_index] = 2;
-                        break;
                     }
                 }
             }

@@ -33,6 +33,7 @@ int main(int argc, char **argv)
 
        std::vector<input_struct> input_file;
 
+       input_file.push_back(input_struct("TJpre_1058.off", "TJpost_1058.off", "TJpre_50_poi_on_1058.txt", "TJpost_50_poi_on_1058.txt", 0, 1));
        input_file.push_back(input_struct("TJpre_500000.off", "TJpost_500000.off", "TJpre_50_poi_on_500000.txt", "TJpost_50_poi_on_500000.txt", 0, 1));
        input_file.push_back(input_struct("TJpre_500000.off", "TJpost_500000.off", "TJpre_100_poi_on_500000.txt", "TJpost_100_poi_on_500000.txt", 0, 1));
        input_file.push_back(input_struct("TJpre_500000.off", "TJpost_500000.off", "TJpre_150_poi_on_500000.txt", "TJpost_150_poi_on_500000.txt", 0, 1));
@@ -202,20 +203,32 @@ int main(int argc, char **argv)
 
        exact_distance(&post_mesh, post_poi_list, source_poi_index, destination_poi_index, post_exact_distance);
 
-       if (input_file_index >= 0 && input_file_index <= 53)
+       std::cout << "== FU_Oracle_NoEdgPru ==" << std::endl;
+       FU_Oracle_NoEdgPru(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, source_poi_index,
+                          destination_poi_index, post_exact_distance, pre_MST_weight,
+                          post_MST_weight, write_file_header);
+       std::cout << std::endl;
+
+       std::cout << "== FU_Oracle_NoEffIntChe ==" << std::endl;
+       FU_Oracle_NoEffIntChe(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
+                             source_poi_index, destination_poi_index, post_exact_distance,
+                             pre_MST_weight, post_MST_weight, write_file_header);
+       std::cout << std::endl;
+
+       std::cout << "== FU_Oracle_NoEffEdgPru ==" << std::endl;
+       FU_Oracle_NoEffEdgPru(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
+                             source_poi_index, destination_poi_index, post_exact_distance,
+                             pre_MST_weight, post_MST_weight, write_file_header);
+       std::cout << std::endl;
+
+       std::cout << "== FU_Oracle ==" << std::endl;
+       FU_Oracle(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
+                 source_poi_index, destination_poi_index, post_exact_distance,
+                 pre_MST_weight, post_MST_weight, write_file_header);
+       std::cout << std::endl;
+
+       if (input_file_index >= 0 && input_file_index <= 54)
        {
-              std::cout << "== WSPD_Oracle ==" << std::endl;
-              WSPD_Oracle(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
-                          source_poi_index, destination_poi_index, post_exact_distance,
-                          pre_MST_weight, post_MST_weight, write_file_header);
-              std::cout << std::endl;
-
-              std::cout << "== WSPD_Oracle_Adapt ==" << std::endl;
-              WSPD_Oracle_Adapt(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
-                                source_poi_index, destination_poi_index, post_exact_distance,
-                                pre_MST_weight, post_MST_weight, write_file_header);
-              std::cout << std::endl;
-
               std::cout << "== FU_Oracle_RanUpdSeq ==" << std::endl;
               FU_Oracle_RanUpdSeq_NoDistAppr(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
                                              source_poi_index, destination_poi_index, post_exact_distance,
@@ -233,31 +246,19 @@ int main(int argc, char **argv)
                                              source_poi_index, destination_poi_index, post_exact_distance,
                                              pre_MST_weight, post_MST_weight, write_file_header, false);
               std::cout << std::endl;
+
+              std::cout << "== WSPD_Oracle ==" << std::endl;
+              WSPD_Oracle(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
+                          source_poi_index, destination_poi_index, post_exact_distance,
+                          pre_MST_weight, post_MST_weight, write_file_header);
+              std::cout << std::endl;
+
+              std::cout << "== WSPD_Oracle_Adapt ==" << std::endl;
+              WSPD_Oracle_Adapt(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
+                                source_poi_index, destination_poi_index, post_exact_distance,
+                                pre_MST_weight, post_MST_weight, write_file_header);
+              std::cout << std::endl;
        }
-
-       std::cout << "== FU_Oracle_NoEffIntChe ==" << std::endl;
-       FU_Oracle_NoEffIntChe(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
-                             source_poi_index, destination_poi_index, post_exact_distance,
-                             pre_MST_weight, post_MST_weight, write_file_header);
-       std::cout << std::endl;
-
-       std::cout << "== FU_Oracle_NoEdgPru ==" << std::endl;
-       FU_Oracle_NoEdgPru(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, source_poi_index,
-                          destination_poi_index, post_exact_distance, pre_MST_weight,
-                          post_MST_weight, write_file_header);
-       std::cout << std::endl;
-
-       std::cout << "== FU_Oracle_NoEffEdgPru ==" << std::endl;
-       FU_Oracle_NoEffEdgPru(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
-                             source_poi_index, destination_poi_index, post_exact_distance,
-                             pre_MST_weight, post_MST_weight, write_file_header);
-       std::cout << std::endl;
-
-       std::cout << "== FU_Oracle ==" << std::endl;
-       FU_Oracle(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
-                 source_poi_index, destination_poi_index, post_exact_distance,
-                 pre_MST_weight, post_MST_weight, write_file_header);
-       std::cout << std::endl;
 
        std::cout << "== K_Fly_Algo ==" << std::endl;
        K_Fly_Algo(&post_mesh, post_poi_list, epsilon, source_poi_index, destination_poi_index,
