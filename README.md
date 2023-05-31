@@ -1,8 +1,8 @@
-# Fast Update Path Oracle on Updated Terrain Surface
+# Fast Update Path Oracle on Updated Terrain Surfaces
 
 ## Overview
 
-This project provides the implementation of the algorithm for calculating a fast update path oracle on updated terrain surface. We refer the readers to our paper for more details.
+This project provides the implementation of the algorithm for calculating a fast update path oracle on an updated terrain surface. We refer the readers to our paper for more details.
 
 We compared 10 algorithms as follows:
 
