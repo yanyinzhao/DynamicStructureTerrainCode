@@ -119,7 +119,9 @@ void get_face_sequence(std::vector<geodesic::SurfacePoint> &path,
 
 void build_level(int &geo_tree_node_id, geodesic::Mesh *mesh, int depth,
                  stx::btree<int, GeoNode *> &pois_B_tree, stx::btree<int, GeoNode *> &pois_as_center_each_parent_layer,
-                 geodesic::GeodesicAlgorithmExact &algorithm)
+                 std::unordered_map<int, double> &pre_distance_poi_to_poi_map,
+                 std::unordered_map<int, std::vector<geodesic::SurfacePoint>> &pre_path_poi_to_poi_map,
+                 std::unordered_map<int, int> &poi_unordered_map)
 {
     std::vector<std::pair<int, GeoNode *>> pois_as_center_each_current_layer;
     pois_as_center_each_current_layer.clear();
@@ -135,19 +137,27 @@ void build_level(int &geo_tree_node_id, geodesic::Mesh *mesh, int depth,
         std::pair<int, GeoNode *> m(n->index, n);
         pois_as_center_each_current_layer.push_back(m);
 
-        geodesic::SurfacePoint source(&mesh->vertices()[n->index]);
-        std::vector<geodesic::SurfacePoint> one_source_list(1, source);
         double const distance_limit = n->radius;
-        algorithm.propagate(one_source_list, distance_limit * 1.00001);
 
         auto bite = current_parent_covers_but_remained_pois.begin();
 
         while (bite != current_parent_covers_but_remained_pois.end())
         {
-            double distance;
-            geodesic::SurfacePoint p(&mesh->vertices()[(*bite).first]);
-            algorithm.best_source(p, distance);
-            if (distance <= distance_limit)
+            int x_in_poi_list = poi_unordered_map[n->index];
+            int y_in_poi_list = poi_unordered_map[(*bite).first];
+            int x_y_in_poi_list;
+            for (int i = 0; i < poi_unordered_map.size() * 100; i++)
+            {
+                if (x_in_poi_list <= y_in_poi_list)
+                {
+                    hash_function_two_keys_to_one_key(poi_unordered_map.size(), x_in_poi_list, y_in_poi_list, x_y_in_poi_list);
+                }
+                else
+                {
+                    hash_function_two_keys_to_one_key(poi_unordered_map.size(), y_in_poi_list, x_in_poi_list, x_y_in_poi_list);
+                }
+            }
+            if (pre_distance_poi_to_poi_map[x_y_in_poi_list] <= distance_limit)
             {
                 (*bite).second->set_covered_by(n);
                 (*bite).second->set_covers(n);
@@ -170,19 +180,27 @@ void build_level(int &geo_tree_node_id, geodesic::Mesh *mesh, int depth,
             std::pair<int, GeoNode *> b(a->index, a);
             pois_as_center_each_current_layer.push_back(b);
 
-            geodesic::SurfacePoint source(&mesh->vertices()[a->index]);
-            std::vector<geodesic::SurfacePoint> one_source_list(1, source);
             double const distance_limit = b.second->radius;
-            algorithm.propagate(one_source_list, distance_limit * 1.00001);
 
             auto bite = current_parent_covers_but_remained_pois.begin();
 
             while (bite != current_parent_covers_but_remained_pois.end())
             {
-                double distance;
-                geodesic::SurfacePoint p(&mesh->vertices()[(*bite).first]);
-                algorithm.best_source(p, distance);
-                if (distance <= distance_limit)
+                int x_in_poi_list = poi_unordered_map[a->index];
+                int y_in_poi_list = poi_unordered_map[(*bite).first];
+                int x_y_in_poi_list;
+                for (int i = 0; i < poi_unordered_map.size() * 100; i++)
+                {
+                    if (x_in_poi_list <= y_in_poi_list)
+                    {
+                        hash_function_two_keys_to_one_key(poi_unordered_map.size(), x_in_poi_list, y_in_poi_list, x_y_in_poi_list);
+                    }
+                    else
+                    {
+                        hash_function_two_keys_to_one_key(poi_unordered_map.size(), y_in_poi_list, x_in_poi_list, x_y_in_poi_list);
+                    }
+                }
+                if (pre_distance_poi_to_poi_map[x_y_in_poi_list] <= distance_limit)
                 {
                     (*bite).second->set_covered_by(a);
                     (*bite).second->set_covers(a);
@@ -202,7 +220,9 @@ void build_level(int &geo_tree_node_id, geodesic::Mesh *mesh, int depth,
 
 void build_geo_tree(int &geo_tree_node_id, geodesic::Mesh *mesh, GeoNode &root_geo, int poi_num,
                     stx::btree<int, GeoNode *> &pois_B_tree, stx::btree<int, GeoNode *> &pois_as_center_each_parent_layer,
-                    geodesic::GeodesicAlgorithmExact &algorithm)
+                    std::unordered_map<int, double> &pre_distance_poi_to_poi_map,
+                    std::unordered_map<int, std::vector<geodesic::SurfacePoint>> &pre_path_poi_to_poi_map,
+                    std::unordered_map<int, int> &poi_unordered_map)
 {
     int depth = 0;
     pois_as_center_each_parent_layer.clear();
@@ -212,16 +232,24 @@ void build_geo_tree(int &geo_tree_node_id, geodesic::Mesh *mesh, GeoNode &root_g
 
     remained_pois.erase(root_geo.index);
 
-    geodesic::SurfacePoint source(&mesh->vertices()[root_geo.index]);
-    std::vector<geodesic::SurfacePoint> one_source_list(1, source);
     double const distance_limit = root_geo.radius;
-    algorithm.propagate(one_source_list, distance_limit * 1.00001);
     for (stx::btree<int, GeoNode *>::iterator bite = remained_pois.begin(); bite != remained_pois.end(); bite++)
     {
-        double distance;
-        geodesic::SurfacePoint p(&mesh->vertices()[(*bite).first]);
-        algorithm.best_source(p, distance);
-        if (distance <= distance_limit)
+        int x_in_poi_list = poi_unordered_map[root_geo.index];
+        int y_in_poi_list = poi_unordered_map[(*bite).first];
+        int x_y_in_poi_list;
+        for (int i = 0; i < poi_unordered_map.size() * 100; i++)
+        {
+            if (x_in_poi_list <= y_in_poi_list)
+            {
+                hash_function_two_keys_to_one_key(poi_num, x_in_poi_list, y_in_poi_list, x_y_in_poi_list);
+            }
+            else
+            {
+                hash_function_two_keys_to_one_key(poi_num, y_in_poi_list, x_in_poi_list, x_y_in_poi_list);
+            }
+        }
+        if (pre_distance_poi_to_poi_map[x_y_in_poi_list] <= distance_limit)
         {
             (*bite).second->set_covered_by(&root_geo);
             (*bite).second->set_covers(&root_geo);
@@ -230,7 +258,7 @@ void build_geo_tree(int &geo_tree_node_id, geodesic::Mesh *mesh, GeoNode &root_g
 
     while (pois_as_center_each_parent_layer.size() != poi_num)
     {
-        build_level(geo_tree_node_id, mesh, depth, pois_B_tree, pois_as_center_each_parent_layer, algorithm);
+        build_level(geo_tree_node_id, mesh, depth, pois_B_tree, pois_as_center_each_parent_layer, pre_distance_poi_to_poi_map, pre_path_poi_to_poi_map, poi_unordered_map);
         depth++;
     }
 }
@@ -339,14 +367,52 @@ double max(double x, double y)
     return y;
 }
 
-void generate_geo_pair(int geo_tree_node_id, int &WSPD_Oracle_edge_num, double &WSPD_Oracle_weight,
+void pre_compute_WSPD_Oracle(int poi_num, geodesic::Mesh *mesh, std::vector<int> &poi_list,
+                             std::unordered_map<int, double> &distance_poi_to_poi_map,
+                             std::unordered_map<int, std::vector<geodesic::SurfacePoint>> &path_poi_to_poi_map,
+                             double &memory_usage)
+{
+    geodesic::GeodesicAlgorithmExact algorithm(mesh);
+    double const distance_limit = geodesic::GEODESIC_INF;
+    distance_poi_to_poi_map.clear();
+    path_poi_to_poi_map.clear();
+    int path_poi_to_poi_size = 0;
+    std::vector<geodesic::SurfacePoint> one_source_poi_list;
+    std::vector<geodesic::SurfacePoint> destinations_poi_list;
+
+    for (int i = 0; i < poi_num; i++)
+    {
+        one_source_poi_list.clear();
+        destinations_poi_list.clear();
+        one_source_poi_list.push_back(geodesic::SurfacePoint(&mesh->vertices()[poi_list[i]]));
+        for (int j = i; j < poi_num; j++)
+        {
+            destinations_poi_list.push_back(geodesic::SurfacePoint(&mesh->vertices()[poi_list[j]]));
+        }
+        algorithm.propagate(one_source_poi_list, distance_limit);
+        for (int j = i; j < poi_num; j++)
+        {
+            std::vector<geodesic::SurfacePoint> path;
+            geodesic::SurfacePoint one_destination(&mesh->vertices()[poi_list[j]]);
+            algorithm.trace_back(one_destination, path);
+            int i_j;
+            hash_function_two_keys_to_one_key(poi_num, i, j, i_j);
+            distance_poi_to_poi_map[i_j] = length(path);
+            path_poi_to_poi_map[i_j] = path;
+            path_poi_to_poi_size += path.size();
+        }
+    }
+    memory_usage += algorithm.get_memory() + 0.5 * poi_num * (poi_num - 1) * sizeof(double) + path_poi_to_poi_size * sizeof(geodesic::SurfacePoint);
+}
+
+void generate_geo_pair(int geo_tree_node_id, int &WSPD_oracle_edge_num, double &WSPD_oracle_weight,
                        geodesic::Mesh *mesh, GeoNode &x, GeoNode &y,
-                       geodesic::GeodesicAlgorithmExact &algorithm, double epsilon,
+                       double epsilon,
                        std::unordered_map<int, GeoPair *> &geopairs,
                        std::unordered_map<int, int> &poi_unordered_map,
                        std::unordered_map<int, int> &geo_pair_unordered_map,
-                       std::unordered_map<int, double> &pairwise_distance_unordered_map,
-                       std::unordered_map<int, std::vector<geodesic::SurfacePoint>> &pairwise_path_unordered_map,
+                       std::unordered_map<int, double> &pre_distance_poi_to_poi_map,
+                       std::unordered_map<int, std::vector<geodesic::SurfacePoint>> &pre_path_poi_to_poi_map,
                        int &pairwise_path_poi_to_poi_size, int &face_sequence_index_list_size)
 {
     int x_in_geo_node_id = x.id;
@@ -365,37 +431,23 @@ void generate_geo_pair(int geo_tree_node_id, int &WSPD_Oracle_edge_num, double &
         geo_pair_unordered_map[x_y_in_geo_node_id] = 1; // avoid storing a pair for two times
 
         assert(poi_unordered_map.count(x.index) != 0 && poi_unordered_map.count(y.index) != 0);
-        int x_in_poi_list_for_pairwise_distance_index = poi_unordered_map[x.index];
-        int y_in_poi_list_for_pairwise_distance_index = poi_unordered_map[y.index];
-        int x_y_in_poi_list_for_pairwise_distance_index;
-        if (x_in_poi_list_for_pairwise_distance_index > y_in_poi_list_for_pairwise_distance_index)
+        int x_in_poi_list = poi_unordered_map[x.index];
+        int y_in_poi_list = poi_unordered_map[y.index];
+        int x_y_in_poi_list;
+        for (int i = 0; i < poi_unordered_map.size() * 100; i++)
         {
-            int temp2 = y_in_poi_list_for_pairwise_distance_index;
-            y_in_poi_list_for_pairwise_distance_index = x_in_poi_list_for_pairwise_distance_index;
-            x_in_poi_list_for_pairwise_distance_index = temp2;
-        }
-        hash_function_two_keys_to_one_key(poi_unordered_map.size(), x_in_poi_list_for_pairwise_distance_index, y_in_poi_list_for_pairwise_distance_index, x_y_in_poi_list_for_pairwise_distance_index);
-
-        if (pairwise_distance_unordered_map.count(x_y_in_poi_list_for_pairwise_distance_index) == 0)
-        {
-            pairwise_distance_unordered_map[x_y_in_poi_list_for_pairwise_distance_index] = 0;
-            if (&x != &y)
+            if (x_in_poi_list <= y_in_poi_list)
             {
-                double const distance_limit = geodesic::GEODESIC_INF;
-                geodesic::SurfacePoint source(&mesh->vertices()[x.index]);
-                std::vector<geodesic::SurfacePoint> one_source_list(1, source);
-                geodesic::SurfacePoint destination(&mesh->vertices()[y.index]);
-                std::vector<geodesic::SurfacePoint> one_destination_list(1, destination);
-                algorithm.propagate(one_source_list, distance_limit, &one_destination_list);
-                std::vector<geodesic::SurfacePoint> path;
-                algorithm.trace_back(destination, path);
-                pairwise_path_unordered_map[x_y_in_poi_list_for_pairwise_distance_index] = path;
-                pairwise_distance_unordered_map[x_y_in_poi_list_for_pairwise_distance_index] = length(path);
+                hash_function_two_keys_to_one_key(poi_unordered_map.size(), x_in_poi_list, y_in_poi_list, x_y_in_poi_list);
+            }
+            else
+            {
+                hash_function_two_keys_to_one_key(poi_unordered_map.size(), y_in_poi_list, x_in_poi_list, x_y_in_poi_list);
             }
         }
 
-        double distancexy = pairwise_distance_unordered_map[x_y_in_poi_list_for_pairwise_distance_index];
-        std::vector<geodesic::SurfacePoint> pathxy = pairwise_path_unordered_map[x_y_in_poi_list_for_pairwise_distance_index];
+        double distancexy = pre_distance_poi_to_poi_map[x_y_in_poi_list];
+        std::vector<geodesic::SurfacePoint> pathxy = pre_path_poi_to_poi_map[x_y_in_poi_list];
 
         if (x.radius == 0 && y.radius == 0)
         {
@@ -413,14 +465,14 @@ void generate_geo_pair(int geo_tree_node_id, int &WSPD_Oracle_edge_num, double &
             std::vector<int> face_sequence_index_listxy;
             face_sequence_index_listxy.clear();
             get_face_sequence(pathxy, face_sequence_index_listxy);
-            WSPD_Oracle_edge_num++;
+            WSPD_oracle_edge_num++;
             GeoPair *nodepair = new GeoPair();
             nodepair->node1 = &x;
             nodepair->node2 = &y;
             nodepair->distance = distancexy;
             nodepair->path = pathxy;
             nodepair->face_sequence_index_list = face_sequence_index_listxy;
-            WSPD_Oracle_weight += distancexy;
+            WSPD_oracle_weight += distancexy;
             pairwise_path_poi_to_poi_size += pathxy.size();
             face_sequence_index_list_size += face_sequence_index_listxy.size();
             int x_in_geo_node_id_for_geo_pair = x.id;
@@ -441,14 +493,14 @@ void generate_geo_pair(int geo_tree_node_id, int &WSPD_Oracle_edge_num, double &
             {
                 for (std::list<GeoNode *>::iterator ite = x.children.begin(); ite != x.children.end(); ite++)
                 {
-                    generate_geo_pair(geo_tree_node_id, WSPD_Oracle_edge_num, WSPD_Oracle_weight, mesh, (**ite), y, algorithm, epsilon, geopairs, poi_unordered_map, geo_pair_unordered_map, pairwise_distance_unordered_map, pairwise_path_unordered_map, pairwise_path_poi_to_poi_size, face_sequence_index_list_size);
+                    generate_geo_pair(geo_tree_node_id, WSPD_oracle_edge_num, WSPD_oracle_weight, mesh, (**ite), y, epsilon, geopairs, poi_unordered_map, geo_pair_unordered_map, pre_distance_poi_to_poi_map, pre_path_poi_to_poi_map, pairwise_path_poi_to_poi_size, face_sequence_index_list_size);
                 }
             }
             else
             {
                 for (std::list<GeoNode *>::iterator jte = y.children.begin(); jte != y.children.end(); jte++)
                 {
-                    generate_geo_pair(geo_tree_node_id, WSPD_Oracle_edge_num, WSPD_Oracle_weight, mesh, x, (**jte), algorithm, epsilon, geopairs, poi_unordered_map, geo_pair_unordered_map, pairwise_distance_unordered_map, pairwise_path_unordered_map, pairwise_path_poi_to_poi_size, face_sequence_index_list_size);
+                    generate_geo_pair(geo_tree_node_id, WSPD_oracle_edge_num, WSPD_oracle_weight, mesh, x, (**jte), epsilon, geopairs, poi_unordered_map, geo_pair_unordered_map, pre_distance_poi_to_poi_map, pre_path_poi_to_poi_map, pairwise_path_poi_to_poi_size, face_sequence_index_list_size);
                 }
             }
         }
@@ -716,6 +768,34 @@ void three_paths_query_geo(int geo_tree_node_id, int source_poi_index, int desti
 double euclidean_distance(double x_1, double y_1, double x_2, double y_2)
 {
     return sqrt(pow(x_1 - x_2, 2) + pow(y_1 - y_2, 2));
+}
+
+double epslion_to_subdivision_level(double epsilon)
+{
+    assert(epsilon > 0 && epsilon <= 1);
+    double subdivision_level = 0;
+    if (epsilon > 0 && epsilon <= 0.05)
+    {
+        subdivision_level = floor(7 / (10 * epsilon)) - 8;
+    }
+    else if (epsilon > 0.05 && epsilon <= 0.1)
+    {
+        subdivision_level = floor(7 / (10 * epsilon)) - 2;
+    }
+    else if (epsilon > 0.1 && epsilon <= 0.25)
+    {
+        subdivision_level = floor(1 / epsilon) - 1;
+    }
+    else if (epsilon > 0.25 && epsilon < 1)
+    {
+        subdivision_level = floor(1 / epsilon);
+    }
+    if (subdivision_level < 5)
+    {
+        subdivision_level++;
+    }
+    std::cout << "subdivision_level: " << subdivision_level << std::endl;
+    return subdivision_level;
 }
 
 void min_but_greater_than(std::vector<double> &list, double greater_than_value, double &return_min, int &return_index)

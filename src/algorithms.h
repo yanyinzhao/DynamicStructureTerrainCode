@@ -1898,6 +1898,12 @@ void pre_or_post_WSPD_Oracle_and_pre_WSPD_Oracle_Adapt_construction(
 
     geodesic::GeodesicAlgorithmExact algorithm(mesh);
 
+    std::unordered_map<int, double> pre_distance_poi_to_poi_map;
+    std::unordered_map<int, std::vector<geodesic::SurfacePoint>> pre_path_poi_to_poi_map;
+    double pre_memory_usage = 0;
+
+    pre_compute_WSPD_Oracle(poi_num, mesh, poi_list, pre_distance_poi_to_poi_map, pre_path_poi_to_poi_map, pre_memory_usage);
+
     geopairs.clear();
     all_poi.clear();
     std::vector<std::pair<int, GeoNode *>> pois;
@@ -1914,32 +1920,28 @@ void pre_or_post_WSPD_Oracle_and_pre_WSPD_Oracle_Adapt_construction(
     }
 
     double radius = 0;
-    double distance;
     stx::btree<int, GeoNode *> pois_B_tree(pois.begin(), pois.end());
 
-    double const distance_limit = 0;
-    std::vector<geodesic::SurfacePoint> one_source_poi_list;
-    std::vector<geodesic::SurfacePoint> destinations_poi_list;
-    one_source_poi_list.clear();
-    destinations_poi_list.clear();
-    one_source_poi_list.push_back(geodesic::SurfacePoint(&mesh->vertices()[poi_list[0]]));
     for (int i = 0; i < poi_num; i++)
     {
-        destinations_poi_list.push_back(geodesic::SurfacePoint(&mesh->vertices()[poi_list[i]]));
-    }
-
-    algorithm.propagate(one_source_poi_list, distance_limit, &destinations_poi_list);
-    for (int i = 0; i < poi_num; i++)
-    {
-        geodesic::SurfacePoint p(&mesh->vertices()[poi_list[i]]);
-        algorithm.best_source(p, distance);
-        radius = std::max(distance, radius);
+        int x_in_poi_list = 0;
+        int y_in_poi_list = i;
+        int x_y_in_poi_list;
+        if (x_in_poi_list <= y_in_poi_list)
+        {
+            hash_function_two_keys_to_one_key(poi_num, x_in_poi_list, y_in_poi_list, x_y_in_poi_list);
+        }
+        else
+        {
+            hash_function_two_keys_to_one_key(poi_num, y_in_poi_list, x_in_poi_list, x_y_in_poi_list);
+        }
+        radius = std::max(pre_distance_poi_to_poi_map[x_y_in_poi_list], radius);
     }
     GeoNode *root_geo = new GeoNode(0, poi_list[0], radius);
 
     stx::btree<int, GeoNode *> pois_as_center_each_parent_layer;
     pois_as_center_each_parent_layer.clear();
-    build_geo_tree(geo_tree_node_id, mesh, *root_geo, poi_num, pois_B_tree, pois_as_center_each_parent_layer, algorithm);
+    build_geo_tree(geo_tree_node_id, mesh, *root_geo, poi_num, pois_B_tree, pois_as_center_each_parent_layer, pre_distance_poi_to_poi_map, pre_path_poi_to_poi_map, poi_unordered_map);
 
     std::vector<GeoNode *> partition_tree_to_compressed_partition_tree_to_be_removed_nodes;
     partition_tree_to_compressed_partition_tree_to_be_removed_nodes.clear();
@@ -1948,16 +1950,12 @@ void pre_or_post_WSPD_Oracle_and_pre_WSPD_Oracle_Adapt_construction(
 
     std::unordered_map<int, int> geo_pair_unordered_map;
     geo_pair_unordered_map.clear();
-    std::unordered_map<int, double> pairwise_distance_unordered_map;
-    pairwise_distance_unordered_map.clear();
-    std::unordered_map<int, std::vector<geodesic::SurfacePoint>> pairwise_path_unordered_map;
-    pairwise_path_unordered_map.clear();
     int pairwise_path_poi_to_poi_size = 0;
     int face_sequence_index_list_size = 0;
-    generate_geo_pair(geo_tree_node_id, WSPD_Oracle_edge_num, WSPD_Oracle_weight, mesh, *root_geo, *root_geo, algorithm, epsilon, geopairs, poi_unordered_map, geo_pair_unordered_map, pairwise_distance_unordered_map, pairwise_path_unordered_map, pairwise_path_poi_to_poi_size, face_sequence_index_list_size);
+    generate_geo_pair(geo_tree_node_id, WSPD_Oracle_edge_num, WSPD_Oracle_weight, mesh, *root_geo, *root_geo, epsilon, geopairs, poi_unordered_map, geo_pair_unordered_map, pre_distance_poi_to_poi_map, pre_path_poi_to_poi_map, pairwise_path_poi_to_poi_size, face_sequence_index_list_size);
     WSPD_Oracle_size = WSPD_Oracle_edge_num * sizeof(double) + pairwise_path_poi_to_poi_size * sizeof(geodesic::SurfacePoint);
 
-    memory_usage += algorithm.get_memory() + (geo_tree_node_id + 1) * sizeof(GeoNode) + WSPD_Oracle_edge_num * sizeof(double) + pairwise_path_poi_to_poi_size * sizeof(geodesic::SurfacePoint);
+    memory_usage += pre_memory_usage + (geo_tree_node_id + 1) * sizeof(GeoNode) + WSPD_Oracle_edge_num * sizeof(double) + pairwise_path_poi_to_poi_size * sizeof(geodesic::SurfacePoint);
 
     if (run_WSPD_Oracle_Adapt)
     {
@@ -2423,6 +2421,31 @@ void post_WSPD_Oracle_Adapt_update(int poi_num, geodesic::Mesh *pre_mesh, std::v
     update_time = duration_update_time.count();
 }
 
+void pre_or_post_CH_Fly_Algo_query(geodesic::Mesh *mesh, std::vector<int> &poi_list,
+                                   int source_poi_index, int destination_poi_index,
+                                   double &query_time, double &memory_usage, double &approximate_distance,
+                                   std::vector<geodesic::SurfacePoint> &approximate_path)
+{
+    auto start_query_time = std::chrono::high_resolution_clock::now();
+
+    geodesic::GeodesicAlgorithmExact algorithm(mesh);
+    double const distance_limit = geodesic::GEODESIC_INF;
+    geodesic::SurfacePoint source(&mesh->vertices()[poi_list[source_poi_index]]);
+    geodesic::SurfacePoint destination(&mesh->vertices()[poi_list[destination_poi_index]]);
+    std::vector<geodesic::SurfacePoint> one_source_poi_list(1, source);
+    std::vector<geodesic::SurfacePoint> one_destination_poi_list(1, destination);
+    algorithm.propagate(one_source_poi_list, distance_limit, &one_destination_poi_list);
+    algorithm.trace_back(destination, approximate_path);
+    approximate_distance = length(approximate_path);
+    approximate_distance = round(approximate_distance * 1000000000.0) / 1000000000.0;
+    memory_usage += algorithm.get_memory() + approximate_path.size() * sizeof(geodesic::SurfacePoint) + sizeof(double);
+
+    auto stop_query_time = std::chrono::high_resolution_clock::now();
+    auto duration_query_time = std::chrono::duration_cast<std::chrono::microseconds>(stop_query_time - start_query_time);
+    query_time = duration_query_time.count();
+    query_time /= 1000;
+}
+
 void pre_or_post_K_Fly_Algo_query(geodesic::Mesh *mesh, std::vector<int> &poi_list,
                                   double epsilon, int source_poi_index, int destination_poi_index,
                                   double &query_time, double &memory_usage, double &approximate_distance,
@@ -2430,24 +2453,7 @@ void pre_or_post_K_Fly_Algo_query(geodesic::Mesh *mesh, std::vector<int> &poi_li
 {
     auto start_query_time = std::chrono::high_resolution_clock::now();
 
-    double max_edge_length = -1e100;
-    double min_edge_length = 1e100;
-    std::vector<double> edge_length_list;
-    std::vector<double> edge_length_without_outliers_list;
-    for (unsigned i = 0; i < mesh->edges().size(); ++i)
-    {
-        geodesic::Edge &e = mesh->edges()[i];
-        double edge_length = e.length();
-        edge_length_list.push_back(edge_length);
-    }
-    remove_outliers(edge_length_list, edge_length_without_outliers_list);
-    for (int i = 0; i < edge_length_without_outliers_list.size(); i++)
-    {
-        max_edge_length = std::max(max_edge_length, edge_length_without_outliers_list[i]);
-        min_edge_length = std::min(min_edge_length, edge_length_without_outliers_list[i]);
-    }
-    double subdivision_level = floor(max_edge_length / min_edge_length * (1.0 / epsilon + 1.0) * 2.0);
-    std::cout << "subdivision_level: " << subdivision_level << std::endl;
+    double subdivision_level = epslion_to_subdivision_level(epsilon);
     geodesic::GeodesicAlgorithmSubdivision algorithm(mesh, subdivision_level);
     double const distance_limit = geodesic::GEODESIC_INF;
     geodesic::SurfacePoint source(&mesh->vertices()[poi_list[source_poi_index]]);
@@ -3218,6 +3224,46 @@ void WSPD_Oracle_Adapt(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &
          << post_index_weight / post_MST_weight << "\t"
          << post_approximate_distance / post_exact_distance - 1 << "\n\n";
     ofs2.close();
+}
+
+void CH_Fly_Algo(geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list,
+                 int source_poi_index, int destination_poi_index,
+                 double post_exact_distance, std::string write_file_header)
+{
+    double post_query_time = 0;
+    double post_memory_usage = 0;
+    double post_approximate_distance = 0;
+    std::vector<geodesic::SurfacePoint> post_approximate_path;
+    post_approximate_path.clear();
+
+    pre_or_post_CH_Fly_Algo_query(post_mesh, post_poi_list, source_poi_index,
+                                  destination_poi_index, post_query_time, post_memory_usage,
+                                  post_approximate_distance, post_approximate_path);
+
+    std::cout << "Post terrain query time: " << post_query_time << " ms" << std::endl;
+    std::cout << "Post terrain memory usage: " << post_memory_usage / 1e6 << " MB" << std::endl;
+    std::cout << "Post terrain approximate distance: " << post_approximate_distance << ", post terrain exact distance: " << post_exact_distance << ", distance error: " << post_approximate_distance / post_exact_distance - 1 << std::endl;
+
+    std::ofstream ofs1("../output/output.txt", std::ios_base::app);
+    ofs1 << "== CH_Fly_Algo ==\n";
+    ofs1 << write_file_header << "\t"
+         << 0 << "\t"
+         << 0 << "\t"
+         << 0 << "\t"
+         << 0 << "\t"
+         << 0 << "\t"
+         << 0 << "\t"
+
+         << 0 << "\t"
+         << 0 << "\t"
+         << post_query_time << "\t"
+         << post_memory_usage / 1e6 << "\t"
+         << 0 << "\t"
+         << 0 << "\t"
+         << 0 << "\t"
+         << 0 << "\t"
+         << post_approximate_distance / post_exact_distance - 1 << "\n\n";
+    ofs1.close();
 }
 
 void K_Fly_Algo(geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list, double epsilon,
