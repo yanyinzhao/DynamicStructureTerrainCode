@@ -37,6 +37,9 @@ namespace geodesic
 			return m_propagation_distance_stopped;
 		}
 
+		void propagate_cover_dest(std::vector<SurfacePoint> &sources,
+								  std::vector<SurfacePoint> *stop_points, int k = 10000000);
+
 		void propagate(std::vector<SurfacePoint> &sources,
 					   double max_propagation_distance = GEODESIC_INF,					 // propagation algorithm stops after reaching the certain distance from the source
 					   std::vector<SurfacePoint> *stop_points = NULL, int k = 10000000); // or after ensuring that all the stop_points are covered
@@ -97,6 +100,8 @@ namespace geodesic
 											 double &best_total_distance,
 											 double &best_interval_position,
 											 unsigned &best_source_index);
+
+		bool check_stop_conditions_cover_dest(unsigned &index, int k = 100000000);
 
 		bool check_stop_conditions(unsigned &index, int k = 100000000);
 
@@ -545,6 +550,162 @@ namespace geodesic
 		}
 	}
 
+	inline void GeodesicAlgorithmExact::propagate_cover_dest(std::vector<SurfacePoint> &sources,
+															 std::vector<SurfacePoint> *stop_points,
+															 int k)
+	{
+		set_stop_conditions_cover_dest(stop_points);
+		set_sources(sources);
+		initialize_propagation_data();
+
+		clock_t start = clock();
+
+		unsigned satisfied_index = 0;
+
+		m_iterations = 0; // for statistics
+		m_queue_max_size = 0;
+
+		IntervalWithStop candidates[2];
+
+		while (!m_queue.empty())
+		{
+			m_queue_max_size = std::max(m_queue.size(), m_queue_max_size);
+
+			unsigned const check_period = 10;
+			if (++m_iterations % check_period == 0) // check if we covered all required vertices
+			{
+				if (check_stop_conditions_cover_dest(satisfied_index, k))
+				{
+					break;
+				}
+			}
+			// double queue_distance = (*m_queue.begin())->min();
+
+			interval_pointer min_interval = *m_queue.begin();
+			m_queue.erase(m_queue.begin());
+			edge_pointer edge = min_interval->edge();
+			// list_pointer list = interval_list(edge); -Wunused-variable
+
+			// double distance = interval_list(edge)->signal(0.0);
+			// std::ofstream ofs("../output/output.txt", std::ios_base::app);
+			// ofs << "queue_distance: " << queue_distance << ", distance: " << distance << "\n";
+			// ofs << "v0: " << edge->v0()->id() << ", v1: " << edge->v1()->id() << "\n";
+			// ofs.close();
+
+			assert(min_interval->d() < GEODESIC_INF);
+
+			bool const first_interval = min_interval->start() == 0.0;
+			// bool const last_interval = min_interval->stop() == edge->length();
+			bool const last_interval = min_interval->next() == NULL;
+
+			bool const turn_left = edge->v0()->saddle_or_boundary();
+			bool const turn_right = edge->v1()->saddle_or_boundary();
+
+			for (unsigned i = 0; i < edge->adjacent_faces().size(); ++i) // two possible faces to propagate
+			{
+				if (!edge->is_boundary()) // just in case, always propagate boundary edges
+				{
+					if ((i == 0 && min_interval->direction() == Interval::FROM_FACE_0) ||
+						(i == 1 && min_interval->direction() == Interval::FROM_FACE_1))
+					{
+						continue;
+					}
+				}
+
+				face_pointer face = edge->adjacent_faces()[i]; // if we come from 1, go to 2
+				edge_pointer next_edge = face->next_edge(edge, edge->v0());
+
+				unsigned num_propagated = compute_propagated_parameters(min_interval->pseudo_x(),
+																		min_interval->pseudo_y(),
+																		min_interval->d(), // parameters of the interval
+																		min_interval->start(),
+																		min_interval->stop(),			// start/end of the interval
+																		face->vertex_angle(edge->v0()), // corner angle
+																		next_edge->length(),			// length of the new edge
+																		first_interval,					// if it is the first interval on the edge
+																		last_interval,
+																		turn_left,
+																		turn_right,
+																		candidates); // if it is the last interval on the edge
+				bool propagate_to_right = true;
+
+				if (num_propagated)
+				{
+					if (candidates[num_propagated - 1].stop() != next_edge->length())
+					{
+						propagate_to_right = false;
+					}
+
+					bool const invert = next_edge->v0()->id() != edge->v0()->id(); // if the origins coinside, do not invert intervals
+
+					construct_propagated_intervals(invert, // do not inverse
+												   next_edge,
+												   face,
+												   candidates,
+												   num_propagated,
+												   min_interval);
+
+					update_list_and_queue(interval_list(next_edge),
+										  candidates,
+										  num_propagated);
+				}
+
+				if (propagate_to_right)
+				{
+					// propogation to the right edge
+					double length = edge->length();
+					next_edge = face->next_edge(edge, edge->v1());
+
+					num_propagated = compute_propagated_parameters(length - min_interval->pseudo_x(),
+																   min_interval->pseudo_y(),
+																   min_interval->d(), // parameters of the interval
+																   length - min_interval->stop(),
+																   length - min_interval->start(), // start/end of the interval
+																   face->vertex_angle(edge->v1()), // corner angle
+																   next_edge->length(),			   // length of the new edge
+																   last_interval,				   // if it is the first interval on the edge
+																   first_interval,
+																   turn_right,
+																   turn_left,
+																   candidates); // if it is the last interval on the edge
+
+					if (num_propagated)
+					{
+						bool const invert = next_edge->v0()->id() != edge->v1()->id(); // if the origins coinside, do not invert intervals
+
+						construct_propagated_intervals(invert, // do not inverse
+													   next_edge,
+													   face,
+													   candidates,
+													   num_propagated,
+													   min_interval);
+
+						update_list_and_queue(interval_list(next_edge),
+											  candidates,
+											  num_propagated);
+					}
+				}
+			}
+		}
+
+		m_propagation_distance_stopped = m_queue.empty() ? GEODESIC_INF : (*m_queue.begin())->min();
+		clock_t stop = clock();
+		m_time_consumed = (static_cast<double>(stop) - static_cast<double>(start)) / CLOCKS_PER_SEC;
+
+		/*	for(unsigned i=0; i<m_edge_interval_lists.size(); ++i)
+	{
+		list_pointer list = &m_edge_interval_lists[i];
+		interval_pointer p = list->first();
+		assert(p->start() == 0.0);
+		while(p->next())
+		{
+			assert(p->stop() == p->next()->start());
+			assert(p->d() < GEODESIC_INF);
+			p = p->next();
+		}
+	}*/
+	}
+
 	inline void GeodesicAlgorithmExact::propagate(std::vector<SurfacePoint> &sources,
 												  double max_propagation_distance, // propagation algorithm stops after reaching the certain distance from the source
 												  std::vector<SurfacePoint> *stop_points,
@@ -700,6 +861,28 @@ namespace geodesic
 			p = p->next();
 		}
 	}*/
+	}
+
+	inline bool GeodesicAlgorithmExact::check_stop_conditions_cover_dest(unsigned &index, int k)
+	{
+		double queue_distance = (*m_queue.begin())->min();
+		while (index < m_stop_vertices.size())
+		{
+			vertex_pointer v = m_stop_vertices[index].first;
+			edge_pointer edge = v->adjacent_edges()[0]; // take any edge
+
+			double distance = edge->v0()->id() == v->id() ? interval_list(edge)->signal(0.0) : interval_list(edge)->signal(edge->length());
+
+			if (queue_distance < distance + m_stop_vertices[index].second)
+			{
+				return false;
+			}
+
+			++index;
+			if (index >= k)
+				return true;
+		}
+		return true;
 	}
 
 	inline bool GeodesicAlgorithmExact::check_stop_conditions(unsigned &index, int k)

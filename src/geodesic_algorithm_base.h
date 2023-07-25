@@ -60,6 +60,8 @@ namespace geodesic
 		geodesic::Mesh *mesh() { return m_mesh; };
 
 	protected:
+		void set_stop_conditions_cover_dest(std::vector<SurfacePoint> *stop_points);
+
 		void set_stop_conditions(std::vector<SurfacePoint> *stop_points,
 								 double stop_distance);
 		double stop_distance()
@@ -148,6 +150,42 @@ namespace geodesic
 		for (unsigned i = 0; i < paths.size(); ++i)
 		{
 			trace_back(destinations[i], paths[i]);
+		}
+	}
+
+	inline void GeodesicAlgorithmBase::set_stop_conditions_cover_dest(std::vector<SurfacePoint> *stop_points)
+	{
+		if (!stop_points)
+		{
+			m_stop_vertices.clear();
+			return;
+		}
+
+		m_stop_vertices.resize(stop_points->size());
+
+		std::vector<vertex_pointer> possible_vertices;
+		for (unsigned i = 0; i < stop_points->size(); ++i)
+		{
+			SurfacePoint *point = &(*stop_points)[i];
+
+			possible_vertices.clear();
+			m_mesh->closest_vertices(point, &possible_vertices);
+
+			vertex_pointer closest_vertex = NULL;
+			double min_distance = 1e100;
+			for (unsigned j = 0; j < possible_vertices.size(); ++j)
+			{
+				double distance = point->distance(possible_vertices[j]);
+				if (distance < min_distance)
+				{
+					min_distance = distance;
+					closest_vertex = possible_vertices[j];
+				}
+			}
+			assert(closest_vertex);
+
+			m_stop_vertices[i].first = closest_vertex;
+			m_stop_vertices[i].second = min_distance;
 		}
 	}
 

@@ -258,6 +258,18 @@ int main(int argc, char **argv)
                                 source_poi_index, destination_poi_index, post_exact_distance,
                                 pre_MST_weight, post_MST_weight, write_file_header);
               std::cout << std::endl;
+
+              std::cout << "== EAR_Oracle ==" << std::endl;
+              EAR_Oracle(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
+                         source_poi_index, destination_poi_index, post_exact_distance,
+                         pre_MST_weight, post_MST_weight, write_file_header);
+              std::cout << std::endl;
+
+              std::cout << "== EAR_Oracle_Adapt ==" << std::endl;
+              EAR_Oracle_Adapt(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
+                               source_poi_index, destination_poi_index, post_exact_distance,
+                               pre_MST_weight, post_MST_weight, write_file_header);
+              std::cout << std::endl;
        }
 
        std::cout << "== CH_Fly_Algo ==" << std::endl;
