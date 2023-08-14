@@ -878,8 +878,8 @@ void divide_mesh_into_box(geodesic::Mesh *mesh, int sqrt_num_of_box,
         {
             double x_min = mesh->m_xmin + i * box_width;
             double x_max = mesh->m_xmin + (i + 1) * box_width;
-            double y_min = mesh->m_ymin + j * box_width;
-            double y_max = mesh->m_ymin + (j + 1) * box_width;
+            double y_min = mesh->m_ymin + j * box_height;
+            double y_max = mesh->m_ymin + (j + 1) * box_height;
 
             // std::cout << x_min << " " << x_max << " " << y_min << " " << y_max << std::endl;
 
@@ -990,13 +990,14 @@ void poi_to_highway_node_path(geodesic::Mesh *mesh, int sqrt_num_of_box,
             {
                 x_min = mesh->m_xmin + i * box_width;
                 x_max = mesh->m_xmin + (i + 1) * box_width;
-                y_min = mesh->m_ymin + j * box_width;
-                y_max = mesh->m_ymin + (j + 1) * box_width;
+                y_min = mesh->m_ymin + j * box_height;
+                y_max = mesh->m_ymin + (j + 1) * box_height;
 
                 if (poi_x >= x_min && poi_x <= x_max & poi_y >= y_min && poi_y <= y_max)
                 {
                     i = sqrt_num_of_box;
                     j = sqrt_num_of_box;
+                    continue;
                 }
                 box_id++;
             }
@@ -1117,13 +1118,14 @@ void EAR_Oracle_query(geodesic::Mesh *mesh, std::vector<int> &poi_list,
         {
             src_box_x_min = mesh->m_xmin + i * box_width;
             src_box_x_max = mesh->m_xmin + (i + 1) * box_width;
-            src_box_y_min = mesh->m_ymin + j * box_width;
-            src_box_y_max = mesh->m_ymin + (j + 1) * box_width;
+            src_box_y_min = mesh->m_ymin + j * box_height;
+            src_box_y_max = mesh->m_ymin + (j + 1) * box_height;
 
             if (src_x >= src_box_x_min && src_x <= src_box_x_max & src_y >= src_box_y_min && src_y <= src_box_y_max)
             {
                 i = sqrt_num_of_box;
                 j = sqrt_num_of_box;
+                continue;
             }
             src_box_id++;
         }
@@ -1136,13 +1138,14 @@ void EAR_Oracle_query(geodesic::Mesh *mesh, std::vector<int> &poi_list,
         {
             dest_box_x_min = mesh->m_xmin + i * box_width;
             dest_box_x_max = mesh->m_xmin + (i + 1) * box_width;
-            dest_box_y_min = mesh->m_ymin + j * box_width;
-            dest_box_y_max = mesh->m_ymin + (j + 1) * box_width;
+            dest_box_y_min = mesh->m_ymin + j * box_height;
+            dest_box_y_max = mesh->m_ymin + (j + 1) * box_height;
 
             if (dest_x >= dest_box_x_min && dest_x <= dest_box_x_max & dest_y >= dest_box_y_min && dest_y <= dest_box_y_max)
             {
                 i = sqrt_num_of_box;
                 j = sqrt_num_of_box;
+                continue;
             }
             dest_box_id++;
         }
