@@ -1,8 +1,7 @@
-# Fast Update Path Oracle on Updated Terrain Surfaces
-
+# An Efficiently Updatable Path Oracle for Terrain Surfaces
 ## Overview
 
-This project provides the implementation of the algorithm for calculating a fast update path oracle on an updated terrain surface. We refer the readers to our paper for more details.
+This project provides the implementation of the algorithm for calculating an efficiently updatable path oracle on an updated terrain surface. We refer the readers to our paper for more details.
 
 We compared 13 algorithms as follows:
 
@@ -10,13 +9,13 @@ We compared 13 algorithms as follows:
 - WSPD-Oracle-Adapt (adapted oracle based baseline)
 - EAR-Oracle (oracle based baseline)
 - EAR-Oracle-Adapt (adapted oracle based baseline)
-- FU-Oracle-RanUpdSeq (variation)
-- FU-Oracle-FullRad (variation)
-- FU-Oracle-NoDistAppr (variation)
-- FU-Oracle-NoEffIntChe (variation)
-- FU-Oracle-NoEdgPru (variation)
-- FU-Oracle-NoEffEdgPru (variation)
-- FU-Oracle (our oracle)
+- UP-Oracle-RanUpdSeq (variation)
+- UP-Oracle-FullRad (variation)
+- UP-Oracle-NoDistAppr (variation)
+- UP-Oracle-NoEffIntChe (variation)
+- UP-Oracle-NoEdgPru (variation)
+- UP-Oracle-NoEffEdgPru (variation)
+- UP-Oracle (our oracle)
 - CH-Fly-Algo (on-the-fly baseline)
 - K-Fly-Algo (on-the-fly baseline)
 
@@ -246,7 +245,7 @@ For the [terrain_data_and_dataset_size_and_poi_number_map_index], each index val
 | 107 | VS | 2000000 | 500 |
 | 108 | VS | 2504322 | 500 |
 
-By default, the project will run WSPD-Oracle, WSPD-Oracle-Adapt, EAR-Oracle, EAR-Oracle-Adapt, FU-Oracle-RanUpdSeq, FU-Oracle-FullRad, FU-Oracle-NoDistAppr, FU-Oracle-NoEffIntChe, FU-Oracle-NoEdgPru, FU-Oracle-NoEffEdgPru, FU-Oracle, CH-Fly-Algo, and K-Fly-Algo. But as mentioned in our paper, WSPD-Oracle, WSPD-Oracle-Adapt, EAR-Oracle, EAR-Oracle-Adapt, FU-Oracle-RanUpdSeq, FU-Oracle-FullRad, and FU-Oracle-NoDistAppr are very time consuming. So when the POI number is large, i.e., [terrain_data_and_dataset_size_and_poi_number_map_index] > 54, the project will only run FU-Oracle-NoEffIntChe,FU-Oracle-NoEdgPru, FU-Oracle-NoEffEdgPru, FU-Oracle, CH-Fly-Algo, and K-Fly-Algo.
+By default, the project will run WSPD-Oracle, WSPD-Oracle-Adapt, EAR-Oracle, EAR-Oracle-Adapt, UP-Oracle-RanUpdSeq, UP-Oracle-FullRad, UP-Oracle-NoDistAppr, UP-Oracle-NoEffIntChe, UP-Oracle-NoEdgPru, UP-Oracle-NoEffEdgPru, UP-Oracle, CH-Fly-Algo, and K-Fly-Algo. But as mentioned in our paper, WSPD-Oracle, WSPD-Oracle-Adapt, EAR-Oracle, EAR-Oracle-Adapt, UP-Oracle-RanUpdSeq, UP-Oracle-FullRad, and UP-Oracle-NoDistAppr are very time consuming. So when the POI number is large, i.e., [terrain_data_and_dataset_size_and_poi_number_map_index] > 54, the project will only run UP-Oracle-NoEffIntChe,UP-Oracle-NoEdgPru, UP-Oracle-NoEffEdgPru, UP-Oracle, CH-Fly-Algo, and K-Fly-Algo.
 
 An example:
 
@@ -254,7 +253,7 @@ An example:
 ./main 0 0.5
 ```
 
-In this example, [terrain_data_and_dataset_size_and_poi_number_map_index] is 0, [epsilon] is 0.5. So, it will run TJ pre earthquake terrain dataset and TJ post earthquake terrain dataset, with dataset size equal to 1058 and poi number equal to 50, and epsilon is 0.5. It will run 13 algorithms, i.e., WSPD-Oracle, WSPD-Oracle-Adapt, FEAR-Oracle, EAR-Oracle-Adapt, U-Oracle-RanUpdSeq, FU-Oracle-FullRad, FU-Oracle-NoDistAppr, FU-Oracle-NoEffIntChe, FU-Oracle-NoEdgPru, FU-Oracle-NoEffEdgPru, FU-Oracle, CH-Fly-Algo, and K-Fly-Algo.
+In this example, [terrain_data_and_dataset_size_and_poi_number_map_index] is 0, [epsilon] is 0.5. So, it will run TJ pre earthquake terrain dataset and TJ post earthquake terrain dataset, with dataset size equal to 1058 and poi number equal to 50, and epsilon is 0.5. It will run 13 algorithms, i.e., WSPD-Oracle, WSPD-Oracle-Adapt, FEAR-Oracle, EAR-Oracle-Adapt, U-Oracle-RanUpdSeq, UP-Oracle-FullRad, UP-Oracle-NoDistAppr, UP-Oracle-NoEffIntChe, UP-Oracle-NoEdgPru, UP-Oracle-NoEffEdgPru, UP-Oracle, CH-Fly-Algo, and K-Fly-Algo.
 
 ## Output
 

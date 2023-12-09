@@ -2970,7 +2970,7 @@ void pre_or_post_K_Fly_Algo_query(geodesic::Mesh *mesh, std::vector<int> &poi_li
     query_time /= 1000;
 }
 
-void FU_Oracle_RanUpdSeq_NoDistAppr(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
+void UP_Oracle_RanUpdSeq_NoDistAppr(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
                                     geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list, double epsilon,
                                     int source_poi_index, int destination_poi_index,
                                     double post_exact_distance, int pre_MST_weight, int post_MST_weight,
@@ -3009,11 +3009,11 @@ void FU_Oracle_RanUpdSeq_NoDistAppr(int poi_num, geodesic::Mesh *pre_mesh, std::
     std::ofstream ofs1("../output/output.txt", std::ios_base::app);
     if (RanUpdSeq_not_NoDistAppr)
     {
-        ofs1 << "== FU_Oracle_RanUpdSeq ==\n";
+        ofs1 << "== UP_Oracle_RanUpdSeq ==\n";
     }
     else
     {
-        ofs1 << "== FU_Oracle_NoDistAppr ==\n";
+        ofs1 << "== UP_Oracle_NoDistAppr ==\n";
     }
     ofs1 << write_file_header << "\t"
          << (pre_construction_time + pre_hash_mapping_time) << "\t"
@@ -3071,7 +3071,7 @@ void FU_Oracle_RanUpdSeq_NoDistAppr(int poi_num, geodesic::Mesh *pre_mesh, std::
     ofs2.close();
 }
 
-void FU_Oracle_FullRad(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
+void UP_Oracle_FullRad(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
                        geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list, double epsilon,
                        int source_poi_index, int destination_poi_index,
                        double post_exact_distance, int pre_MST_weight, int post_MST_weight,
@@ -3108,7 +3108,7 @@ void FU_Oracle_FullRad(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &
     std::cout << std::endl;
 
     std::ofstream ofs1("../output/output.txt", std::ios_base::app);
-    ofs1 << "== FU_Oracle_FullRad ==\n";
+    ofs1 << "== UP_Oracle_FullRad ==\n";
     ofs1 << write_file_header << "\t"
          << (pre_construction_time + pre_hash_mapping_time) << "\t"
          << (pre_memory_usage + pre_complete_graph_size) / 1e6 << "\t"
@@ -3165,7 +3165,7 @@ void FU_Oracle_FullRad(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &
     ofs2.close();
 }
 
-void FU_Oracle_NoEffIntChe(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
+void UP_Oracle_NoEffIntChe(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
                            geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list, double epsilon,
                            int source_poi_index, int destination_poi_index,
                            double post_exact_distance, int pre_MST_weight, int post_MST_weight,
@@ -3202,7 +3202,7 @@ void FU_Oracle_NoEffIntChe(int poi_num, geodesic::Mesh *pre_mesh, std::vector<in
     std::cout << std::endl;
 
     std::ofstream ofs1("../output/output.txt", std::ios_base::app);
-    ofs1 << "== FU_Oracle_NoEffIntChe ==\n";
+    ofs1 << "== UP_Oracle_NoEffIntChe ==\n";
     ofs1 << write_file_header << "\t"
          << (pre_construction_time + pre_hash_mapping_time) << "\t"
          << (pre_memory_usage + pre_complete_graph_size) / 1e6 << "\t"
@@ -3259,7 +3259,7 @@ void FU_Oracle_NoEffIntChe(int poi_num, geodesic::Mesh *pre_mesh, std::vector<in
     ofs2.close();
 }
 
-void FU_Oracle_NoEdgPru(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
+void UP_Oracle_NoEdgPru(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
                         geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list,
                         int source_poi_index, int destination_poi_index,
                         double post_exact_distance, int &pre_MST_weight, int &post_MST_weight,
@@ -3297,7 +3297,7 @@ void FU_Oracle_NoEdgPru(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> 
     std::cout << std::endl;
 
     std::ofstream ofs1("../output/output.txt", std::ios_base::app);
-    ofs1 << "== FU_Oracle_NoEdgPru ==\n";
+    ofs1 << "== UP_Oracle_NoEdgPru ==\n";
     ofs1 << write_file_header << "\t"
          << (pre_construction_time + pre_hash_mapping_time) << "\t"
          << (pre_memory_usage + pre_complete_graph_size) / 1e6 << "\t"
@@ -3354,7 +3354,7 @@ void FU_Oracle_NoEdgPru(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> 
     ofs2.close();
 }
 
-void FU_Oracle_NoEffEdgPru(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
+void UP_Oracle_NoEffEdgPru(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
                            geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list, double epsilon,
                            int source_poi_index, int destination_poi_index,
                            double post_exact_distance, int pre_MST_weight, int post_MST_weight,
@@ -3391,7 +3391,7 @@ void FU_Oracle_NoEffEdgPru(int poi_num, geodesic::Mesh *pre_mesh, std::vector<in
     std::cout << std::endl;
 
     std::ofstream ofs1("../output/output.txt", std::ios_base::app);
-    ofs1 << "== FU_Oracle_NoEffEdgPru ==\n";
+    ofs1 << "== UP_Oracle_NoEffEdgPru ==\n";
     ofs1 << write_file_header << "\t"
          << (pre_construction_time + pre_hash_mapping_time) << "\t"
          << (pre_memory_usage + pre_complete_graph_size) / 1e6 << "\t"
@@ -3448,7 +3448,7 @@ void FU_Oracle_NoEffEdgPru(int poi_num, geodesic::Mesh *pre_mesh, std::vector<in
     ofs2.close();
 }
 
-void FU_Oracle(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
+void UP_Oracle(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
                geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list, double epsilon,
                int source_poi_index, int destination_poi_index,
                double post_exact_distance, int pre_MST_weight, int post_MST_weight,
@@ -3485,7 +3485,7 @@ void FU_Oracle(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_
     std::cout << std::endl;
 
     std::ofstream ofs1("../output/output.txt", std::ios_base::app);
-    ofs1 << "== FU_Oracle ==\n";
+    ofs1 << "== UP_Oracle ==\n";
     ofs1 << write_file_header << "\t"
          << (pre_construction_time + pre_hash_mapping_time) << "\t"
          << (pre_memory_usage + pre_complete_graph_size) / 1e6 << "\t"

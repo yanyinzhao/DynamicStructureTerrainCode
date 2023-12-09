@@ -203,46 +203,46 @@ int main(int argc, char **argv)
 
        exact_distance(&post_mesh, post_poi_list, source_poi_index, destination_poi_index, post_exact_distance);
 
-       std::cout << "== FU_Oracle_NoEdgPru ==" << std::endl;
-       FU_Oracle_NoEdgPru(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, source_poi_index,
+       std::cout << "== UP_Oracle_NoEdgPru ==" << std::endl;
+       UP_Oracle_NoEdgPru(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, source_poi_index,
                           destination_poi_index, post_exact_distance, pre_MST_weight,
                           post_MST_weight, write_file_header);
        std::cout << std::endl;
 
-       std::cout << "== FU_Oracle_NoEffIntChe ==" << std::endl;
-       FU_Oracle_NoEffIntChe(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
+       std::cout << "== UP_Oracle_NoEffIntChe ==" << std::endl;
+       UP_Oracle_NoEffIntChe(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
                              source_poi_index, destination_poi_index, post_exact_distance,
                              pre_MST_weight, post_MST_weight, write_file_header);
        std::cout << std::endl;
 
-       std::cout << "== FU_Oracle_NoEffEdgPru ==" << std::endl;
-       FU_Oracle_NoEffEdgPru(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
+       std::cout << "== UP_Oracle_NoEffEdgPru ==" << std::endl;
+       UP_Oracle_NoEffEdgPru(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
                              source_poi_index, destination_poi_index, post_exact_distance,
                              pre_MST_weight, post_MST_weight, write_file_header);
        std::cout << std::endl;
 
-       std::cout << "== FU_Oracle ==" << std::endl;
-       FU_Oracle(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
+       std::cout << "== UP_Oracle ==" << std::endl;
+       UP_Oracle(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
                  source_poi_index, destination_poi_index, post_exact_distance,
                  pre_MST_weight, post_MST_weight, write_file_header);
        std::cout << std::endl;
 
        if (input_file_index >= 0 && input_file_index <= 54)
        {
-              std::cout << "== FU_Oracle_RanUpdSeq ==" << std::endl;
-              FU_Oracle_RanUpdSeq_NoDistAppr(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
+              std::cout << "== UP_Oracle_RanUpdSeq ==" << std::endl;
+              UP_Oracle_RanUpdSeq_NoDistAppr(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
                                              source_poi_index, destination_poi_index, post_exact_distance,
                                              pre_MST_weight, post_MST_weight, write_file_header, true);
               std::cout << std::endl;
 
-              std::cout << "== FU_Oracle_FullRad ==" << std::endl;
-              FU_Oracle_FullRad(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
+              std::cout << "== UP_Oracle_FullRad ==" << std::endl;
+              UP_Oracle_FullRad(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
                                 source_poi_index, destination_poi_index, post_exact_distance,
                                 pre_MST_weight, post_MST_weight, write_file_header);
               std::cout << std::endl;
 
-              std::cout << "== FU_Oracle_NoDistAppr ==" << std::endl;
-              FU_Oracle_RanUpdSeq_NoDistAppr(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
+              std::cout << "== UP_Oracle_NoDistAppr ==" << std::endl;
+              UP_Oracle_RanUpdSeq_NoDistAppr(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
                                              source_poi_index, destination_poi_index, post_exact_distance,
                                              pre_MST_weight, post_MST_weight, write_file_header, false);
               std::cout << std::endl;
