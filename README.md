@@ -3,6 +3,8 @@
 
 This project provides the implementation of the algorithm for calculating an efficiently updatable path oracle on an updated terrain surface. We refer the readers to our paper for more details.
 
+Code Ocean link: https://codeocean.com/capsule/5241686/tree/v1
+
 We compared 13 algorithms as follows:
 
 - WSPD-Oracle (oracle based baseline)
