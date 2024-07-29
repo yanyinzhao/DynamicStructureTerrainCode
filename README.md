@@ -1,26 +1,35 @@
 # An Efficiently Updatable Path Oracle for Terrain Surfaces
 
-## Code Ocean link: https://codeocean.com/capsule/5241686/tree/v1
+## Code Ocean link (for the executable code): https://codeocean.com/capsule/5241686/tree/v4
+## IEEE DataPort DOI (for the dataset): https://dx.doi.org/10.21227/7ras-ng51
 
 ## Overview
 
 This project provides the implementation of the algorithm for calculating an efficiently updatable path oracle on an updated terrain surface. We refer the readers to our paper for more details.
 
-We compared 13 algorithms as follows:
+We compared 21 algorithms as follows:
 
 - WSPD-Oracle (oracle based baseline)
-- WSPD-Oracle-Adapt (adapted oracle based baseline)
+- WSPD-UP-Oracle (adapted oracle based baseline)
 - EAR-Oracle (oracle based baseline)
-- EAR-Oracle-Adapt (adapted oracle based baseline)
-- UP-Oracle-RanUpdSeq (variation)
+- EAR-UP-Oracle (adapted oracle based baseline)
+- RC-TIN-Oracle (oracle based baseline)
+- RC-TIN-UP-Oracle (adapted oracle based baseline)
+- WSPD-Oracle-A2A (adapted oracle based baseline)
+- WSPD-UP-Oracle-A2A (adapted oracle based baseline)
+- RC-TIN-Oracle-A2A (adapted oracle based baseline)
+- RC-TIN-UP-Oracle-A2A (adapted oracle based baseline)
+- UP-Oracle-RanSelSeq (variation)
 - UP-Oracle-FullRad (variation)
 - UP-Oracle-NoDistAppr (variation)
 - UP-Oracle-NoEffIntChe (variation)
 - UP-Oracle-NoEdgPru (variation)
 - UP-Oracle-NoEffEdgPru (variation)
 - UP-Oracle (our oracle)
-- CH-Fly-Algo (on-the-fly baseline)
-- K-Fly-Algo (on-the-fly baseline)
+- UP-Oracle-MuLa (our oracle)
+- UP-Oracle-A2A (our oracle)
+- WAV-Fly-Algo (on-the-fly baseline)
+- ESP-Fly-Algo (on-the-fly baseline)
 
 Make sure there is a folder called "input/" and a folder called "output/" under the working directory. They will be used for storing the input/output files.
 
@@ -248,7 +257,7 @@ For the [terrain_data_and_dataset_size_and_poi_number_map_index], each index val
 | 107 | VS | 2000000 | 500 |
 | 108 | VS | 2504322 | 500 |
 
-By default, the project will run WSPD-Oracle, WSPD-Oracle-Adapt, EAR-Oracle, EAR-Oracle-Adapt, UP-Oracle-RanUpdSeq, UP-Oracle-FullRad, UP-Oracle-NoDistAppr, UP-Oracle-NoEffIntChe, UP-Oracle-NoEdgPru, UP-Oracle-NoEffEdgPru, UP-Oracle, CH-Fly-Algo, and K-Fly-Algo. But as mentioned in our paper, WSPD-Oracle, WSPD-Oracle-Adapt, EAR-Oracle, EAR-Oracle-Adapt, UP-Oracle-RanUpdSeq, UP-Oracle-FullRad, and UP-Oracle-NoDistAppr are very time consuming. So when the POI number is large, i.e., [terrain_data_and_dataset_size_and_poi_number_map_index] > 54, the project will only run UP-Oracle-NoEffIntChe,UP-Oracle-NoEdgPru, UP-Oracle-NoEffEdgPru, UP-Oracle, CH-Fly-Algo, and K-Fly-Algo.
+By default, the project will run WSPD-Oracle, WSPD-UP-Oracle, EAR-Oracle, EAR-UP-Oracle, RC-TIN-Oracle, RC-TIN-UP-Oracle, WSPD-Oracle-A2A, WSPD-UP-Oracle-A2A, RC-TIN-Oracle-A2A, RC-TIN-UP-Oracle-A2A, UP-Oracle-RanSelSeq, UP-Oracle-FullRad, UP-Oracle-NoDistAppr, UP-Oracle-NoEffIntChe, UP-Oracle-NoEdgPru, UP-Oracle-NoEffEdgPru, UP-Oracle, UP-Oracle-MuLa, UP-Oracle-A2A, WAV-Fly-Algo, and ESP-Fly-Algo. But WSPD-Oracle, WSPD-UP-Oracle, EAR-Oracle, EAR-UP-Oracle, RC-TIN-Oracle, RC-TIN-UP-Oracle, WSPD-Oracle-A2A, WSPD-UP-Oracle-A2A, RC-TIN-Oracle-A2A, RC-TIN-UP-Oracle-A2A, UP-Oracle-RanSelSeq, UP-Oracle-FullRad, UP-Oracle-NoDistAppr, and UP-Oracle-A2A are very time consuming. So when the POI number is large, i.e., [terrain_data_and_dataset_size_and_poi_number_map_index] > 54, the project will only run UP-Oracle-NoEffIntChe,UP-Oracle-NoEdgPru, UP-Oracle-NoEffEdgPru, UP-Oracle, UP-Oracle-MuLa, WAV-Fly-Algo, and ESP-Fly-Algo.
 
 An example:
 
@@ -256,7 +265,7 @@ An example:
 ./main 0 0.5
 ```
 
-In this example, [terrain_data_and_dataset_size_and_poi_number_map_index] is 0, [epsilon] is 0.5. So, it will run TJ pre earthquake terrain dataset and TJ post earthquake terrain dataset, with dataset size equal to 1058 and poi number equal to 50, and epsilon is 0.5. It will run 13 algorithms, i.e., WSPD-Oracle, WSPD-Oracle-Adapt, FEAR-Oracle, EAR-Oracle-Adapt, U-Oracle-RanUpdSeq, UP-Oracle-FullRad, UP-Oracle-NoDistAppr, UP-Oracle-NoEffIntChe, UP-Oracle-NoEdgPru, UP-Oracle-NoEffEdgPru, UP-Oracle, CH-Fly-Algo, and K-Fly-Algo.
+In this example, [terrain_data_and_dataset_size_and_poi_number_map_index] is 0, [epsilon] is 0.5. So, it will run TJ pre earthquake terrain dataset and TJ post earthquake terrain dataset, with dataset size equal to 1058 and poi number equal to 50, and epsilon is 0.5. It will run 21 algorithms.
 
 ## Output
 
@@ -270,4 +279,4 @@ The output will be stored in "output/output.txt" file. The format will be as fol
 
 These information will also be shown in the terminal. 
 
-[post_update_time1] means the update time for terrain surface and POIs change detection step and pairwise P2P exact shortest path updating time, and [post_update_time2] means the update time for sub-graph generating step. 
+[post_update_time1] means the update time for detecting updated terrain surface step and updating exact shortest path step, and [post_update_time2] means the update time for generating sub-graph step. 

@@ -367,10 +367,10 @@ double max(double x, double y)
     return y;
 }
 
-void pre_compute_WSPD_Oracle(int poi_num, geodesic::Mesh *mesh, std::vector<int> &poi_list,
-                             std::unordered_map<int, double> &distance_poi_to_poi_map,
-                             std::unordered_map<int, std::vector<geodesic::SurfacePoint>> &path_poi_to_poi_map,
-                             double &memory_usage)
+void pre_compute_WSPD_RC_TIN_Oracle(int poi_num, geodesic::Mesh *mesh, std::vector<int> &poi_list,
+                                    std::unordered_map<int, double> &distance_poi_to_poi_map,
+                                    std::unordered_map<int, std::vector<geodesic::SurfacePoint>> &path_poi_to_poi_map,
+                                    double &memory_usage, int notA2A_one_A2A_two)
 {
     geodesic::GeodesicAlgorithmExact algorithm(mesh);
     double const distance_limit = geodesic::GEODESIC_INF;
@@ -389,7 +389,17 @@ void pre_compute_WSPD_Oracle(int poi_num, geodesic::Mesh *mesh, std::vector<int>
         {
             destinations_poi_list.push_back(geodesic::SurfacePoint(&mesh->vertices()[poi_list[j]]));
         }
-        algorithm.propagate(one_source_poi_list, distance_limit);
+        if (notA2A_one_A2A_two == 1)
+        {
+            algorithm.propagate(one_source_poi_list, distance_limit);
+        }
+        else if (notA2A_one_A2A_two == 2)
+        {
+            for (int j = 0; j < mesh->vertices().size() / poi_num; j++)
+            {
+                algorithm.propagate(one_source_poi_list, distance_limit);
+            }
+        }
         for (int j = i; j < poi_num; j++)
         {
             std::vector<geodesic::SurfacePoint> path;
@@ -405,7 +415,7 @@ void pre_compute_WSPD_Oracle(int poi_num, geodesic::Mesh *mesh, std::vector<int>
     memory_usage += algorithm.get_memory() + 0.5 * poi_num * (poi_num - 1) * sizeof(double) + path_poi_to_poi_size * sizeof(geodesic::SurfacePoint);
 }
 
-void generate_geo_pair(int geo_tree_node_id, int &WSPD_oracle_edge_num, double &WSPD_oracle_weight,
+void generate_geo_pair(int geo_tree_node_id, int &WSPD_RC_TIN_oracle_edge_num, double &WSPD_RC_TIN_oracle_weight,
                        geodesic::Mesh *mesh, GeoNode &x, GeoNode &y,
                        double epsilon,
                        std::unordered_map<int, GeoPair *> &geopairs,
@@ -465,14 +475,14 @@ void generate_geo_pair(int geo_tree_node_id, int &WSPD_oracle_edge_num, double &
             std::vector<int> face_sequence_index_listxy;
             face_sequence_index_listxy.clear();
             get_face_sequence(pathxy, face_sequence_index_listxy);
-            WSPD_oracle_edge_num++;
+            WSPD_RC_TIN_oracle_edge_num++;
             GeoPair *nodepair = new GeoPair();
             nodepair->node1 = &x;
             nodepair->node2 = &y;
             nodepair->distance = distancexy;
             nodepair->path = pathxy;
             nodepair->face_sequence_index_list = face_sequence_index_listxy;
-            WSPD_oracle_weight += distancexy;
+            WSPD_RC_TIN_oracle_weight += distancexy;
             pairwise_path_poi_to_poi_size += pathxy.size();
             face_sequence_index_list_size += face_sequence_index_listxy.size();
             int x_in_geo_node_id_for_geo_pair = x.id;
@@ -493,14 +503,14 @@ void generate_geo_pair(int geo_tree_node_id, int &WSPD_oracle_edge_num, double &
             {
                 for (std::list<GeoNode *>::iterator ite = x.children.begin(); ite != x.children.end(); ite++)
                 {
-                    generate_geo_pair(geo_tree_node_id, WSPD_oracle_edge_num, WSPD_oracle_weight, mesh, (**ite), y, epsilon, geopairs, poi_unordered_map, geo_pair_unordered_map, pre_distance_poi_to_poi_map, pre_path_poi_to_poi_map, pairwise_path_poi_to_poi_size, face_sequence_index_list_size);
+                    generate_geo_pair(geo_tree_node_id, WSPD_RC_TIN_oracle_edge_num, WSPD_RC_TIN_oracle_weight, mesh, (**ite), y, epsilon, geopairs, poi_unordered_map, geo_pair_unordered_map, pre_distance_poi_to_poi_map, pre_path_poi_to_poi_map, pairwise_path_poi_to_poi_size, face_sequence_index_list_size);
                 }
             }
             else
             {
                 for (std::list<GeoNode *>::iterator jte = y.children.begin(); jte != y.children.end(); jte++)
                 {
-                    generate_geo_pair(geo_tree_node_id, WSPD_oracle_edge_num, WSPD_oracle_weight, mesh, x, (**jte), epsilon, geopairs, poi_unordered_map, geo_pair_unordered_map, pre_distance_poi_to_poi_map, pre_path_poi_to_poi_map, pairwise_path_poi_to_poi_size, face_sequence_index_list_size);
+                    generate_geo_pair(geo_tree_node_id, WSPD_RC_TIN_oracle_edge_num, WSPD_RC_TIN_oracle_weight, mesh, x, (**jte), epsilon, geopairs, poi_unordered_map, geo_pair_unordered_map, pre_distance_poi_to_poi_map, pre_path_poi_to_poi_map, pairwise_path_poi_to_poi_size, face_sequence_index_list_size);
                 }
             }
         }
@@ -591,9 +601,9 @@ double one_path_query_geo(int geo_tree_node_id, GeoNode &x, GeoNode &y,
     return one_path_query_geo(geo_tree_node_id, *x.parent, *y.parent, returned_source_neighbour_index, returned_destination_neighbour_index, geopairs, approximate_path, face_sequence_index_list);
 }
 
-void three_paths_query_geo(geodesic::Mesh *mesh, int geo_tree_node_id, int WSPDone_EARtwo,
-                           int WSPD_source_poi_index_EAR_source_vertex_id,
-                           int WSPD_destination_poi_index_EAR_destination_vertex_id, bool &one_path,
+void three_paths_query_geo(geodesic::Mesh *mesh, int geo_tree_node_id, int WSPD_RC_TINone_EARtwo,
+                           int WSPD_RC_TIN_source_poi_index_EAR_source_vertex_id,
+                           int WSPD_RC_TIN_destination_poi_index_EAR_destination_vertex_id, bool &one_path,
                            std::vector<GeoNode *> &all_poi,
                            std::unordered_map<int, GeoNode *> &geo_node_in_partition_tree_unordered_map,
                            std::unordered_map<int, GeoPair *> &geopairs,
@@ -616,15 +626,15 @@ void three_paths_query_geo(geodesic::Mesh *mesh, int geo_tree_node_id, int WSPDo
     int src_vertex_id;
     int dest_vertex_id;
 
-    if (WSPDone_EARtwo == 1)
+    if (WSPD_RC_TINone_EARtwo == 1)
     {
-        src_vertex_id = all_poi[WSPD_source_poi_index_EAR_source_vertex_id]->index;
-        dest_vertex_id = all_poi[WSPD_destination_poi_index_EAR_destination_vertex_id]->index;
+        src_vertex_id = all_poi[WSPD_RC_TIN_source_poi_index_EAR_source_vertex_id]->index;
+        dest_vertex_id = all_poi[WSPD_RC_TIN_destination_poi_index_EAR_destination_vertex_id]->index;
     }
-    else if (WSPDone_EARtwo == 2)
+    else if (WSPD_RC_TINone_EARtwo == 2)
     {
-        src_vertex_id = WSPD_source_poi_index_EAR_source_vertex_id;
-        dest_vertex_id = WSPD_destination_poi_index_EAR_destination_vertex_id;
+        src_vertex_id = WSPD_RC_TIN_source_poi_index_EAR_source_vertex_id;
+        dest_vertex_id = WSPD_RC_TIN_destination_poi_index_EAR_destination_vertex_id;
     }
 
     approximate_distance = one_path_query_geo(geo_tree_node_id, *geo_node_in_partition_tree_unordered_map[src_vertex_id], *geo_node_in_partition_tree_unordered_map[dest_vertex_id],

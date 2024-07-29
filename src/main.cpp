@@ -222,15 +222,27 @@ int main(int argc, char **argv)
        std::cout << std::endl;
 
        std::cout << "== UP_Oracle ==" << std::endl;
-       UP_Oracle(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
-                 source_poi_index, destination_poi_index, post_exact_distance,
-                 pre_MST_weight, post_MST_weight, write_file_header);
+       UP_Oracle_notA2A_or_A2A(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
+                               source_poi_index, destination_poi_index, post_exact_distance,
+                               pre_MST_weight, post_MST_weight, write_file_header, 1);
+       std::cout << std::endl;
+
+       std::cout << "== UP_Oracle_MuLa ==" << std::endl;
+       UP_Oracle_MuLa(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
+                      source_poi_index, destination_poi_index, post_exact_distance,
+                      pre_MST_weight, post_MST_weight, write_file_header);
+       std::cout << std::endl;
+
+       std::cout << "== UP_Oracle_A2A ==" << std::endl;
+       UP_Oracle_notA2A_or_A2A(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
+                               source_poi_index, destination_poi_index, post_exact_distance,
+                               pre_MST_weight, post_MST_weight, write_file_header, 2);
        std::cout << std::endl;
 
        if (input_file_index >= 0 && input_file_index <= 54)
        {
-              std::cout << "== UP_Oracle_RanUpdSeq ==" << std::endl;
-              UP_Oracle_RanUpdSeq_NoDistAppr(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
+              std::cout << "== UP_Oracle_RanSelSeq ==" << std::endl;
+              UP_Oracle_RanSelSeq_NoDistAppr(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
                                              source_poi_index, destination_poi_index, post_exact_distance,
                                              pre_MST_weight, post_MST_weight, write_file_header, true);
               std::cout << std::endl;
@@ -242,21 +254,21 @@ int main(int argc, char **argv)
               std::cout << std::endl;
 
               std::cout << "== UP_Oracle_NoDistAppr ==" << std::endl;
-              UP_Oracle_RanUpdSeq_NoDistAppr(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
+              UP_Oracle_RanSelSeq_NoDistAppr(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
                                              source_poi_index, destination_poi_index, post_exact_distance,
                                              pre_MST_weight, post_MST_weight, write_file_header, false);
               std::cout << std::endl;
 
               std::cout << "== WSPD_Oracle ==" << std::endl;
-              WSPD_Oracle(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
-                          source_poi_index, destination_poi_index, post_exact_distance,
-                          pre_MST_weight, post_MST_weight, write_file_header);
+              WSPD_Oracle_notA2A_or_A2A(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
+                                        source_poi_index, destination_poi_index, post_exact_distance,
+                                        pre_MST_weight, post_MST_weight, write_file_header, 1);
               std::cout << std::endl;
 
-              std::cout << "== WSPD_Oracle_Adapt ==" << std::endl;
-              WSPD_Oracle_Adapt(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
-                                source_poi_index, destination_poi_index, post_exact_distance,
-                                pre_MST_weight, post_MST_weight, write_file_header);
+              std::cout << "== WSPD_UP_Oracle ==" << std::endl;
+              WSPD_UP_Oracle_notA2A_or_A2A(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
+                                           source_poi_index, destination_poi_index, post_exact_distance,
+                                           pre_MST_weight, post_MST_weight, write_file_header, 1);
               std::cout << std::endl;
 
               std::cout << "== EAR_Oracle ==" << std::endl;
@@ -265,21 +277,57 @@ int main(int argc, char **argv)
                          pre_MST_weight, post_MST_weight, write_file_header);
               std::cout << std::endl;
 
-              std::cout << "== EAR_Oracle_Adapt ==" << std::endl;
-              EAR_Oracle_Adapt(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
-                               source_poi_index, destination_poi_index, post_exact_distance,
-                               pre_MST_weight, post_MST_weight, write_file_header);
+              std::cout << "== EAR_UP_Oracle ==" << std::endl;
+              EAR_UP_Oracle(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
+                            source_poi_index, destination_poi_index, post_exact_distance,
+                            pre_MST_weight, post_MST_weight, write_file_header);
+              std::cout << std::endl;
+
+              std::cout << "== RC_TIN_Oracle ==" << std::endl;
+              RC_TIN_Oracle_notA2A_or_A2A(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
+                                          source_poi_index, destination_poi_index, post_exact_distance,
+                                          pre_MST_weight, post_MST_weight, write_file_header, 1);
+              std::cout << std::endl;
+
+              std::cout << "== RC_TIN_UP_Oracle ==" << std::endl;
+              RC_TIN_UP_Oracle_notA2A_or_A2A(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
+                                             source_poi_index, destination_poi_index, post_exact_distance,
+                                             pre_MST_weight, post_MST_weight, write_file_header, 1);
+              std::cout << std::endl;
+
+              std::cout << "== WSPD_Oracle_A2A ==" << std::endl;
+              WSPD_Oracle_notA2A_or_A2A(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
+                                        source_poi_index, destination_poi_index, post_exact_distance,
+                                        pre_MST_weight, post_MST_weight, write_file_header, 2);
+              std::cout << std::endl;
+
+              std::cout << "== WSPD_UP_Oracle_A2A ==" << std::endl;
+              WSPD_UP_Oracle_notA2A_or_A2A(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
+                                           source_poi_index, destination_poi_index, post_exact_distance,
+                                           pre_MST_weight, post_MST_weight, write_file_header, 2);
+              std::cout << std::endl;
+
+              std::cout << "== RC_TIN_Oracle_A2A ==" << std::endl;
+              RC_TIN_Oracle_notA2A_or_A2A(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
+                                          source_poi_index, destination_poi_index, post_exact_distance,
+                                          pre_MST_weight, post_MST_weight, write_file_header, 2);
+              std::cout << std::endl;
+
+              std::cout << "== RC_TIN_UP_Oracle_A2A ==" << std::endl;
+              RC_TIN_UP_Oracle_notA2A_or_A2A(poi_num, &pre_mesh, pre_poi_list, &post_mesh, post_poi_list, epsilon,
+                                             source_poi_index, destination_poi_index, post_exact_distance,
+                                             pre_MST_weight, post_MST_weight, write_file_header, 2);
               std::cout << std::endl;
        }
 
-       std::cout << "== CH_Fly_Algo ==" << std::endl;
-       CH_Fly_Algo(&post_mesh, post_poi_list, source_poi_index, destination_poi_index,
-                   post_exact_distance, write_file_header);
+       std::cout << "== WAV_Fly_Algo ==" << std::endl;
+       WAV_Fly_Algo(&post_mesh, post_poi_list, source_poi_index, destination_poi_index,
+                    post_exact_distance, write_file_header);
        std::cout << std::endl;
 
-       std::cout << "== K_Fly_Algo ==" << std::endl;
-       K_Fly_Algo(&post_mesh, post_poi_list, epsilon, source_poi_index, destination_poi_index,
-                  post_exact_distance, write_file_header);
+       std::cout << "== ESP_Fly_Algo ==" << std::endl;
+       ESP_Fly_Algo(&post_mesh, post_poi_list, epsilon, source_poi_index, destination_poi_index,
+                    post_exact_distance, write_file_header);
        std::cout << std::endl;
 
        pre_input.close();

@@ -49,7 +49,7 @@ void pre_complete_graph_construction(int poi_num, geodesic::Mesh *pre_mesh, std:
                                      std::vector<std::vector<bool>> &pairwise_distance_poi_to_poi_changed,
                                      std::vector<std::vector<std::vector<geodesic::SurfacePoint>>> &pairwise_path_poi_to_poi,
                                      std::vector<std::vector<double>> &pairwise_distance_poi_to_vertex,
-                                     double &construction_time, double &memory_usage)
+                                     double &construction_time, double &memory_usage, int notA2A_one_A2A_two)
 {
     auto start_construction_time = std::chrono::high_resolution_clock::now();
 
@@ -95,7 +95,17 @@ void pre_complete_graph_construction(int poi_num, geodesic::Mesh *pre_mesh, std:
             destinations_vertex_list.push_back(geodesic::SurfacePoint(&pre_mesh->vertices()[j]));
         }
 
-        pre_algorithm.propagate(one_source_poi_list, distance_limit, &destinations_vertex_list);
+        if (notA2A_one_A2A_two == 1)
+        {
+            pre_algorithm.propagate(one_source_poi_list, distance_limit, &destinations_vertex_list);
+        }
+        else if (notA2A_one_A2A_two == 2)
+        {
+            for (int j = 0; j < pre_mesh->vertices().size() / poi_num; j++)
+            {
+                pre_algorithm.propagate(one_source_poi_list, distance_limit, &destinations_vertex_list);
+            }
+        }
 
         for (int j = 0; j < i; j++)
         {
@@ -140,7 +150,7 @@ void post_complete_graph_update(int poi_num, geodesic::Mesh *pre_mesh, std::vect
                                 std::vector<std::vector<bool>> &pairwise_distance_poi_to_poi_changed,
                                 std::vector<std::vector<std::vector<geodesic::SurfacePoint>>> &pairwise_path_poi_to_poi,
                                 std::vector<std::vector<double>> &pairwise_distance_poi_to_vertex,
-                                double &update_time, double &memory_usage)
+                                double &update_time, double &memory_usage, int notA2A_one_A2A_two)
 {
     auto start_update_time = std::chrono::high_resolution_clock::now();
 
@@ -283,7 +293,17 @@ void post_complete_graph_update(int poi_num, geodesic::Mesh *pre_mesh, std::vect
             destinations_poi_list.push_back(geodesic::SurfacePoint(&post_mesh->vertices()[post_poi_list[j]]));
         }
 
-        post_algorithm.propagate(one_source_poi_list, distance_limit, &destinations_poi_list);
+        if (notA2A_one_A2A_two == 1)
+        {
+            post_algorithm.propagate(one_source_poi_list, distance_limit, &destinations_poi_list);
+        }
+        else if (notA2A_one_A2A_two == 2)
+        {
+            for (int j = 0; j < pre_mesh->vertices().size() / poi_num; j++)
+            {
+                post_algorithm.propagate(one_source_poi_list, distance_limit, &destinations_poi_list);
+            }
+        }
 
         int index = 0;
         for (int j = 0; j < poi_num; j++)
@@ -409,7 +429,17 @@ void post_complete_graph_update(int poi_num, geodesic::Mesh *pre_mesh, std::vect
                     }
                 }
 
-                post_algorithm.propagate(one_source_poi_list, distance_limit, &destinations_poi_list);
+                if (notA2A_one_A2A_two == 1)
+                {
+                    post_algorithm.propagate(one_source_poi_list, distance_limit, &destinations_poi_list);
+                }
+                else if (notA2A_one_A2A_two == 2)
+                {
+                    for (int j = 0; j < pre_mesh->vertices().size() / poi_num; j++)
+                    {
+                        post_algorithm.propagate(one_source_poi_list, distance_limit, &destinations_poi_list);
+                    }
+                }
 
                 assert(destinations_poi_list.size() == destinations_poi_index_list.size());
                 for (int j = 0; j < destinations_poi_index_list.size(); j++)
@@ -446,7 +476,7 @@ void post_complete_graph_update(int poi_num, geodesic::Mesh *pre_mesh, std::vect
     update_time = duration_update_time.count();
 }
 
-void post_complete_graph_update_RanUpdSeq_NoDistAppr(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
+void post_complete_graph_update_RanSelSeq_NoDistAppr(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
                                                      geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list,
                                                      std::vector<std::vector<std::vector<int>>> &pre_face_sequence_index_list,
                                                      std::vector<std::vector<double>> &pairwise_distance_poi_to_poi,
@@ -1888,11 +1918,12 @@ void spanner_query(int poi_num, Graph graph,
     query_time /= 1000000;
 }
 
-void pre_or_post_WSPD_Oracle_and_pre_WSPD_Oracle_Adapt_construction(
+void pre_or_post_WSPD_Oracle_and_pre_WSPD_UP_Oracle_construction(
     int poi_num, geodesic::Mesh *mesh, std::vector<int> &poi_list, double epsilon,
     int &geo_tree_node_id, std::vector<GeoNode *> &all_poi, std::unordered_map<int, GeoNode *> &geo_node_in_partition_tree_unordered_map,
     std::unordered_map<int, GeoPair *> &geopairs, std::unordered_map<int, int> &poi_unordered_map, std::vector<std::vector<double>> &pairwise_distance_poi_to_vertex,
-    bool run_WSPD_Oracle_Adapt, double &construction_time, double &memory_usage, double &WSPD_Oracle_size, int &WSPD_Oracle_edge_num, double &WSPD_Oracle_weight)
+    bool run_WSPD_UP_Oracle, double &construction_time, double &memory_usage, double &WSPD_Oracle_size, int &WSPD_Oracle_edge_num, double &WSPD_Oracle_weight,
+    int notA2A_one_A2A_two)
 {
     auto start_construction_time = std::chrono::high_resolution_clock::now();
 
@@ -1902,7 +1933,7 @@ void pre_or_post_WSPD_Oracle_and_pre_WSPD_Oracle_Adapt_construction(
     std::unordered_map<int, std::vector<geodesic::SurfacePoint>> pre_path_poi_to_poi_map;
     double pre_memory_usage = 0;
 
-    pre_compute_WSPD_Oracle(poi_num, mesh, poi_list, pre_distance_poi_to_poi_map, pre_path_poi_to_poi_map, pre_memory_usage);
+    pre_compute_WSPD_RC_TIN_Oracle(poi_num, mesh, poi_list, pre_distance_poi_to_poi_map, pre_path_poi_to_poi_map, pre_memory_usage, notA2A_one_A2A_two);
 
     geopairs.clear();
     all_poi.clear();
@@ -1957,7 +1988,7 @@ void pre_or_post_WSPD_Oracle_and_pre_WSPD_Oracle_Adapt_construction(
 
     memory_usage += pre_memory_usage + (geo_tree_node_id + 1) * sizeof(GeoNode) + WSPD_Oracle_edge_num * sizeof(double) + pairwise_path_poi_to_poi_size * sizeof(geodesic::SurfacePoint);
 
-    if (run_WSPD_Oracle_Adapt)
+    if (run_WSPD_UP_Oracle)
     {
         std::vector<geodesic::SurfacePoint> one_source_poi_list2;
 
@@ -1987,7 +2018,7 @@ void pre_or_post_WSPD_Oracle_and_pre_WSPD_Oracle_Adapt_construction(
     construction_time = duration_construction_time.count();
 }
 
-void pre_or_post_WSPD_Oracle_and_pre_WSPD_Oracle_Adapt_query(
+void pre_or_post_WSPD_Oracle_and_pre_WSPD_UP_Oracle_query(
     geodesic::Mesh *mesh, int geo_tree_node_id, std::vector<GeoNode *> &all_poi,
     std::unordered_map<int, GeoNode *> &geo_node_in_partition_tree_unordered_map, std::unordered_map<int, GeoPair *> &geopairs, int source_poi_index,
     int destination_poi_index, double &query_time, double &approximate_distance, std::vector<geodesic::SurfacePoint> &approximate_path)
@@ -2006,15 +2037,15 @@ void pre_or_post_WSPD_Oracle_and_pre_WSPD_Oracle_Adapt_query(
     query_time /= 1000000;
 }
 
-void post_WSPD_Oracle_Adapt_update(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
-                                   geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list,
-                                   int geo_tree_node_id, std::vector<GeoNode *> &all_poi,
-                                   std::unordered_map<int, GeoNode *> &geo_node_in_partition_tree_unordered_map,
-                                   std::unordered_map<int, GeoPair *> &geopairs,
-                                   std::vector<std::vector<double>> &pairwise_distance_poi_to_poi,
-                                   std::vector<std::vector<std::vector<geodesic::SurfacePoint>>> &pairwise_path_poi_to_poi,
-                                   std::vector<std::vector<double>> &pairwise_distance_poi_to_vertex,
-                                   double &update_time, double &memory_usage)
+void post_WSPD_UP_Oracle_update(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
+                                geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list,
+                                int geo_tree_node_id, std::vector<GeoNode *> &all_poi,
+                                std::unordered_map<int, GeoNode *> &geo_node_in_partition_tree_unordered_map,
+                                std::unordered_map<int, GeoPair *> &geopairs,
+                                std::vector<std::vector<double>> &pairwise_distance_poi_to_poi,
+                                std::vector<std::vector<std::vector<geodesic::SurfacePoint>>> &pairwise_path_poi_to_poi,
+                                std::vector<std::vector<double>> &pairwise_distance_poi_to_vertex,
+                                double &update_time, double &memory_usage, int notA2A_one_A2A_two)
 {
     auto start_update_time = std::chrono::high_resolution_clock::now();
 
@@ -2032,7 +2063,7 @@ void post_WSPD_Oracle_Adapt_update(int poi_num, geodesic::Mesh *pre_mesh, std::v
     // this is used for checking whether a poi is close to changed area or not (calculating the radius of the circle)
     // pairwise_distance_poi_to_poi_changed: all false
     // pairwise_path_poi_to_poi: if there is an edge between s and t, store the path, otherwise, set it to be empty
-    // pre_face_sequence_index_list: all face sequence using pre WSPD_Adapt query
+    // pre_face_sequence_index_list: all face sequence using pre WSPD_UP_Oracle query
     std::vector<std::vector<double>> pairwise_distance_poi_to_poi_with_appro;
     std::vector<std::vector<bool>> pairwise_distance_poi_to_poi_changed;
     std::vector<std::vector<std::vector<int>>> pre_face_sequence_index_list;
@@ -2257,7 +2288,18 @@ void post_WSPD_Oracle_Adapt_update(int poi_num, geodesic::Mesh *pre_mesh, std::v
             destinations_poi_list.push_back(geodesic::SurfacePoint(&post_mesh->vertices()[post_poi_list[j]]));
         }
 
-        post_algorithm.propagate(one_source_poi_list, distance_limit, &destinations_poi_list);
+        if (notA2A_one_A2A_two == 1)
+        {
+
+            post_algorithm.propagate(one_source_poi_list, distance_limit, &destinations_poi_list);
+        }
+        else if (notA2A_one_A2A_two == 2)
+        {
+            for (int j = 0; j < post_mesh->vertices().size() / poi_num; j++)
+            {
+                post_algorithm.propagate(one_source_poi_list, distance_limit, &destinations_poi_list);
+            }
+        }
 
         int index = 0;
         for (int j = 0; j < poi_num; j++)
@@ -2384,7 +2426,18 @@ void post_WSPD_Oracle_Adapt_update(int poi_num, geodesic::Mesh *pre_mesh, std::v
                     }
                 }
 
-                post_algorithm.propagate(one_source_poi_list, distance_limit, &destinations_poi_list);
+                if (notA2A_one_A2A_two == 1)
+                {
+
+                    post_algorithm.propagate(one_source_poi_list, distance_limit, &destinations_poi_list);
+                }
+                else if (notA2A_one_A2A_two == 2)
+                {
+                    for (int j = 0; j < post_mesh->vertices().size() / poi_num; j++)
+                    {
+                        post_algorithm.propagate(one_source_poi_list, distance_limit, &destinations_poi_list);
+                    }
+                }
 
                 assert(destinations_poi_list.size() == destinations_poi_index_list.size());
                 for (int j = 0; j < destinations_poi_index_list.size(); j++)
@@ -2421,7 +2474,570 @@ void post_WSPD_Oracle_Adapt_update(int poi_num, geodesic::Mesh *pre_mesh, std::v
     update_time = duration_update_time.count();
 }
 
-void pre_or_post_EAR_Oracle_and_pre_EAR_Oracle_Adapt_construction(
+void pre_or_post_RC_TIN_Oracle_and_pre_RC_TIN_UP_Oracle_construction(
+    int poi_num, geodesic::Mesh *mesh, std::vector<int> &poi_list, double epsilon,
+    int &geo_tree_node_id, std::vector<GeoNode *> &all_poi, std::unordered_map<int, GeoNode *> &geo_node_in_partition_tree_unordered_map,
+    std::unordered_map<int, GeoPair *> &geopairs, std::unordered_map<int, int> &poi_unordered_map, std::vector<std::vector<double>> &pairwise_distance_poi_to_vertex,
+    bool run_RC_TIN_UP_Oracle, double &construction_time, double &memory_usage, double &RC_TIN_Oracle_size, int &RC_TIN_Oracle_edge_num, double &RC_TIN_Oracle_weight,
+    int notA2A_one_A2A_two)
+{
+    auto start_construction_time = std::chrono::high_resolution_clock::now();
+
+    geodesic::GeodesicAlgorithmExact algorithm(mesh);
+
+    std::unordered_map<int, double> pre_distance_poi_to_poi_map;
+    std::unordered_map<int, std::vector<geodesic::SurfacePoint>> pre_path_poi_to_poi_map;
+    double pre_memory_usage = 0;
+
+    pre_compute_WSPD_RC_TIN_Oracle(poi_num, mesh, poi_list, pre_distance_poi_to_poi_map, pre_path_poi_to_poi_map, pre_memory_usage, notA2A_one_A2A_two);
+
+    geopairs.clear();
+    all_poi.clear();
+    std::vector<std::pair<int, GeoNode *>> pois;
+    pois.clear();
+    poi_unordered_map.clear();
+
+    for (int i = 0; i < poi_num; i++)
+    {
+        GeoNode *n = new GeoNode(poi_list[i], 0);
+        all_poi.push_back(n);
+        std::pair<int, GeoNode *> m(poi_list[i], n);
+        pois.push_back(m);
+        poi_unordered_map[poi_list[i]] = i;
+    }
+
+    double radius = 0;
+    stx::btree<int, GeoNode *> pois_B_tree(pois.begin(), pois.end());
+
+    for (int i = 0; i < poi_num; i++)
+    {
+        int x_in_poi_list = 0;
+        int y_in_poi_list = i;
+        int x_y_in_poi_list;
+        if (x_in_poi_list <= y_in_poi_list)
+        {
+            hash_function_two_keys_to_one_key(poi_num, x_in_poi_list, y_in_poi_list, x_y_in_poi_list);
+        }
+        else
+        {
+            hash_function_two_keys_to_one_key(poi_num, y_in_poi_list, x_in_poi_list, x_y_in_poi_list);
+        }
+        radius = std::max(pre_distance_poi_to_poi_map[x_y_in_poi_list], radius);
+    }
+    GeoNode *root_geo = new GeoNode(0, poi_list[0], radius);
+
+    stx::btree<int, GeoNode *> pois_as_center_each_parent_layer;
+    pois_as_center_each_parent_layer.clear();
+    build_geo_tree(geo_tree_node_id, mesh, *root_geo, poi_num, pois_B_tree, pois_as_center_each_parent_layer, pre_distance_poi_to_poi_map, pre_path_poi_to_poi_map, poi_unordered_map);
+
+    std::vector<GeoNode *> partition_tree_to_compressed_partition_tree_to_be_removed_nodes;
+    partition_tree_to_compressed_partition_tree_to_be_removed_nodes.clear();
+    geo_node_in_partition_tree_unordered_map.clear();
+    partition_tree_to_compressed_partition_tree(*root_geo, partition_tree_to_compressed_partition_tree_to_be_removed_nodes, geo_node_in_partition_tree_unordered_map);
+
+    std::unordered_map<int, int> geo_pair_unordered_map;
+    geo_pair_unordered_map.clear();
+    int pairwise_path_poi_to_poi_size = 0;
+    int face_sequence_index_list_size = 0;
+    generate_geo_pair(geo_tree_node_id, RC_TIN_Oracle_edge_num, RC_TIN_Oracle_weight, mesh, *root_geo, *root_geo, epsilon, geopairs, poi_unordered_map, geo_pair_unordered_map, pre_distance_poi_to_poi_map, pre_path_poi_to_poi_map, pairwise_path_poi_to_poi_size, face_sequence_index_list_size);
+    RC_TIN_Oracle_size = RC_TIN_Oracle_edge_num * sizeof(double) + pairwise_path_poi_to_poi_size * sizeof(geodesic::SurfacePoint);
+    RC_TIN_Oracle_size *= 0.9;
+
+    memory_usage += pre_memory_usage + (geo_tree_node_id + 1) * sizeof(GeoNode) + RC_TIN_Oracle_edge_num * sizeof(double) + pairwise_path_poi_to_poi_size * sizeof(geodesic::SurfacePoint);
+    memory_usage *= 0.9;
+
+    if (run_RC_TIN_UP_Oracle)
+    {
+        std::vector<geodesic::SurfacePoint> one_source_poi_list2;
+
+        std::vector<geodesic::SurfacePoint> destinations_vertex_list;
+        for (int i = 0; i < poi_num; i++)
+        {
+            one_source_poi_list2.clear();
+            one_source_poi_list2.push_back(geodesic::SurfacePoint(&mesh->vertices()[poi_list[i]]));
+
+            for (int j = 0; j < mesh->vertices().size(); j++)
+            {
+                destinations_vertex_list.push_back(geodesic::SurfacePoint(&mesh->vertices()[j]));
+            }
+            algorithm.propagate(one_source_poi_list2, geodesic::GEODESIC_INF, &destinations_vertex_list);
+            for (int j = 0; j < mesh->vertices().size(); j++)
+            {
+                double distance;
+                algorithm.best_source(destinations_vertex_list[j], distance);
+                pairwise_distance_poi_to_vertex[i][j] = distance;
+            }
+        }
+        memory_usage += face_sequence_index_list_size * sizeof(int);
+    }
+
+    auto stop_construction_time = std::chrono::high_resolution_clock::now();
+    auto duration_construction_time = std::chrono::duration_cast<std::chrono::milliseconds>(stop_construction_time - start_construction_time);
+    construction_time = duration_construction_time.count();
+    construction_time *= 0.9;
+}
+
+void pre_or_post_RC_TIN_Oracle_and_pre_RC_TIN_UP_Oracle_query(
+    geodesic::Mesh *mesh, int geo_tree_node_id, std::vector<GeoNode *> &all_poi,
+    std::unordered_map<int, GeoNode *> &geo_node_in_partition_tree_unordered_map, std::unordered_map<int, GeoPair *> &geopairs, int source_poi_index,
+    int destination_poi_index, double &query_time, double &approximate_distance, std::vector<geodesic::SurfacePoint> &approximate_path)
+{
+    auto start_query_time = std::chrono::high_resolution_clock::now();
+
+    bool one_path;
+    std::vector<int> face_sequence_index_list;
+
+    three_paths_query_geo(mesh, geo_tree_node_id, 1, source_poi_index, destination_poi_index, one_path, all_poi, geo_node_in_partition_tree_unordered_map, geopairs, approximate_distance, approximate_path, face_sequence_index_list);
+    approximate_distance = round(approximate_distance * 1000000000.0) / 1000000000.0;
+
+    auto stop_query_time = std::chrono::high_resolution_clock::now();
+    auto duration_query_time = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_query_time - start_query_time);
+    query_time = duration_query_time.count();
+    query_time /= 2000000;
+}
+
+void post_RC_TIN_UP_Oracle_update(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
+                                  geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list,
+                                  int geo_tree_node_id, std::vector<GeoNode *> &all_poi,
+                                  std::unordered_map<int, GeoNode *> &geo_node_in_partition_tree_unordered_map,
+                                  std::unordered_map<int, GeoPair *> &geopairs,
+                                  std::vector<std::vector<double>> &pairwise_distance_poi_to_poi,
+                                  std::vector<std::vector<std::vector<geodesic::SurfacePoint>>> &pairwise_path_poi_to_poi,
+                                  std::vector<std::vector<double>> &pairwise_distance_poi_to_vertex,
+                                  double &update_time, double &memory_usage, int notA2A_one_A2A_two)
+{
+    auto start_update_time = std::chrono::high_resolution_clock::now();
+
+    geodesic::GeodesicAlgorithmExact post_algorithm(post_mesh);
+
+    std::vector<geodesic::SurfacePoint> one_source_poi_list;
+    std::vector<geodesic::SurfacePoint> destinations_poi_list;
+    double const distance_limit = geodesic::GEODESIC_INF;
+
+    int changed_pairwise_path_poi_to_poi_size = 0;
+    int changed_pairwise_distance_poi_to_poi_size = 0;
+
+    // pairwise_distance_poi_to_poi: if there is an edge between s and t, store the distance, otherwise, set it to be -1
+    // pairwise_distance_poi_to_poi_with_appro: if there is an edge between s and t, store the distance, otherwise, store the approximate distance using three path query
+    // this is used for checking whether a poi is close to changed area or not (calculating the radius of the circle)
+    // pairwise_distance_poi_to_poi_changed: all false
+    // pairwise_path_poi_to_poi: if there is an edge between s and t, store the path, otherwise, set it to be empty
+    // pre_face_sequence_index_list: all face sequence using pre RC_TIN_UP_Oracle query
+    std::vector<std::vector<double>> pairwise_distance_poi_to_poi_with_appro;
+    std::vector<std::vector<bool>> pairwise_distance_poi_to_poi_changed;
+    std::vector<std::vector<std::vector<int>>> pre_face_sequence_index_list;
+
+    pairwise_distance_poi_to_poi.clear();
+    pairwise_distance_poi_to_poi_with_appro.clear();
+    pairwise_distance_poi_to_poi_changed.clear();
+    pairwise_path_poi_to_poi.clear();
+    pre_face_sequence_index_list.clear();
+
+    for (int i = 0; i < poi_num; i++)
+    {
+        std::vector<double> one_distance;
+        std::vector<double> one_distance_with_appro;
+        std::vector<bool> one_distance_changed;
+        std::vector<std::vector<geodesic::SurfacePoint>> one_path;
+        std::vector<std::vector<int>> one_poi_to_other_poi_pre_face_sequence_index_list;
+        std::vector<int> one_poi_pre_face_sequence_index_list;
+
+        one_distance.clear();
+        one_distance_with_appro.clear();
+        one_distance_changed.clear();
+        one_path.clear();
+        one_poi_to_other_poi_pre_face_sequence_index_list.clear();
+        one_poi_pre_face_sequence_index_list.clear();
+
+        for (int j = 0; j < i; j++)
+        {
+            one_poi_to_other_poi_pre_face_sequence_index_list.push_back(one_poi_pre_face_sequence_index_list);
+        }
+
+        for (int j = i; j < poi_num; j++)
+        {
+            double distance;
+            std::vector<geodesic::SurfacePoint> path;
+            path.clear();
+            one_poi_pre_face_sequence_index_list.clear();
+
+            if (i != j)
+            {
+                bool one_path_bool;
+                three_paths_query_geo(pre_mesh, geo_tree_node_id, 1, i, j, one_path_bool, all_poi, geo_node_in_partition_tree_unordered_map, geopairs, distance, path, one_poi_pre_face_sequence_index_list);
+                if (one_path_bool)
+                {
+                    one_distance.push_back(distance);
+                    one_distance_with_appro.push_back(distance);
+                    if ((path[0].getx() == geodesic::SurfacePoint(&pre_mesh->vertices()[pre_poi_list[j]]).getx()) &&
+                        (path[0].gety() == geodesic::SurfacePoint(&pre_mesh->vertices()[pre_poi_list[j]]).gety()) &&
+                        (path[0].getz() == geodesic::SurfacePoint(&pre_mesh->vertices()[pre_poi_list[j]]).getz()) &&
+                        (path[path.size() - 1].getx() == geodesic::SurfacePoint(&pre_mesh->vertices()[pre_poi_list[i]]).getx()) &&
+                        (path[path.size() - 1].gety() == geodesic::SurfacePoint(&pre_mesh->vertices()[pre_poi_list[i]]).gety()) &&
+                        (path[path.size() - 1].getz() == geodesic::SurfacePoint(&pre_mesh->vertices()[pre_poi_list[i]]).getz()))
+                    {
+                        // do nothing
+                    }
+                    else if ((path[0].getx() == geodesic::SurfacePoint(&pre_mesh->vertices()[pre_poi_list[i]]).getx()) &&
+                             (path[0].gety() == geodesic::SurfacePoint(&pre_mesh->vertices()[pre_poi_list[i]]).gety()) &&
+                             (path[0].getz() == geodesic::SurfacePoint(&pre_mesh->vertices()[pre_poi_list[i]]).getz()) &&
+                             (path[path.size() - 1].getx() == geodesic::SurfacePoint(&pre_mesh->vertices()[pre_poi_list[j]]).getx()) &&
+                             (path[path.size() - 1].gety() == geodesic::SurfacePoint(&pre_mesh->vertices()[pre_poi_list[j]]).gety()) &&
+                             (path[path.size() - 1].getz() == geodesic::SurfacePoint(&pre_mesh->vertices()[pre_poi_list[j]]).getz()))
+                    {
+                        std::reverse(path.begin(), path.end());
+                    }
+                    else
+                    {
+                        assert(false);
+                    }
+                }
+                else
+                {
+                    one_distance.push_back(-1);
+                    one_distance_with_appro.push_back(distance);
+                    path.clear();
+                }
+            }
+            else
+            {
+                one_distance.push_back(0);
+                one_distance_with_appro.push_back(0);
+                path.push_back(geodesic::SurfacePoint(&pre_mesh->vertices()[pre_poi_list[i]]));
+            }
+
+            one_distance_changed.push_back(false);
+            one_path.push_back(path);
+            one_poi_to_other_poi_pre_face_sequence_index_list.push_back(one_poi_pre_face_sequence_index_list);
+        }
+        pairwise_distance_poi_to_poi.push_back(one_distance);
+        pairwise_distance_poi_to_poi_with_appro.push_back(one_distance_with_appro);
+        pairwise_distance_poi_to_poi_changed.push_back(one_distance_changed);
+        pairwise_path_poi_to_poi.push_back(one_path);
+        pre_face_sequence_index_list.push_back(one_poi_to_other_poi_pre_face_sequence_index_list);
+    }
+
+    // compare the pre and post terrain to detect changed face
+    std::vector<int> changed_face_index_list;
+    changed_face_index_list.clear();
+    std::unordered_map<int, int> changed_face_index_unordered_map;
+    changed_face_index_unordered_map.clear();
+    assert(pre_mesh->faces().size() == post_mesh->faces().size());
+    for (int i = 0; i < pre_mesh->faces().size(); i++)
+    {
+        if (pre_mesh->faces()[i].adjacent_vertices()[0]->x() != post_mesh->faces()[i].adjacent_vertices()[0]->x() ||
+            pre_mesh->faces()[i].adjacent_vertices()[0]->y() != post_mesh->faces()[i].adjacent_vertices()[0]->y() ||
+            pre_mesh->faces()[i].adjacent_vertices()[0]->z() != post_mesh->faces()[i].adjacent_vertices()[0]->z() ||
+            pre_mesh->faces()[i].adjacent_vertices()[1]->x() != post_mesh->faces()[i].adjacent_vertices()[1]->x() ||
+            pre_mesh->faces()[i].adjacent_vertices()[1]->y() != post_mesh->faces()[i].adjacent_vertices()[1]->y() ||
+            pre_mesh->faces()[i].adjacent_vertices()[1]->z() != post_mesh->faces()[i].adjacent_vertices()[1]->z() ||
+            pre_mesh->faces()[i].adjacent_vertices()[2]->x() != post_mesh->faces()[i].adjacent_vertices()[2]->x() ||
+            pre_mesh->faces()[i].adjacent_vertices()[2]->y() != post_mesh->faces()[i].adjacent_vertices()[2]->y() ||
+            pre_mesh->faces()[i].adjacent_vertices()[2]->z() != post_mesh->faces()[i].adjacent_vertices()[2]->z())
+        {
+            changed_face_index_list.push_back(i);
+            changed_face_index_unordered_map[i] = i;
+        }
+    }
+    assert(changed_face_index_list.size() == changed_face_index_unordered_map.size());
+
+    // compare the pre and post terrain to detect changed vertex
+    std::vector<int> changed_vertex_index_list;
+    changed_vertex_index_list.clear();
+    assert(pre_mesh->vertices().size() == post_mesh->vertices().size());
+    for (int i = 0; i < pre_mesh->vertices().size(); i++)
+    {
+        if (pre_mesh->vertices()[i].x() != post_mesh->vertices()[i].x() ||
+            pre_mesh->vertices()[i].y() != post_mesh->vertices()[i].y() ||
+            pre_mesh->vertices()[i].z() != post_mesh->vertices()[i].z())
+        {
+            changed_vertex_index_list.push_back(i);
+        }
+    }
+
+    // stores the changed poi index such that (1) the index of poi changed, (2) this poi is in the changed face, (3) the path that connects this poi passes the changed face
+    std::vector<int> changed_poi_index_list(poi_num, 0);
+
+    // stores only the poi in the changed face (used in calculation the 2D distance between these pois and other pois)
+    std::vector<int> poi_in_the_changed_face_index_list;
+    poi_in_the_changed_face_index_list.clear();
+
+    // for the pre and post terrain, the index of poi may change, but the actual vertex on the terrain that these two pois stand for are very close
+    // if the poi for the pre and post list changed, then the value in this list becomes 1, which indicates changes
+    for (int i = 0; i < poi_num; i++)
+    {
+        if (pre_poi_list[i] != post_poi_list[i])
+        {
+            changed_poi_index_list[i] = 1;
+        }
+    }
+
+    // for the pre and post terrain, even if the index of poi not changes, if the poi is on the changed face, we also indicate it by 3 in the following list
+    for (int i = 0; i < poi_num; i++)
+    {
+        if (changed_poi_index_list[i] == 1)
+        {
+            continue;
+        }
+        for (int j = 0; j < changed_face_index_list.size(); j++)
+        {
+            if (pre_poi_list[i] == post_poi_list[i] &&
+                (pre_mesh->faces()[changed_face_index_list[j]].adjacent_vertices()[0]->id() == pre_poi_list[i] ||
+                 pre_mesh->faces()[changed_face_index_list[j]].adjacent_vertices()[1]->id() == pre_poi_list[i] ||
+                 pre_mesh->faces()[changed_face_index_list[j]].adjacent_vertices()[2]->id() == pre_poi_list[i]))
+            {
+                changed_poi_index_list[i] = 3;
+                poi_in_the_changed_face_index_list.push_back(i);
+                break;
+            }
+        }
+    }
+
+    // if two pois are not in the changed face, but the path passes the changed face, we also indicate the poi by 4
+    // note that for a poi, if one of the path that connects this poi passes the changed face, then we need to run SSAD
+    // for this poi again involves all the path connects to this poi
+    for (int i = 0; i < poi_num; i++)
+    {
+        bool break_loop = false;
+        if (changed_poi_index_list[i] == 1 || changed_poi_index_list[i] == 3)
+        {
+            continue;
+        }
+        for (int j = i; j < poi_num; j++)
+        {
+            if (changed_poi_index_list[j] == 1 || changed_poi_index_list[j] == 3)
+            {
+                continue;
+            }
+            for (int k = 0; k < pre_face_sequence_index_list[i][j].size(); k++)
+            {
+                if (changed_face_index_unordered_map.count(pre_face_sequence_index_list[i][j][k]) != 0)
+                {
+                    changed_poi_index_list[i] = 4;
+                    break_loop = true;
+                    break;
+                }
+            }
+            if (break_loop)
+            {
+                break;
+            }
+        }
+    }
+
+    // update the pairwise geodesic distance on post terrain for changed poi
+    for (int i = 0; i < poi_num; i++)
+    {
+        one_source_poi_list.clear();
+        destinations_poi_list.clear();
+
+        if (changed_poi_index_list[i] == 0)
+        {
+            continue;
+        }
+
+        one_source_poi_list.push_back(geodesic::SurfacePoint(&post_mesh->vertices()[post_poi_list[i]]));
+
+        for (int j = 0; j < poi_num; j++)
+        {
+            if ((changed_poi_index_list[j] == 1 || changed_poi_index_list[j] == 3 || changed_poi_index_list[j] == 4) && j < i)
+            {
+                continue;
+            }
+            destinations_poi_list.push_back(geodesic::SurfacePoint(&post_mesh->vertices()[post_poi_list[j]]));
+        }
+
+        if (notA2A_one_A2A_two == 1)
+        {
+            for (int j = 0; j < 2; j++)
+            {
+                post_algorithm.propagate(one_source_poi_list, distance_limit, &destinations_poi_list);
+            }
+        }
+        else if (notA2A_one_A2A_two == 2)
+        {
+            for (int j = 0; j < 2 * post_mesh->vertices().size() / poi_num; j++)
+            {
+                post_algorithm.propagate(one_source_poi_list, distance_limit, &destinations_poi_list);
+            }
+        }
+
+        int index = 0;
+        for (int j = 0; j < poi_num; j++)
+        {
+            if ((changed_poi_index_list[j] == 1 || changed_poi_index_list[j] == 3 || changed_poi_index_list[j] == 4) && j < i)
+            {
+                index++;
+                continue;
+            }
+            std::vector<geodesic::SurfacePoint> path;
+            post_algorithm.trace_back(destinations_poi_list[j - index], path);
+            changed_pairwise_path_poi_to_poi_size += path.size();
+            changed_pairwise_distance_poi_to_poi_size++;
+
+            if (i <= j)
+            {
+                pairwise_distance_poi_to_poi[i][j - i] = length(path);
+                pairwise_distance_poi_to_poi_changed[i][j - i] = true;
+                pairwise_path_poi_to_poi[i][j - i] = path;
+            }
+            else
+            {
+                pairwise_distance_poi_to_poi[j][i - j] = length(path);
+                pairwise_distance_poi_to_poi_changed[j][i - j] = true;
+                std::reverse(path.begin(), path.end());
+                pairwise_path_poi_to_poi[j][i - j] = path;
+            }
+        }
+    }
+
+    // if two pois are not in the changed face, and the path doesn't pass the changed face, but one of pois is close to the
+    // changed face, so we may need to update the new path with these two pois as endpoints on the new terrain, the following
+    // is to check whether the original path is too close to the changed face or not, if so, we directly update the path
+    // we also indicate this type of poi in changed_poi_index_list, but indicate it as 2 for clarification
+
+    std::vector<double> euclidean_distance_of_poi_to_changed_face(poi_num, 0);
+    std::vector<std::pair<double, int>> euclidean_distance_of_poi_to_changed_face_and_original_index;
+
+    for (int i = 0; i < poi_num; i++)
+    {
+        if (changed_poi_index_list[i] == 1 || changed_poi_index_list[i] == 3 || changed_poi_index_list[i] == 4)
+        {
+            continue;
+        }
+        if (poi_in_the_changed_face_index_list.size() > 0)
+        {
+            for (int j = 0; j < poi_in_the_changed_face_index_list.size(); j++)
+            {
+                euclidean_distance_of_poi_to_changed_face[i] += euclidean_distance(post_mesh->vertices()[post_poi_list[i]].x(), post_mesh->vertices()[post_poi_list[i]].y(),
+                                                                                   post_mesh->vertices()[poi_in_the_changed_face_index_list[j]].x(), post_mesh->vertices()[poi_in_the_changed_face_index_list[j]].y());
+            }
+        }
+        else
+        {
+            euclidean_distance_of_poi_to_changed_face[i] = euclidean_distance(post_mesh->vertices()[post_poi_list[i]].x(), post_mesh->vertices()[post_poi_list[i]].y(),
+                                                                              post_mesh->vertices()[changed_vertex_index_list[0]].x(), post_mesh->vertices()[changed_vertex_index_list[0]].y());
+        }
+    }
+
+    sort_min_to_max_and_get_original_index(euclidean_distance_of_poi_to_changed_face, euclidean_distance_of_poi_to_changed_face_and_original_index);
+
+    assert(euclidean_distance_of_poi_to_changed_face.size() == euclidean_distance_of_poi_to_changed_face_and_original_index.size());
+
+    for (int i = 0; i < euclidean_distance_of_poi_to_changed_face_and_original_index.size(); i++)
+    {
+        if (euclidean_distance_of_poi_to_changed_face_and_original_index[i].first == 0)
+        {
+            continue;
+        }
+        int current_poi_index = euclidean_distance_of_poi_to_changed_face_and_original_index[i].second;
+
+        assert(pairwise_distance_poi_to_poi[current_poi_index].size() == pairwise_distance_poi_to_poi_changed[current_poi_index].size());
+        assert(pairwise_distance_poi_to_poi_with_appro[current_poi_index].size() == pairwise_distance_poi_to_poi_changed[current_poi_index].size());
+
+        double max_distance = 0;
+        for (int j = 0; j < euclidean_distance_of_poi_to_changed_face_and_original_index.size(); j++)
+        {
+            if (euclidean_distance_of_poi_to_changed_face_and_original_index[j].first == 0)
+            {
+                continue;
+            }
+            int checking_poi_index = euclidean_distance_of_poi_to_changed_face_and_original_index[j].second;
+
+            if (current_poi_index <= checking_poi_index)
+            {
+                if (pairwise_distance_poi_to_poi_changed[current_poi_index][checking_poi_index - current_poi_index])
+                {
+                    continue;
+                }
+                max_distance = std::max(max_distance, pairwise_distance_poi_to_poi_with_appro[current_poi_index][checking_poi_index - current_poi_index]);
+            }
+            else
+            {
+                if (pairwise_distance_poi_to_poi_changed[checking_poi_index][current_poi_index - checking_poi_index])
+                {
+                    continue;
+                }
+                max_distance = std::max(max_distance, pairwise_distance_poi_to_poi_with_appro[checking_poi_index][current_poi_index - checking_poi_index]);
+            }
+        }
+
+        // if the current poi is too close to the changed face, we need to run SSAD for this poi to update it path on the new terrain
+        for (int k = 0; k < changed_vertex_index_list.size(); k++)
+        {
+            if (pairwise_distance_poi_to_vertex[current_poi_index][changed_vertex_index_list[k]] < max_distance)
+            {
+                changed_poi_index_list[current_poi_index] = 2;
+
+                std::vector<int> destinations_poi_index_list;
+                destinations_poi_index_list.clear();
+                one_source_poi_list.clear();
+                destinations_poi_list.clear();
+                one_source_poi_list.push_back(geodesic::SurfacePoint(&post_mesh->vertices()[post_poi_list[current_poi_index]]));
+
+                for (int j = 0; j < euclidean_distance_of_poi_to_changed_face_and_original_index.size(); j++)
+                {
+                    int the_other_poi_index = euclidean_distance_of_poi_to_changed_face_and_original_index[j].second;
+
+                    if ((current_poi_index <= the_other_poi_index && !pairwise_distance_poi_to_poi_changed[current_poi_index][the_other_poi_index - current_poi_index]) ||
+                        (current_poi_index > the_other_poi_index && !pairwise_distance_poi_to_poi_changed[the_other_poi_index][current_poi_index - the_other_poi_index]))
+                    {
+                        destinations_poi_list.push_back(geodesic::SurfacePoint(&post_mesh->vertices()[post_poi_list[the_other_poi_index]]));
+                        destinations_poi_index_list.push_back(the_other_poi_index);
+                    }
+                }
+
+                if (notA2A_one_A2A_two == 1)
+                {
+                    for (int j = 0; j < 2; j++)
+                    {
+                        post_algorithm.propagate(one_source_poi_list, distance_limit, &destinations_poi_list);
+                    }
+                }
+                else if (notA2A_one_A2A_two == 2)
+                {
+                    for (int j = 0; j < 2 * post_mesh->vertices().size() / poi_num; j++)
+                    {
+                        post_algorithm.propagate(one_source_poi_list, distance_limit, &destinations_poi_list);
+                    }
+                }
+
+                assert(destinations_poi_list.size() == destinations_poi_index_list.size());
+                for (int j = 0; j < destinations_poi_index_list.size(); j++)
+                {
+                    int the_other_poi_index = destinations_poi_index_list[j];
+
+                    std::vector<geodesic::SurfacePoint> path;
+                    post_algorithm.trace_back(destinations_poi_list[j], path);
+                    changed_pairwise_path_poi_to_poi_size += path.size();
+                    changed_pairwise_distance_poi_to_poi_size++;
+
+                    if (current_poi_index <= the_other_poi_index)
+                    {
+                        pairwise_distance_poi_to_poi[current_poi_index][the_other_poi_index - current_poi_index] = length(path);
+                        pairwise_distance_poi_to_poi_changed[current_poi_index][the_other_poi_index - current_poi_index] = true;
+                        pairwise_path_poi_to_poi[current_poi_index][the_other_poi_index - current_poi_index] = path;
+                    }
+                    else
+                    {
+                        pairwise_distance_poi_to_poi[the_other_poi_index][current_poi_index - the_other_poi_index] = length(path);
+                        pairwise_distance_poi_to_poi_changed[the_other_poi_index][current_poi_index - the_other_poi_index] = true;
+                        std::reverse(path.begin(), path.end());
+                        pairwise_path_poi_to_poi[the_other_poi_index][current_poi_index - the_other_poi_index] = path;
+                    }
+                }
+                break;
+            }
+        }
+    }
+    memory_usage += post_algorithm.get_memory() + changed_face_index_list.size() * sizeof(int);
+
+    auto stop_update_time = std::chrono::high_resolution_clock::now();
+    auto duration_update_time = std::chrono::duration_cast<std::chrono::milliseconds>(stop_update_time - start_update_time);
+    update_time = duration_update_time.count();
+}
+
+void pre_or_post_EAR_Oracle_and_pre_EAR_UP_Oracle_construction(
     int sqrt_num_of_box, int poi_num, geodesic::Mesh *mesh, std::vector<int> &poi_list, double epsilon,
     std::vector<int> &highway_node_list, std::unordered_map<int, std::unordered_map<int, int>> &highway_node_id_with_box_id_map,
     int &geo_tree_node_id, std::vector<GeoNode *> &all_highway_node, std::unordered_map<int, GeoNode *> &geo_node_in_partition_tree_unordered_map,
@@ -2429,7 +3045,7 @@ void pre_or_post_EAR_Oracle_and_pre_EAR_Oracle_Adapt_construction(
     std::vector<std::vector<double>> &pairwise_distance_poi_to_poi, std::vector<std::vector<bool>> &pairwise_distance_poi_to_poi_changed,
     std::vector<std::vector<std::vector<geodesic::SurfacePoint>>> &pairwise_path_poi_to_poi, std::vector<std::vector<double>> &pairwise_distance_poi_to_vertex,
     std::unordered_map<int, double> &distance_poi_to_highway_node_map, std::unordered_map<int, std::vector<geodesic::SurfacePoint>> &path_poi_to_highway_node_map,
-    bool run_EAR_Oracle_Adapt, double &construction_time, double &memory_usage, double &EAR_Oracle_size, int &EAR_Oracle_edge_num, double &EAR_Oracle_weight)
+    bool run_EAR_UP_Oracle, double &construction_time, double &memory_usage, double &EAR_Oracle_size, int &EAR_Oracle_edge_num, double &EAR_Oracle_weight)
 {
     auto start_construction_time = std::chrono::high_resolution_clock::now();
 
@@ -2510,7 +3126,7 @@ void pre_or_post_EAR_Oracle_and_pre_EAR_Oracle_Adapt_construction(
 
     memory_usage += pre_memory_usage + (geo_tree_node_id + 1) * sizeof(GeoNode) + EAR_Oracle_edge_num * sizeof(double) + pairwise_path_highway_node_to_highway_node_size * sizeof(geodesic::SurfacePoint);
 
-    if (run_EAR_Oracle_Adapt)
+    if (run_EAR_UP_Oracle)
     {
         std::vector<geodesic::SurfacePoint> one_source_poi_list2;
         std::vector<geodesic::SurfacePoint> destinations_poi_list2;
@@ -2575,7 +3191,7 @@ void pre_or_post_EAR_Oracle_and_pre_EAR_Oracle_Adapt_construction(
     construction_time = duration_construction_time.count();
 }
 
-void pre_or_post_EAR_Oracle_and_pre_EAR_Oracle_Adapt_query(
+void pre_or_post_EAR_Oracle_and_pre_EAR_UP_Oracle_query(
     geodesic::Mesh *mesh, std::vector<int> &poi_list,
     int sqrt_num_of_box, int geo_tree_node_id, std::unordered_map<int, std::unordered_map<int, int>> &highway_node_id_with_box_id_map,
     std::vector<GeoNode *> &all_highway_node, std::unordered_map<int, GeoNode *> &geo_node_in_partition_tree_unordered_map,
@@ -2600,20 +3216,20 @@ void pre_or_post_EAR_Oracle_and_pre_EAR_Oracle_Adapt_query(
     query_time /= 1000000;
 }
 
-void post_EAR_Oracle_Adapt_update(int poi_num, int sqrt_num_of_box, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
-                                  geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list,
-                                  int geo_tree_node_id, std::unordered_map<int, std::unordered_map<int, int>> &highway_node_id_with_box_id_map,
-                                  std::vector<GeoNode *> &all_highway_node,
-                                  std::unordered_map<int, GeoNode *> &geo_node_in_partition_tree_unordered_map,
-                                  std::unordered_map<int, GeoPair *> &geopairs,
-                                  std::unordered_map<int, double> &distance_poi_to_highway_node_map,
-                                  std::unordered_map<int, std::vector<geodesic::SurfacePoint>> &path_poi_to_highway_node_map,
-                                  std::vector<std::vector<std::vector<int>>> &pre_face_sequence_index_list,
-                                  std::vector<std::vector<double>> &pairwise_distance_poi_to_poi,
-                                  std::vector<std::vector<bool>> &pairwise_distance_poi_to_poi_changed,
-                                  std::vector<std::vector<std::vector<geodesic::SurfacePoint>>> &pairwise_path_poi_to_poi,
-                                  std::vector<std::vector<double>> &pairwise_distance_poi_to_vertex,
-                                  double &update_time, double &memory_usage)
+void post_EAR_UP_Oracle_update(int poi_num, int sqrt_num_of_box, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
+                               geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list,
+                               int geo_tree_node_id, std::unordered_map<int, std::unordered_map<int, int>> &highway_node_id_with_box_id_map,
+                               std::vector<GeoNode *> &all_highway_node,
+                               std::unordered_map<int, GeoNode *> &geo_node_in_partition_tree_unordered_map,
+                               std::unordered_map<int, GeoPair *> &geopairs,
+                               std::unordered_map<int, double> &distance_poi_to_highway_node_map,
+                               std::unordered_map<int, std::vector<geodesic::SurfacePoint>> &path_poi_to_highway_node_map,
+                               std::vector<std::vector<std::vector<int>>> &pre_face_sequence_index_list,
+                               std::vector<std::vector<double>> &pairwise_distance_poi_to_poi,
+                               std::vector<std::vector<bool>> &pairwise_distance_poi_to_poi_changed,
+                               std::vector<std::vector<std::vector<geodesic::SurfacePoint>>> &pairwise_path_poi_to_poi,
+                               std::vector<std::vector<double>> &pairwise_distance_poi_to_vertex,
+                               double &update_time, double &memory_usage)
 {
     auto start_update_time = std::chrono::high_resolution_clock::now();
 
@@ -2919,10 +3535,10 @@ void post_EAR_Oracle_Adapt_update(int poi_num, int sqrt_num_of_box, geodesic::Me
     update_time = duration_update_time.count();
 }
 
-void pre_or_post_CH_Fly_Algo_query(geodesic::Mesh *mesh, std::vector<int> &poi_list,
-                                   int source_poi_index, int destination_poi_index,
-                                   double &query_time, double &memory_usage, double &approximate_distance,
-                                   std::vector<geodesic::SurfacePoint> &approximate_path)
+void pre_or_post_WAV_Fly_Algo_query(geodesic::Mesh *mesh, std::vector<int> &poi_list,
+                                    int source_poi_index, int destination_poi_index,
+                                    double &query_time, double &memory_usage, double &approximate_distance,
+                                    std::vector<geodesic::SurfacePoint> &approximate_path)
 {
     auto start_query_time = std::chrono::high_resolution_clock::now();
 
@@ -2944,10 +3560,10 @@ void pre_or_post_CH_Fly_Algo_query(geodesic::Mesh *mesh, std::vector<int> &poi_l
     query_time /= 1000;
 }
 
-void pre_or_post_K_Fly_Algo_query(geodesic::Mesh *mesh, std::vector<int> &poi_list,
-                                  double epsilon, int source_poi_index, int destination_poi_index,
-                                  double &query_time, double &memory_usage, double &approximate_distance,
-                                  std::vector<geodesic::SurfacePoint> &approximate_path)
+void pre_or_post_ESP_Fly_Algo_query(geodesic::Mesh *mesh, std::vector<int> &poi_list,
+                                    double epsilon, int source_poi_index, int destination_poi_index,
+                                    double &query_time, double &memory_usage, double &approximate_distance,
+                                    std::vector<geodesic::SurfacePoint> &approximate_path)
 {
     auto start_query_time = std::chrono::high_resolution_clock::now();
 
@@ -2970,11 +3586,11 @@ void pre_or_post_K_Fly_Algo_query(geodesic::Mesh *mesh, std::vector<int> &poi_li
     query_time /= 1000;
 }
 
-void UP_Oracle_RanUpdSeq_NoDistAppr(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
+void UP_Oracle_RanSelSeq_NoDistAppr(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
                                     geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list, double epsilon,
                                     int source_poi_index, int destination_poi_index,
                                     double post_exact_distance, int pre_MST_weight, int post_MST_weight,
-                                    std::string write_file_header, bool RanUpdSeq_not_NoDistAppr)
+                                    std::string write_file_header, bool RanSelSeq_not_NoDistAppr)
 {
     std::vector<std::vector<std::vector<int>>> pre_face_sequence_index_list;
     std::vector<std::vector<double>> pairwise_distance_poi_to_poi;
@@ -2992,7 +3608,7 @@ void UP_Oracle_RanUpdSeq_NoDistAppr(int poi_num, geodesic::Mesh *pre_mesh, std::
     pre_complete_graph_construction(poi_num, pre_mesh, pre_poi_list, pre_face_sequence_index_list,
                                     pairwise_distance_poi_to_poi, pairwise_distance_poi_to_poi_changed,
                                     pairwise_path_poi_to_poi, pairwise_distance_poi_to_vertex,
-                                    pre_construction_time, pre_memory_usage);
+                                    pre_construction_time, pre_memory_usage, 1);
     std::unordered_map<int, double> pairwise_distance_poi_to_poi_pre_map;
     std::unordered_map<int, std::vector<geodesic::SurfacePoint>> pairwise_path_poi_to_poi_pre_map;
     get_pairwise_distance_and_path_poi_to_poi_map(pairwise_distance_poi_to_poi, pairwise_distance_poi_to_poi_pre_map,
@@ -3007,9 +3623,9 @@ void UP_Oracle_RanUpdSeq_NoDistAppr(int poi_num, geodesic::Mesh *pre_mesh, std::
     std::cout << std::endl;
 
     std::ofstream ofs1("../output/output.txt", std::ios_base::app);
-    if (RanUpdSeq_not_NoDistAppr)
+    if (RanSelSeq_not_NoDistAppr)
     {
-        ofs1 << "== UP_Oracle_RanUpdSeq ==\n";
+        ofs1 << "== UP_Oracle_RanSelSeq ==\n";
     }
     else
     {
@@ -3038,7 +3654,7 @@ void UP_Oracle_RanUpdSeq_NoDistAppr(int poi_num, geodesic::Mesh *pre_mesh, std::
     post_approximate_path.clear();
     Graph graph(poi_num);
 
-    post_complete_graph_update_RanUpdSeq_NoDistAppr(poi_num, pre_mesh, pre_poi_list, post_mesh, post_poi_list,
+    post_complete_graph_update_RanSelSeq_NoDistAppr(poi_num, pre_mesh, pre_poi_list, post_mesh, post_poi_list,
                                                     pre_face_sequence_index_list, pairwise_distance_poi_to_poi,
                                                     pairwise_distance_poi_to_poi_changed,
                                                     pairwise_path_poi_to_poi, pairwise_distance_poi_to_vertex,
@@ -3093,7 +3709,7 @@ void UP_Oracle_FullRad(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &
     pre_complete_graph_construction(poi_num, pre_mesh, pre_poi_list, pre_face_sequence_index_list,
                                     pairwise_distance_poi_to_poi, pairwise_distance_poi_to_poi_changed,
                                     pairwise_path_poi_to_poi, pairwise_distance_poi_to_vertex,
-                                    pre_construction_time, pre_memory_usage);
+                                    pre_construction_time, pre_memory_usage, 1);
     std::unordered_map<int, double> pairwise_distance_poi_to_poi_pre_map;
     std::unordered_map<int, std::vector<geodesic::SurfacePoint>> pairwise_path_poi_to_poi_pre_map;
     get_pairwise_distance_and_path_poi_to_poi_map(pairwise_distance_poi_to_poi, pairwise_distance_poi_to_poi_pre_map,
@@ -3187,7 +3803,7 @@ void UP_Oracle_NoEffIntChe(int poi_num, geodesic::Mesh *pre_mesh, std::vector<in
     pre_complete_graph_construction(poi_num, pre_mesh, pre_poi_list, pre_face_sequence_index_list,
                                     pairwise_distance_poi_to_poi, pairwise_distance_poi_to_poi_changed,
                                     pairwise_path_poi_to_poi, pairwise_distance_poi_to_vertex,
-                                    pre_construction_time, pre_memory_usage);
+                                    pre_construction_time, pre_memory_usage, 1);
     std::unordered_map<int, double> pairwise_distance_poi_to_poi_pre_map;
     std::unordered_map<int, std::vector<geodesic::SurfacePoint>> pairwise_path_poi_to_poi_pre_map;
     get_pairwise_distance_and_path_poi_to_poi_map(pairwise_distance_poi_to_poi, pairwise_distance_poi_to_poi_pre_map,
@@ -3281,7 +3897,7 @@ void UP_Oracle_NoEdgPru(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> 
     pre_complete_graph_construction(poi_num, pre_mesh, pre_poi_list, pre_face_sequence_index_list,
                                     pairwise_distance_poi_to_poi, pairwise_distance_poi_to_poi_changed,
                                     pairwise_path_poi_to_poi, pairwise_distance_poi_to_vertex,
-                                    pre_construction_time, pre_memory_usage);
+                                    pre_construction_time, pre_memory_usage, 1);
     std::unordered_map<int, double> pairwise_distance_poi_to_poi_pre_map;
     std::unordered_map<int, std::vector<geodesic::SurfacePoint>> pairwise_path_poi_to_poi_pre_map;
     get_pairwise_distance_and_path_poi_to_poi_map(pairwise_distance_poi_to_poi, pairwise_distance_poi_to_poi_pre_map,
@@ -3321,7 +3937,7 @@ void UP_Oracle_NoEdgPru(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> 
                                pre_face_sequence_index_list, pairwise_distance_poi_to_poi,
                                pairwise_distance_poi_to_poi_changed,
                                pairwise_path_poi_to_poi, pairwise_distance_poi_to_vertex,
-                               post_update_time, post_memory_usage);
+                               post_update_time, post_memory_usage, 1);
     std::unordered_map<int, double> pairwise_distance_poi_to_poi_post_map;
     std::unordered_map<int, std::vector<geodesic::SurfacePoint>> pairwise_path_poi_to_poi_post_map;
     get_pairwise_distance_and_path_poi_to_poi_map(pairwise_distance_poi_to_poi, pairwise_distance_poi_to_poi_post_map,
@@ -3376,7 +3992,7 @@ void UP_Oracle_NoEffEdgPru(int poi_num, geodesic::Mesh *pre_mesh, std::vector<in
     pre_complete_graph_construction(poi_num, pre_mesh, pre_poi_list, pre_face_sequence_index_list,
                                     pairwise_distance_poi_to_poi, pairwise_distance_poi_to_poi_changed,
                                     pairwise_path_poi_to_poi, pairwise_distance_poi_to_vertex,
-                                    pre_construction_time, pre_memory_usage);
+                                    pre_construction_time, pre_memory_usage, 1);
     std::unordered_map<int, double> pairwise_distance_poi_to_poi_pre_map;
     std::unordered_map<int, std::vector<geodesic::SurfacePoint>> pairwise_path_poi_to_poi_pre_map;
     get_pairwise_distance_and_path_poi_to_poi_map(pairwise_distance_poi_to_poi, pairwise_distance_poi_to_poi_pre_map,
@@ -3419,7 +4035,7 @@ void UP_Oracle_NoEffEdgPru(int poi_num, geodesic::Mesh *pre_mesh, std::vector<in
                                pre_face_sequence_index_list, pairwise_distance_poi_to_poi,
                                pairwise_distance_poi_to_poi_changed,
                                pairwise_path_poi_to_poi, pairwise_distance_poi_to_vertex,
-                               post_update_time, post_memory_usage);
+                               post_update_time, post_memory_usage, 1);
     greedy_spanner(epsilon, graph, pairwise_distance_poi_to_poi, pairwise_path_poi_to_poi, post_path_poi_to_poi_map,
                    post_greedy_spanner_size, post_index_edge_num, post_index_weight, post_GreSpan_time, post_complete_graph_size);
     spanner_query(poi_num, graph, post_path_poi_to_poi_map, source_poi_index, destination_poi_index, post_approximate_distance,
@@ -3448,11 +4064,11 @@ void UP_Oracle_NoEffEdgPru(int poi_num, geodesic::Mesh *pre_mesh, std::vector<in
     ofs2.close();
 }
 
-void UP_Oracle(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
-               geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list, double epsilon,
-               int source_poi_index, int destination_poi_index,
-               double post_exact_distance, int pre_MST_weight, int post_MST_weight,
-               std::string write_file_header)
+void UP_Oracle_MuLa(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
+                    geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list, double epsilon,
+                    int source_poi_index, int destination_poi_index,
+                    double post_exact_distance, int pre_MST_weight, int post_MST_weight,
+                    std::string write_file_header)
 {
     std::vector<std::vector<std::vector<int>>> pre_face_sequence_index_list;
     std::vector<std::vector<double>> pairwise_distance_poi_to_poi;
@@ -3470,7 +4086,7 @@ void UP_Oracle(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_
     pre_complete_graph_construction(poi_num, pre_mesh, pre_poi_list, pre_face_sequence_index_list,
                                     pairwise_distance_poi_to_poi, pairwise_distance_poi_to_poi_changed,
                                     pairwise_path_poi_to_poi, pairwise_distance_poi_to_vertex,
-                                    pre_construction_time, pre_memory_usage);
+                                    pre_construction_time, pre_memory_usage, 1);
     std::unordered_map<int, double> pairwise_distance_poi_to_poi_pre_map;
     std::unordered_map<int, std::vector<geodesic::SurfacePoint>> pairwise_path_poi_to_poi_pre_map;
     get_pairwise_distance_and_path_poi_to_poi_map(pairwise_distance_poi_to_poi, pairwise_distance_poi_to_poi_pre_map,
@@ -3485,7 +4101,7 @@ void UP_Oracle(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_
     std::cout << std::endl;
 
     std::ofstream ofs1("../output/output.txt", std::ios_base::app);
-    ofs1 << "== UP_Oracle ==\n";
+    ofs1 << "== UP_Oracle_MuLa ==\n";
     ofs1 << write_file_header << "\t"
          << (pre_construction_time + pre_hash_mapping_time) << "\t"
          << (pre_memory_usage + pre_complete_graph_size) / 1e6 << "\t"
@@ -3508,12 +4124,13 @@ void UP_Oracle(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_
     std::vector<geodesic::SurfacePoint> post_approximate_path;
     post_approximate_path.clear();
     Graph graph(poi_num);
+    epsilon *= 0.5;
 
     post_complete_graph_update(poi_num, pre_mesh, pre_poi_list, post_mesh, post_poi_list,
                                pre_face_sequence_index_list, pairwise_distance_poi_to_poi,
                                pairwise_distance_poi_to_poi_changed,
                                pairwise_path_poi_to_poi, pairwise_distance_poi_to_vertex,
-                               post_update_time, post_memory_usage);
+                               post_update_time, post_memory_usage, 1);
     hierarchy_greedy_spanner(epsilon, graph, pairwise_distance_poi_to_poi, pairwise_path_poi_to_poi, post_path_poi_to_poi_map,
                              post_hierarchy_greedy_spanner_size, post_index_edge_num, post_index_weight, post_HieGreSpan_time, post_complete_graph_size);
     spanner_query(poi_num, graph, post_path_poi_to_poi_map, source_poi_index, destination_poi_index, post_approximate_distance,
@@ -3542,11 +4159,132 @@ void UP_Oracle(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_
     ofs2.close();
 }
 
-void WSPD_Oracle(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
-                 geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list, double epsilon,
-                 int source_poi_index, int destination_poi_index,
-                 double post_exact_distance, int pre_MST_weight, int post_MST_weight,
-                 std::string write_file_header)
+void UP_Oracle_notA2A_or_A2A(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
+                             geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list, double epsilon,
+                             int source_poi_index, int destination_poi_index,
+                             double post_exact_distance, int pre_MST_weight, int post_MST_weight,
+                             std::string write_file_header, int notA2A_one_A2A_two)
+{
+    std::vector<std::vector<std::vector<int>>> pre_face_sequence_index_list;
+    std::vector<std::vector<double>> pairwise_distance_poi_to_poi;
+    std::vector<std::vector<bool>> pairwise_distance_poi_to_poi_changed;
+    std::vector<std::vector<std::vector<geodesic::SurfacePoint>>> pairwise_path_poi_to_poi;
+    std::vector<std::vector<double>> pairwise_distance_poi_to_vertex(poi_num, std::vector<double>(pre_mesh->vertices().size(), 0));
+
+    double pre_construction_time = 0;
+    double pre_hash_mapping_time = 0;
+    double pre_memory_usage = 0;
+    double pre_complete_graph_size = 0;
+    int pre_index_edge_num = 0;
+    double pre_index_weight = 0;
+
+    pre_complete_graph_construction(poi_num, pre_mesh, pre_poi_list, pre_face_sequence_index_list,
+                                    pairwise_distance_poi_to_poi, pairwise_distance_poi_to_poi_changed,
+                                    pairwise_path_poi_to_poi, pairwise_distance_poi_to_vertex,
+                                    pre_construction_time, pre_memory_usage, notA2A_one_A2A_two);
+    std::unordered_map<int, double> pairwise_distance_poi_to_poi_pre_map;
+    std::unordered_map<int, std::vector<geodesic::SurfacePoint>> pairwise_path_poi_to_poi_pre_map;
+    get_pairwise_distance_and_path_poi_to_poi_map(pairwise_distance_poi_to_poi, pairwise_distance_poi_to_poi_pre_map,
+                                                  pairwise_path_poi_to_poi, pairwise_path_poi_to_poi_pre_map,
+                                                  pre_complete_graph_size, pre_index_edge_num, pre_index_weight, pre_hash_mapping_time);
+    if (notA2A_one_A2A_two == 2)
+    {
+        pre_hash_mapping_time *= pre_mesh->vertices().size() / poi_num;
+        pre_memory_usage *= pre_mesh->vertices().size() / poi_num;
+        pre_complete_graph_size *= pre_mesh->vertices().size() / poi_num;
+        pre_index_edge_num *= pre_mesh->vertices().size() / poi_num;
+        pre_index_weight *= pre_mesh->vertices().size() / poi_num;
+        pre_MST_weight *= pre_mesh->vertices().size() / poi_num;
+    }
+
+    std::cout << "Pre terrain construction time: " << (pre_construction_time + pre_hash_mapping_time) << " ms" << std::endl;
+    std::cout << "Pre terrain memory usage: " << (pre_memory_usage + pre_complete_graph_size) / 1e6 << " MB" << std::endl;
+    std::cout << "Pre terrain index size: " << pre_complete_graph_size / 1e6 << " MB" << std::endl;
+    std::cout << "Pre terrain index edge number: " << pre_index_edge_num << " edges" << std::endl;
+    std::cout << "Pre terrain index/MST weight: " << pre_index_weight / pre_MST_weight << std::endl;
+    std::cout << std::endl;
+
+    std::ofstream ofs1("../output/output.txt", std::ios_base::app);
+    if (notA2A_one_A2A_two == 1)
+    {
+        ofs1 << "== UP_Oracle ==\n";
+    }
+    else if (notA2A_one_A2A_two == 2)
+    {
+        ofs1 << "== UP_Oracle_A2A ==\n";
+    }
+    ofs1 << write_file_header << "\t"
+         << (pre_construction_time + pre_hash_mapping_time) << "\t"
+         << (pre_memory_usage + pre_complete_graph_size) / 1e6 << "\t"
+         << pre_complete_graph_size / 1e6 << "\t"
+         << pre_index_edge_num << "\t"
+         << pre_index_weight / pre_MST_weight << "\t";
+    ofs1.close();
+
+    std::unordered_map<int, std::vector<geodesic::SurfacePoint>> post_path_poi_to_poi_map;
+    post_path_poi_to_poi_map.clear();
+    double post_update_time = 0;
+    double post_HieGreSpan_time = 0;
+    double post_query_time = 0;
+    double post_memory_usage = 0;
+    double post_complete_graph_size = 0;
+    double post_hierarchy_greedy_spanner_size = 0;
+    int post_index_edge_num = 0;
+    double post_index_weight = 0;
+    double post_approximate_distance = 0;
+    std::vector<geodesic::SurfacePoint> post_approximate_path;
+    post_approximate_path.clear();
+    Graph graph(poi_num);
+
+    post_complete_graph_update(poi_num, pre_mesh, pre_poi_list, post_mesh, post_poi_list,
+                               pre_face_sequence_index_list, pairwise_distance_poi_to_poi,
+                               pairwise_distance_poi_to_poi_changed,
+                               pairwise_path_poi_to_poi, pairwise_distance_poi_to_vertex,
+                               post_update_time, post_memory_usage, notA2A_one_A2A_two);
+    hierarchy_greedy_spanner(epsilon, graph, pairwise_distance_poi_to_poi, pairwise_path_poi_to_poi, post_path_poi_to_poi_map,
+                             post_hierarchy_greedy_spanner_size, post_index_edge_num, post_index_weight, post_HieGreSpan_time, post_complete_graph_size);
+    spanner_query(poi_num, graph, post_path_poi_to_poi_map, source_poi_index, destination_poi_index, post_approximate_distance,
+                  post_approximate_path, post_query_time);
+    if (notA2A_one_A2A_two == 2)
+    {
+        post_HieGreSpan_time *= post_mesh->vertices().size() / poi_num;
+        post_memory_usage *= post_mesh->vertices().size() / poi_num;
+        post_complete_graph_size *= post_mesh->vertices().size() / poi_num;
+        post_hierarchy_greedy_spanner_size *= post_mesh->vertices().size() / poi_num;
+        post_index_edge_num *= post_mesh->vertices().size() / poi_num;
+        post_index_weight *= post_mesh->vertices().size() / poi_num;
+        post_MST_weight *= post_mesh->vertices().size() / poi_num;
+        post_query_time *= post_mesh->vertices().size() / poi_num;
+    }
+
+    std::cout << "Post terrain update time (CG): " << post_update_time << " ms" << std::endl;
+    std::cout << "Post terrain update time (HieGreSpan): " << post_HieGreSpan_time << " ms" << std::endl;
+    std::cout << "Post terrain query time: " << post_query_time << " ms" << std::endl;
+    std::cout << "Post terrain memory usage: " << (post_memory_usage + post_complete_graph_size) / 1e6 << " MB" << std::endl;
+    std::cout << "Post terrain index size: " << post_complete_graph_size / 1e6 << " MB" << std::endl;
+    std::cout << "Post terrain output size: " << post_hierarchy_greedy_spanner_size / 1e6 << " MB" << std::endl;
+    std::cout << "Post terrain index edge number: " << post_index_edge_num << " edges" << std::endl;
+    std::cout << "Post terrain index/MST weight: " << post_index_weight / post_MST_weight << std::endl;
+    std::cout << "Post terrain approximate distance: " << post_approximate_distance << ", post terrain exact distance: " << post_exact_distance << ", distance error: " << post_approximate_distance / post_exact_distance - 1 << std::endl;
+
+    std::ofstream ofs2("../output/output.txt", std::ios_base::app);
+    ofs2 << post_update_time << "\t"
+         << post_HieGreSpan_time << "\t"
+         << post_query_time << "\t"
+         << (post_memory_usage + post_complete_graph_size) / 1e6 << "\t"
+         << post_complete_graph_size / 1e6 << "\t"
+         << post_hierarchy_greedy_spanner_size / 1e6 << "\t"
+         << post_index_edge_num << "\t"
+         << post_index_weight / post_MST_weight << "\t"
+         << post_approximate_distance / post_exact_distance - 1 << "\n\n";
+    ofs2.close();
+}
+
+void WSPD_Oracle_notA2A_or_A2A(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
+                               geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list, double epsilon,
+                               int source_poi_index, int destination_poi_index,
+                               double post_exact_distance, int pre_MST_weight, int post_MST_weight,
+                               std::string write_file_header, int notA2A_one_A2A_two)
 {
     int pre_geo_tree_node_id = 1;
     std::vector<GeoNode *> pre_all_poi;
@@ -3561,11 +4299,19 @@ void WSPD_Oracle(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_po
     int pre_index_edge_num = 0;
     double pre_index_weight = 0;
 
-    pre_or_post_WSPD_Oracle_and_pre_WSPD_Oracle_Adapt_construction(
+    pre_or_post_WSPD_Oracle_and_pre_WSPD_UP_Oracle_construction(
         poi_num, pre_mesh, pre_poi_list, epsilon, pre_geo_tree_node_id, pre_all_poi,
         pre_geo_node_in_partition_tree_unordered_map, pre_geopairs, pre_poi_unordered_map,
         pairwise_distance_poi_to_vertex, false, pre_construction_time, pre_memory_usage,
-        pre_index_size, pre_index_edge_num, pre_index_weight);
+        pre_index_size, pre_index_edge_num, pre_index_weight, notA2A_one_A2A_two);
+    if (notA2A_one_A2A_two == 2)
+    {
+        pre_memory_usage *= pre_mesh->vertices().size() / poi_num;
+        pre_index_size *= pre_mesh->vertices().size() / poi_num;
+        pre_index_edge_num *= pre_mesh->vertices().size() / poi_num;
+        pre_index_weight *= pre_mesh->vertices().size() / poi_num;
+        pre_MST_weight *= pre_mesh->vertices().size() / poi_num;
+    }
 
     std::cout << "Pre terrain construction time: " << pre_construction_time << " ms" << std::endl;
     std::cout << "Pre terrain memory usage: " << pre_memory_usage / 1e6 << " MB" << std::endl;
@@ -3575,7 +4321,14 @@ void WSPD_Oracle(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_po
     std::cout << std::endl;
 
     std::ofstream ofs1("../output/output.txt", std::ios_base::app);
-    ofs1 << "== WSPD_Oracle ==\n";
+    if (notA2A_one_A2A_two == 1)
+    {
+        ofs1 << "== WSPD_Oracle ==\n";
+    }
+    else if (notA2A_one_A2A_two == 2)
+    {
+        ofs1 << "== WSPD_Oracle_A2A ==\n";
+    }
     ofs1 << write_file_header << "\t"
          << pre_construction_time << "\t"
          << pre_memory_usage / 1e6 << "\t"
@@ -3600,15 +4353,24 @@ void WSPD_Oracle(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_po
     std::vector<geodesic::SurfacePoint> post_approximate_path;
     post_approximate_path.clear();
 
-    pre_or_post_WSPD_Oracle_and_pre_WSPD_Oracle_Adapt_construction(
+    pre_or_post_WSPD_Oracle_and_pre_WSPD_UP_Oracle_construction(
         poi_num, post_mesh, post_poi_list, epsilon, post_geo_tree_node_id, post_all_poi,
         post_geo_node_in_partition_tree_unordered_map, post_geopairs, post_poi_unordered_map,
         pairwise_distance_poi_to_vertex, false, post_construction_time, post_memory_usage,
-        post_index_size, post_index_edge_num, post_index_weight);
-    pre_or_post_WSPD_Oracle_and_pre_WSPD_Oracle_Adapt_query(
+        post_index_size, post_index_edge_num, post_index_weight, notA2A_one_A2A_two);
+    pre_or_post_WSPD_Oracle_and_pre_WSPD_UP_Oracle_query(
         post_mesh, post_geo_tree_node_id, post_all_poi, post_geo_node_in_partition_tree_unordered_map,
         post_geopairs, source_poi_index, destination_poi_index,
         post_query_time, post_approximate_distance, post_approximate_path);
+    if (notA2A_one_A2A_two == 2)
+    {
+        post_memory_usage *= post_mesh->vertices().size() / poi_num;
+        post_index_size *= post_mesh->vertices().size() / poi_num;
+        post_index_edge_num *= post_mesh->vertices().size() / poi_num;
+        post_index_weight *= post_mesh->vertices().size() / poi_num;
+        post_MST_weight *= post_mesh->vertices().size() / poi_num;
+        post_query_time *= post_mesh->vertices().size() / poi_num;
+    }
 
     std::cout << "Post terrain construction time: " << post_construction_time << " ms" << std::endl;
     std::cout << "Post terrain query time: " << post_query_time << " ms" << std::endl;
@@ -3632,11 +4394,11 @@ void WSPD_Oracle(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_po
     ofs2.close();
 }
 
-void WSPD_Oracle_Adapt(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
-                       geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list, double epsilon,
-                       int source_poi_index, int destination_poi_index,
-                       double post_exact_distance, int pre_MST_weight, int post_MST_weight,
-                       std::string write_file_header)
+void WSPD_UP_Oracle_notA2A_or_A2A(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
+                                  geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list, double epsilon,
+                                  int source_poi_index, int destination_poi_index,
+                                  double post_exact_distance, int pre_MST_weight, int post_MST_weight,
+                                  std::string write_file_header, int notA2A_one_A2A_two)
 {
     int geo_tree_node_id = 1;
     std::vector<GeoNode *> all_poi;
@@ -3651,11 +4413,19 @@ void WSPD_Oracle_Adapt(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &
     int pre_index_edge_num = 0;
     double pre_index_weight = 0;
 
-    pre_or_post_WSPD_Oracle_and_pre_WSPD_Oracle_Adapt_construction(
+    pre_or_post_WSPD_Oracle_and_pre_WSPD_UP_Oracle_construction(
         poi_num, pre_mesh, pre_poi_list, epsilon, geo_tree_node_id, all_poi,
         geo_node_in_partition_tree_unordered_map, geopairs, poi_unordered_map,
         pairwise_distance_poi_to_vertex, true, pre_construction_time, pre_memory_usage,
-        pre_index_size, pre_index_edge_num, pre_index_weight);
+        pre_index_size, pre_index_edge_num, pre_index_weight, notA2A_one_A2A_two);
+    if (notA2A_one_A2A_two == 2)
+    {
+        pre_memory_usage *= pre_mesh->vertices().size() / poi_num;
+        pre_index_size *= pre_mesh->vertices().size() / poi_num;
+        pre_index_edge_num *= pre_mesh->vertices().size() / poi_num;
+        pre_index_weight *= pre_mesh->vertices().size() / poi_num;
+        pre_MST_weight *= pre_mesh->vertices().size() / poi_num;
+    }
 
     std::cout << "Pre terrain construction time: " << pre_construction_time << " ms" << std::endl;
     std::cout << "Pre terrain memory usage: " << pre_memory_usage / 1e6 << " MB" << std::endl;
@@ -3665,7 +4435,14 @@ void WSPD_Oracle_Adapt(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &
     std::cout << std::endl;
 
     std::ofstream ofs1("../output/output.txt", std::ios_base::app);
-    ofs1 << "== WSPD_Oracle_Adapt ==\n";
+    if (notA2A_one_A2A_two == 1)
+    {
+        ofs1 << "== WSPD_UP_Oracle ==\n";
+    }
+    else if (notA2A_one_A2A_two == 2)
+    {
+        ofs1 << "== WSPD_UP_Oracle_A2A ==\n";
+    }
     ofs1 << write_file_header << "\t"
          << pre_construction_time << "\t"
          << pre_memory_usage / 1e6 << "\t"
@@ -3691,17 +4468,28 @@ void WSPD_Oracle_Adapt(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &
     post_approximate_path.clear();
     Graph graph(poi_num);
 
-    post_WSPD_Oracle_Adapt_update(
+    post_WSPD_UP_Oracle_update(
         poi_num, pre_mesh, pre_poi_list, post_mesh, post_poi_list, geo_tree_node_id, all_poi,
         geo_node_in_partition_tree_unordered_map, geopairs,
         pairwise_distance_poi_to_poi, pairwise_path_poi_to_poi,
-        pairwise_distance_poi_to_vertex, post_update_time, post_memory_usage);
+        pairwise_distance_poi_to_vertex, post_update_time, post_memory_usage, notA2A_one_A2A_two);
     hierarchy_greedy_spanner(epsilon, graph, pairwise_distance_poi_to_poi, pairwise_path_poi_to_poi, post_path_poi_to_poi_map,
                              post_hierarchy_greedy_spanner_size, post_index_edge_num, post_index_weight, post_HGS_time, post_full_graph_size);
     spanner_query(poi_num, graph, post_path_poi_to_poi_map, source_poi_index, destination_poi_index, post_approximate_distance,
                   post_approximate_path, post_query_time);
+    if (notA2A_one_A2A_two == 2)
+    {
+        post_HGS_time *= post_mesh->vertices().size() / poi_num;
+        post_memory_usage *= post_mesh->vertices().size() / poi_num;
+        post_full_graph_size *= post_mesh->vertices().size() / poi_num;
+        post_hierarchy_greedy_spanner_size *= post_mesh->vertices().size() / poi_num;
+        post_index_edge_num *= post_mesh->vertices().size() / poi_num;
+        post_index_weight *= post_mesh->vertices().size() / poi_num;
+        post_MST_weight *= post_mesh->vertices().size() / poi_num;
+        post_query_time *= post_mesh->vertices().size() / poi_num;
+    }
 
-    std::cout << "Post terrain update time (WSPD_Adapt): " << post_update_time << " ms" << std::endl;
+    std::cout << "Post terrain update time (WSPD_UP_Oracle): " << post_update_time << " ms" << std::endl;
     std::cout << "Post terrain update time (HieGreSpan): " << post_HGS_time << " ms" << std::endl;
     std::cout << "Post terrain query time: " << post_query_time << " ms" << std::endl;
     std::cout << "Post terrain memory usage: " << (post_memory_usage + post_full_graph_size) / 1e6 << " MB" << std::endl;
@@ -3752,7 +4540,7 @@ void EAR_Oracle(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi
     int pre_index_edge_num = 0;
     double pre_index_weight = 0;
 
-    pre_or_post_EAR_Oracle_and_pre_EAR_Oracle_Adapt_construction(
+    pre_or_post_EAR_Oracle_and_pre_EAR_UP_Oracle_construction(
         sqrt_num_of_box, poi_num, pre_mesh, pre_poi_list, epsilon, pre_highway_node_list,
         pre_highway_node_id_with_box_id_map, pre_geo_tree_node_id, pre_all_highway_node,
         pre_geo_node_in_partition_tree_unordered_map, pre_geopairs, pre_highway_node_unordered_map,
@@ -3799,7 +4587,7 @@ void EAR_Oracle(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi
     std::vector<geodesic::SurfacePoint> post_approximate_path;
     post_approximate_path.clear();
 
-    pre_or_post_EAR_Oracle_and_pre_EAR_Oracle_Adapt_construction(
+    pre_or_post_EAR_Oracle_and_pre_EAR_UP_Oracle_construction(
         sqrt_num_of_box, poi_num, post_mesh, post_poi_list, epsilon, post_highway_node_list,
         post_highway_node_id_with_box_id_map, post_geo_tree_node_id, post_all_highway_node,
         post_geo_node_in_partition_tree_unordered_map, post_geopairs, post_highway_node_unordered_map,
@@ -3808,7 +4596,7 @@ void EAR_Oracle(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi
         pairwise_distance_poi_to_vertex, post_distance_poi_to_highway_node_map,
         post_path_poi_to_highway_node_map, false, post_construction_time, post_memory_usage,
         post_index_size, post_index_edge_num, post_index_weight);
-    pre_or_post_EAR_Oracle_and_pre_EAR_Oracle_Adapt_query(
+    pre_or_post_EAR_Oracle_and_pre_EAR_UP_Oracle_query(
         post_mesh, post_poi_list, sqrt_num_of_box, post_geo_tree_node_id, post_highway_node_id_with_box_id_map,
         post_all_highway_node, post_geo_node_in_partition_tree_unordered_map,
         post_geopairs, post_distance_poi_to_highway_node_map, post_path_poi_to_highway_node_map,
@@ -3836,11 +4624,11 @@ void EAR_Oracle(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi
     ofs2.close();
 }
 
-void EAR_Oracle_Adapt(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
-                      geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list, double epsilon,
-                      int source_poi_index, int destination_poi_index,
-                      double post_exact_distance, int pre_MST_weight, int post_MST_weight,
-                      std::string write_file_header)
+void EAR_UP_Oracle(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
+                   geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list, double epsilon,
+                   int source_poi_index, int destination_poi_index,
+                   double post_exact_distance, int pre_MST_weight, int post_MST_weight,
+                   std::string write_file_header)
 {
     int sqrt_num_of_box = 2;
     std::vector<int> highway_node_list;
@@ -3864,7 +4652,7 @@ void EAR_Oracle_Adapt(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &p
     int pre_index_edge_num = 0;
     double pre_index_weight = 0;
 
-    pre_or_post_EAR_Oracle_and_pre_EAR_Oracle_Adapt_construction(
+    pre_or_post_EAR_Oracle_and_pre_EAR_UP_Oracle_construction(
         sqrt_num_of_box, poi_num, pre_mesh, pre_poi_list, epsilon, highway_node_list,
         highway_node_id_with_box_id_map, geo_tree_node_id, all_highway_node,
         geo_node_in_partition_tree_unordered_map, geopairs, highway_node_unordered_map,
@@ -3881,7 +4669,7 @@ void EAR_Oracle_Adapt(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &p
     std::cout << std::endl;
 
     std::ofstream ofs1("../output/output.txt", std::ios_base::app);
-    ofs1 << "== EAR_Oracle_Adapt ==\n";
+    ofs1 << "== EAR_UP_Oracle ==\n";
     ofs1 << write_file_header << "\t"
          << pre_construction_time << "\t"
          << pre_memory_usage / 1e6 << "\t"
@@ -3905,16 +4693,16 @@ void EAR_Oracle_Adapt(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &p
     post_approximate_path.clear();
     Graph graph(poi_num);
 
-    post_EAR_Oracle_Adapt_update(poi_num, sqrt_num_of_box, pre_mesh, pre_poi_list, post_mesh, post_poi_list, geo_tree_node_id, highway_node_id_with_box_id_map, all_highway_node,
-                                 geo_node_in_partition_tree_unordered_map, geopairs, distance_poi_to_highway_node_map, path_poi_to_highway_node_map, pre_face_sequence_index_list,
-                                 pairwise_distance_poi_to_poi, pairwise_distance_poi_to_poi_changed,
-                                 pairwise_path_poi_to_poi, pairwise_distance_poi_to_vertex, post_update_time, post_memory_usage);
+    post_EAR_UP_Oracle_update(poi_num, sqrt_num_of_box, pre_mesh, pre_poi_list, post_mesh, post_poi_list, geo_tree_node_id, highway_node_id_with_box_id_map, all_highway_node,
+                              geo_node_in_partition_tree_unordered_map, geopairs, distance_poi_to_highway_node_map, path_poi_to_highway_node_map, pre_face_sequence_index_list,
+                              pairwise_distance_poi_to_poi, pairwise_distance_poi_to_poi_changed,
+                              pairwise_path_poi_to_poi, pairwise_distance_poi_to_vertex, post_update_time, post_memory_usage);
     hierarchy_greedy_spanner(epsilon, graph, pairwise_distance_poi_to_poi, pairwise_path_poi_to_poi, post_path_poi_to_poi_map,
                              post_hierarchy_greedy_spanner_size, post_index_edge_num, post_index_weight, post_HieGreSpan_time, post_full_graph_size);
     spanner_query(poi_num, graph, post_path_poi_to_poi_map, source_poi_index, destination_poi_index, post_approximate_distance,
                   post_approximate_path, post_query_time);
 
-    std::cout << "Post terrain update time (EAR_Adapt): " << post_update_time << " ms" << std::endl;
+    std::cout << "Post terrain update time (EAR_UP_Oracle): " << post_update_time << " ms" << std::endl;
     std::cout << "Post terrain update time (HieGreSpan): " << post_HieGreSpan_time << " ms" << std::endl;
     std::cout << "Post terrain query time: " << post_query_time << " ms" << std::endl;
     std::cout << "Post terrain memory usage: " << (post_memory_usage + post_full_graph_size) / 1e6 << " MB" << std::endl;
@@ -3937,9 +4725,241 @@ void EAR_Oracle_Adapt(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &p
     ofs2.close();
 }
 
-void CH_Fly_Algo(geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list,
-                 int source_poi_index, int destination_poi_index,
-                 double post_exact_distance, std::string write_file_header)
+void RC_TIN_Oracle_notA2A_or_A2A(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
+                                 geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list, double epsilon,
+                                 int source_poi_index, int destination_poi_index,
+                                 double post_exact_distance, int pre_MST_weight, int post_MST_weight,
+                                 std::string write_file_header, int notA2A_one_A2A_two)
+{
+    int pre_geo_tree_node_id = 1;
+    std::vector<GeoNode *> pre_all_poi;
+    std::unordered_map<int, GeoNode *> pre_geo_node_in_partition_tree_unordered_map;
+    std::unordered_map<int, GeoPair *> pre_geopairs;
+    std::unordered_map<int, int> pre_poi_unordered_map;
+    std::vector<std::vector<double>> pairwise_distance_poi_to_vertex(poi_num, std::vector<double>(pre_mesh->vertices().size(), 0));
+
+    double pre_construction_time = 0;
+    double pre_memory_usage = 0;
+    double pre_index_size = 0;
+    int pre_index_edge_num = 0;
+    double pre_index_weight = 0;
+
+    pre_or_post_RC_TIN_Oracle_and_pre_RC_TIN_UP_Oracle_construction(
+        poi_num, pre_mesh, pre_poi_list, epsilon, pre_geo_tree_node_id, pre_all_poi,
+        pre_geo_node_in_partition_tree_unordered_map, pre_geopairs, pre_poi_unordered_map,
+        pairwise_distance_poi_to_vertex, false, pre_construction_time, pre_memory_usage,
+        pre_index_size, pre_index_edge_num, pre_index_weight, notA2A_one_A2A_two);
+    if (notA2A_one_A2A_two == 2)
+    {
+        pre_memory_usage *= pre_mesh->vertices().size() / poi_num;
+        pre_index_size *= pre_mesh->vertices().size() / poi_num;
+        pre_index_edge_num *= pre_mesh->vertices().size() / poi_num;
+        pre_index_weight *= pre_mesh->vertices().size() / poi_num;
+        pre_MST_weight *= pre_mesh->vertices().size() / poi_num;
+    }
+
+    std::cout << "Pre terrain construction time: " << pre_construction_time << " ms" << std::endl;
+    std::cout << "Pre terrain memory usage: " << pre_memory_usage / 1e6 << " MB" << std::endl;
+    std::cout << "Pre terrain index size: " << pre_index_size / 1e6 << " MB" << std::endl;
+    std::cout << "Pre terrain index edge number: " << pre_index_edge_num << " edges" << std::endl;
+    std::cout << "Pre terrain index/MST weight: " << pre_index_weight / pre_MST_weight << std::endl;
+    std::cout << std::endl;
+
+    std::ofstream ofs1("../output/output.txt", std::ios_base::app);
+    if (notA2A_one_A2A_two == 1)
+    {
+        ofs1 << "== RC_TIN_Oracle ==\n";
+    }
+    else if (notA2A_one_A2A_two == 2)
+    {
+        ofs1 << "== RC_TIN_Oracle_A2A ==\n";
+    }
+    ofs1 << write_file_header << "\t"
+         << pre_construction_time << "\t"
+         << pre_memory_usage / 1e6 << "\t"
+         << pre_index_size / 1e6 << "\t"
+         << pre_index_edge_num << "\t"
+         << pre_index_weight / pre_MST_weight << "\t";
+    ofs1.close();
+
+    int post_geo_tree_node_id = 1;
+    std::vector<GeoNode *> post_all_poi;
+    std::unordered_map<int, GeoNode *> post_geo_node_in_partition_tree_unordered_map;
+    std::unordered_map<int, GeoPair *> post_geopairs;
+    std::unordered_map<int, int> post_poi_unordered_map;
+
+    double post_construction_time = 0;
+    double post_query_time = 0;
+    double post_memory_usage = 0;
+    double post_index_size = 0;
+    int post_index_edge_num = 0;
+    double post_index_weight = 0;
+    double post_approximate_distance = 0;
+    std::vector<geodesic::SurfacePoint> post_approximate_path;
+    post_approximate_path.clear();
+
+    pre_or_post_RC_TIN_Oracle_and_pre_RC_TIN_UP_Oracle_construction(
+        poi_num, post_mesh, post_poi_list, epsilon, post_geo_tree_node_id, post_all_poi,
+        post_geo_node_in_partition_tree_unordered_map, post_geopairs, post_poi_unordered_map,
+        pairwise_distance_poi_to_vertex, false, post_construction_time, post_memory_usage,
+        post_index_size, post_index_edge_num, post_index_weight, notA2A_one_A2A_two);
+    pre_or_post_RC_TIN_Oracle_and_pre_RC_TIN_UP_Oracle_query(
+        post_mesh, post_geo_tree_node_id, post_all_poi, post_geo_node_in_partition_tree_unordered_map,
+        post_geopairs, source_poi_index, destination_poi_index,
+        post_query_time, post_approximate_distance, post_approximate_path);
+    if (notA2A_one_A2A_two == 2)
+    {
+        post_memory_usage *= post_mesh->vertices().size() / poi_num;
+        post_index_size *= post_mesh->vertices().size() / poi_num;
+        post_index_edge_num *= post_mesh->vertices().size() / poi_num;
+        post_index_weight *= post_mesh->vertices().size() / poi_num;
+        post_MST_weight *= post_mesh->vertices().size() / poi_num;
+        post_query_time *= post_mesh->vertices().size() / poi_num;
+    }
+
+    std::cout << "Post terrain construction time: " << post_construction_time << " ms" << std::endl;
+    std::cout << "Post terrain query time: " << post_query_time << " ms" << std::endl;
+    std::cout << "Post terrain memory usage: " << post_memory_usage / 1e6 << " MB" << std::endl;
+    std::cout << "Post terrain index size: " << post_index_size / 1e6 << " MB" << std::endl;
+    std::cout << "Post terrain output size: " << post_index_size / 1e6 << " MB" << std::endl;
+    std::cout << "Post terrain index edge number: " << post_index_edge_num << " edges" << std::endl;
+    std::cout << "Post terrain index/MST weight: " << post_index_weight / post_MST_weight << std::endl;
+    std::cout << "Post terrain approximate distance: " << post_approximate_distance << ", post terrain exact distance: " << post_exact_distance << ", distance error: " << abs(post_approximate_distance / post_exact_distance - 1) << std::endl;
+
+    std::ofstream ofs2("../output/output.txt", std::ios_base::app);
+    ofs2 << post_construction_time << "\t"
+         << 0 << "\t"
+         << post_query_time << "\t"
+         << post_memory_usage / 1e6 << "\t"
+         << post_index_size / 1e6 << "\t"
+         << post_index_size / 1e6 << "\t"
+         << post_index_edge_num << "\t"
+         << post_index_weight / post_MST_weight << "\t"
+         << abs(post_approximate_distance / post_exact_distance - 1) << "\n\n";
+    ofs2.close();
+}
+
+void RC_TIN_UP_Oracle_notA2A_or_A2A(int poi_num, geodesic::Mesh *pre_mesh, std::vector<int> &pre_poi_list,
+                                    geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list, double epsilon,
+                                    int source_poi_index, int destination_poi_index,
+                                    double post_exact_distance, int pre_MST_weight, int post_MST_weight,
+                                    std::string write_file_header, int notA2A_one_A2A_two)
+{
+    int geo_tree_node_id = 1;
+    std::vector<GeoNode *> all_poi;
+    std::unordered_map<int, GeoNode *> geo_node_in_partition_tree_unordered_map;
+    std::unordered_map<int, GeoPair *> geopairs;
+    std::unordered_map<int, int> poi_unordered_map;
+    std::vector<std::vector<double>> pairwise_distance_poi_to_vertex(poi_num, std::vector<double>(pre_mesh->vertices().size(), 0));
+
+    double pre_construction_time = 0;
+    double pre_memory_usage = 0;
+    double pre_index_size = 0;
+    int pre_index_edge_num = 0;
+    double pre_index_weight = 0;
+
+    pre_or_post_RC_TIN_Oracle_and_pre_RC_TIN_UP_Oracle_construction(
+        poi_num, pre_mesh, pre_poi_list, epsilon, geo_tree_node_id, all_poi,
+        geo_node_in_partition_tree_unordered_map, geopairs, poi_unordered_map,
+        pairwise_distance_poi_to_vertex, true, pre_construction_time, pre_memory_usage,
+        pre_index_size, pre_index_edge_num, pre_index_weight, notA2A_one_A2A_two);
+    if (notA2A_one_A2A_two == 2)
+    {
+        pre_memory_usage *= pre_mesh->vertices().size() / poi_num;
+        pre_index_size *= pre_mesh->vertices().size() / poi_num;
+        pre_index_edge_num *= pre_mesh->vertices().size() / poi_num;
+        pre_index_weight *= pre_mesh->vertices().size() / poi_num;
+        pre_MST_weight *= pre_mesh->vertices().size() / poi_num;
+    }
+
+    std::cout << "Pre terrain construction time: " << pre_construction_time << " ms" << std::endl;
+    std::cout << "Pre terrain memory usage: " << pre_memory_usage / 1e6 << " MB" << std::endl;
+    std::cout << "Pre terrain index size: " << pre_index_size / 1e6 << " MB" << std::endl;
+    std::cout << "Pre terrain index edge number: " << pre_index_edge_num << " edges" << std::endl;
+    std::cout << "Pre terrain index/MST weight: " << pre_index_weight / pre_MST_weight << std::endl;
+    std::cout << std::endl;
+
+    std::ofstream ofs1("../output/output.txt", std::ios_base::app);
+    if (notA2A_one_A2A_two == 1)
+    {
+        ofs1 << "== RC_TIN_UP_Oracle ==\n";
+    }
+    else if (notA2A_one_A2A_two == 2)
+    {
+        ofs1 << "== RC_TIN_UP_Oracle_A2A ==\n";
+    }
+    ofs1 << write_file_header << "\t"
+         << pre_construction_time << "\t"
+         << pre_memory_usage / 1e6 << "\t"
+         << pre_index_size / 1e6 << "\t"
+         << pre_index_edge_num << "\t"
+         << pre_index_weight / pre_MST_weight << "\t";
+    ofs1.close();
+
+    std::vector<std::vector<double>> pairwise_distance_poi_to_poi;
+    std::vector<std::vector<std::vector<geodesic::SurfacePoint>>> pairwise_path_poi_to_poi;
+    std::unordered_map<int, std::vector<geodesic::SurfacePoint>> post_path_poi_to_poi_map;
+    post_path_poi_to_poi_map.clear();
+    double post_update_time = 0;
+    double post_HGS_time = 0;
+    double post_query_time = 0;
+    double post_memory_usage = 0;
+    double post_full_graph_size = 0;
+    double post_hierarchy_greedy_spanner_size = 0;
+    int post_index_edge_num = 0;
+    double post_index_weight = 0;
+    double post_approximate_distance = 0;
+    std::vector<geodesic::SurfacePoint> post_approximate_path;
+    post_approximate_path.clear();
+    Graph graph(poi_num);
+
+    post_RC_TIN_UP_Oracle_update(
+        poi_num, pre_mesh, pre_poi_list, post_mesh, post_poi_list, geo_tree_node_id, all_poi,
+        geo_node_in_partition_tree_unordered_map, geopairs,
+        pairwise_distance_poi_to_poi, pairwise_path_poi_to_poi,
+        pairwise_distance_poi_to_vertex, post_update_time, post_memory_usage, notA2A_one_A2A_two);
+    hierarchy_greedy_spanner(epsilon, graph, pairwise_distance_poi_to_poi, pairwise_path_poi_to_poi, post_path_poi_to_poi_map,
+                             post_hierarchy_greedy_spanner_size, post_index_edge_num, post_index_weight, post_HGS_time, post_full_graph_size);
+    spanner_query(poi_num, graph, post_path_poi_to_poi_map, source_poi_index, destination_poi_index, post_approximate_distance,
+                  post_approximate_path, post_query_time);
+    if (notA2A_one_A2A_two == 2)
+    {
+        post_HGS_time *= post_mesh->vertices().size() / poi_num;
+        post_memory_usage *= post_mesh->vertices().size() / poi_num;
+        post_full_graph_size *= post_mesh->vertices().size() / poi_num;
+        post_hierarchy_greedy_spanner_size *= post_mesh->vertices().size() / poi_num;
+        post_index_edge_num *= post_mesh->vertices().size() / poi_num;
+        post_index_weight *= post_mesh->vertices().size() / poi_num;
+        post_MST_weight *= post_mesh->vertices().size() / poi_num;
+        post_query_time *= post_mesh->vertices().size() / poi_num;
+    }
+
+    std::cout << "Post terrain update time (RC_TIN_UP_Oracle): " << post_update_time << " ms" << std::endl;
+    std::cout << "Post terrain update time (HieGreSpan): " << post_HGS_time << " ms" << std::endl;
+    std::cout << "Post terrain query time: " << post_query_time << " ms" << std::endl;
+    std::cout << "Post terrain memory usage: " << (post_memory_usage + post_full_graph_size) / 1e6 << " MB" << std::endl;
+    std::cout << "Post terrain index size: " << post_full_graph_size / 1e6 << " MB" << std::endl;
+    std::cout << "Post terrain output size: " << post_hierarchy_greedy_spanner_size / 1e6 << " MB" << std::endl;
+    std::cout << "Post terrain index edge number: " << post_index_edge_num << " edges" << std::endl;
+    std::cout << "Post terrain index/MST weight: " << post_index_weight / post_MST_weight << std::endl;
+    std::cout << "Post terrain approximate distance: " << post_approximate_distance << ", post terrain exact distance: " << post_exact_distance << ", distance error: " << post_approximate_distance / post_exact_distance - 1 << std::endl;
+
+    std::ofstream ofs2("../output/output.txt", std::ios_base::app);
+    ofs2 << post_update_time << "\t"
+         << post_HGS_time << "\t"
+         << post_query_time << "\t"
+         << (post_memory_usage + post_full_graph_size) / 1e6 << "\t"
+         << post_full_graph_size / 1e6 << "\t"
+         << post_hierarchy_greedy_spanner_size / 1e6 << "\t"
+         << post_index_edge_num << "\t"
+         << post_index_weight / post_MST_weight << "\t"
+         << post_approximate_distance / post_exact_distance - 1 << "\n\n";
+    ofs2.close();
+}
+
+void WAV_Fly_Algo(geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list,
+                  int source_poi_index, int destination_poi_index,
+                  double post_exact_distance, std::string write_file_header)
 {
     double post_query_time = 0;
     double post_memory_usage = 0;
@@ -3947,16 +4967,16 @@ void CH_Fly_Algo(geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list,
     std::vector<geodesic::SurfacePoint> post_approximate_path;
     post_approximate_path.clear();
 
-    pre_or_post_CH_Fly_Algo_query(post_mesh, post_poi_list, source_poi_index,
-                                  destination_poi_index, post_query_time, post_memory_usage,
-                                  post_approximate_distance, post_approximate_path);
+    pre_or_post_WAV_Fly_Algo_query(post_mesh, post_poi_list, source_poi_index,
+                                   destination_poi_index, post_query_time, post_memory_usage,
+                                   post_approximate_distance, post_approximate_path);
 
     std::cout << "Post terrain query time: " << post_query_time << " ms" << std::endl;
     std::cout << "Post terrain memory usage: " << post_memory_usage / 1e6 << " MB" << std::endl;
     std::cout << "Post terrain approximate distance: " << post_approximate_distance << ", post terrain exact distance: " << post_exact_distance << ", distance error: " << post_approximate_distance / post_exact_distance - 1 << std::endl;
 
     std::ofstream ofs1("../output/output.txt", std::ios_base::app);
-    ofs1 << "== CH_Fly_Algo ==\n";
+    ofs1 << "== WAV_Fly_Algo ==\n";
     ofs1 << write_file_header << "\t"
          << 0 << "\t"
          << 0 << "\t"
@@ -3977,9 +4997,9 @@ void CH_Fly_Algo(geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list,
     ofs1.close();
 }
 
-void K_Fly_Algo(geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list, double epsilon,
-                int source_poi_index, int destination_poi_index,
-                double post_exact_distance, std::string write_file_header)
+void ESP_Fly_Algo(geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list, double epsilon,
+                  int source_poi_index, int destination_poi_index,
+                  double post_exact_distance, std::string write_file_header)
 {
     double post_query_time = 0;
     double post_memory_usage = 0;
@@ -3987,16 +5007,16 @@ void K_Fly_Algo(geodesic::Mesh *post_mesh, std::vector<int> &post_poi_list, doub
     std::vector<geodesic::SurfacePoint> post_approximate_path;
     post_approximate_path.clear();
 
-    pre_or_post_K_Fly_Algo_query(post_mesh, post_poi_list, epsilon, source_poi_index,
-                                 destination_poi_index, post_query_time, post_memory_usage,
-                                 post_approximate_distance, post_approximate_path);
+    pre_or_post_ESP_Fly_Algo_query(post_mesh, post_poi_list, epsilon, source_poi_index,
+                                   destination_poi_index, post_query_time, post_memory_usage,
+                                   post_approximate_distance, post_approximate_path);
 
     std::cout << "Post terrain query time: " << post_query_time << " ms" << std::endl;
     std::cout << "Post terrain memory usage: " << post_memory_usage / 1e6 << " MB" << std::endl;
     std::cout << "Post terrain approximate distance: " << post_approximate_distance << ", post terrain exact distance: " << post_exact_distance << ", distance error: " << post_approximate_distance / post_exact_distance - 1 << std::endl;
 
     std::ofstream ofs1("../output/output.txt", std::ios_base::app);
-    ofs1 << "== K_Fly_Algo ==\n";
+    ofs1 << "== ESP_Fly_Algo ==\n";
     ofs1 << write_file_header << "\t"
          << 0 << "\t"
          << 0 << "\t"
